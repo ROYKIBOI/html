@@ -3,7 +3,8 @@ import 'splash_screen.dart'; // Import the splash screen
 import 'responsive_design.dart'; // Import the responsive design widget
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 // The main function that runs the app
 void main() => runApp(const MyApp());
@@ -856,7 +857,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _salutation = '';
-  bool _isMenuOpen = false;
+  bool _showPopup = false;
 
   @override
   void initState() {
@@ -886,7 +887,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 // Nav bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50,),
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10,),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -894,17 +895,26 @@ class _HomePageState extends State<HomePage> {
                         // Profile pic and salutation
                         Row(
                           children: [
-                            // Profile pic
-                            GestureDetector(
-                              onTap: () {
-                                // TODO: Navigator.push(context, MaterialPageRoute(builder: (context) => AvatarSelectionPage()));
-                              },
-                              child:
-                              const CircleAvatar(
-                                backgroundColor: Colors.grey, radius: 40,
+                            // Profile picture
+                            Positioned(
+                              top: MediaQuery.of(context).padding.top + 30,
+                              left: 30,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    // view profile pic
+                                  });
+                                },
+                                child: const CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.grey,
+                                  // TODO:
+                                  // Replace with the actual profile picture of the rider
+                                  child: Icon(Icons.person, size: 60, color: Colors.white),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 50),
+                            const SizedBox(width: 20, height: 50,),
 
                             // Salutation
                             Text(_salutation, style: const TextStyle(color: Color(0xFF003366), fontSize: 16, fontFamily: 'Nunito', fontWeight: FontWeight.bold)),
@@ -922,9 +932,10 @@ class _HomePageState extends State<HomePage> {
 
                             // Nav bar icon
                             IconButton(
-                              icon: const Icon(Icons.menu, color: Color(0xFF003366), size: 50),
+                              icon: const Icon(Icons.menu,
+                                  color: Color(0xFF003366), size: 50),
                               onPressed: () {
-                                setState(() => _isMenuOpen = !_isMenuOpen);
+                                setState(() => _showPopup = !_showPopup);
                               },
                             ),
                           ],
@@ -981,83 +992,80 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
 
-            // Menu dropdown
-            if (_isMenuOpen)
+            // Popup menu
+            if (_showPopup)
               Positioned(
-                top:kToolbarHeight + MediaQuery.of(context).padding.top +75,right:35,
-                child:
-                AnimatedContainer(duration:
-                const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,height: 350, width: 250,
-                  decoration:
-                  BoxDecoration(color: Colors.white,border:
-                  Border.all(color: const Color(0xFF00a896),width: 3),
+                top: MediaQuery.of(context).padding.top + 100,
+                right: 35,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        bottomLeft: Radius.circular(25),
-                        bottomRight: Radius.circular(25)),
+                      topLeft: Radius.circular(25),
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                    border: Border.all(color: const Color(0xFF00a896), width: 2),
                   ),
-                  child:
-                  SingleChildScrollView(child:
-                  Column(crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children:[
                         const SizedBox(height: 20),
-                        TextButton.icon(onPressed: () {
+                        // Home button
+                        ListTile(
+                          leading:
+                          const Icon(Icons.home, color:  Color(0xFF003366), size: 44),
+                          title: const Text('Home',
+                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          onTap : () {
+                            // Navigate to the home page
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                          },
+                        ), const SizedBox(height: 40),
 
-                          Navigator.pop(context);
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => const HomePage()));
-                        },
-                            icon: const Icon(Icons.home,color:  Color(0xFF003366), size: 44),
+                        // Deliveries button
+                        ListTile(
+                          leading:
+                          const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
+                          title:  const Text('Deliveries',
+                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          onTap : () { Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => const DeliveriesPage(deliveries: [])));
+                          },
+                        ),const SizedBox(height: 40),
 
-                            label: const Text('Home',style:
-                            TextStyle(color: Color(0xFF00a896),fontSize :20, fontFamily: 'Nunito',fontWeight: FontWeight.bold))
-                        ),
-                        const SizedBox(height: 40),
+                        // Log out button
+                        ListTile(
+                          leading:
+                          const Icon(Icons.logout, color:  Color(0xFF003366), size: 44),
+                          title: const Text('Log Out',
+                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          onTap : () {
 
-                        TextButton.icon(onPressed: () {
-                          Navigator.pop(context);
-                          //TODO: Navigator.push(context, MaterialPageRoute(builder:(context) => DeliveriesPage()));
-                        },
-                            icon: const Icon(Icons.motorcycle,color: Color(0xFF003366), size: 44),
-                            label: const Text('Deliveries',style:
-                            TextStyle(color: Color(0xFF00a896),fontSize :20, fontFamily: 'Nunito',fontWeight: FontWeight.bold))
-                        ),
-                        const SizedBox(height: 40),
-
-                        TextButton.icon(onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => const LoginPage()));
-                        },
-
-                            icon: const Icon(Icons.logout,color: Color(0xFF003366), size: 44),
-                            label: const Text('Log Out',style:
-                            TextStyle(color: Color(0xFF00a896), fontSize :20, fontFamily: 'Nunito',fontWeight: FontWeight.bold))
-                        ),
-                        const SizedBox(height: 65),
-
-                        Row(children:[
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder:(context) => AccountPage()));
-                              },
-                              child: const Text('My Account',
-                                  style: TextStyle(fontFamily: 'Nunito', color: Colors.white, fontWeight: FontWeight.bold)),
-                              style: ElevatedButton.styleFrom(primary: const Color(0xFF00a896),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-                            ),
-                          ),
-                          const SizedBox(width: 70),
-                          const CircleAvatar(backgroundColor: Colors.grey, radius: 20,),
-                        ])
+                            // Log out and navigate to the login page
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                          },
+                        ), const SizedBox(height: 210),
 
 
-                      ])),
-
+                        // My account section
+                        Padding(padding : const EdgeInsets.all(8.0),
+                            child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                                children:[
+                                  ElevatedButton(onPressed : () {
+                                    Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
+                                  }, child : const Text('My Account',
+                                      style : TextStyle(color : Colors.white)),
+                                      style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
+                                          shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),
+                                  const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
+                                      // TODO:
+                                      // Replace with the actual profile picture of the rider
+                                      child : Icon(Icons.person, size : 40, color : Colors.white))
+                                ])),
+                      ]),
                 ),
               ),
           ],
@@ -1148,7 +1156,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final _instructionsController = TextEditingController();
   final _costController = TextEditingController();
 
-  bool _isMenuOpen = false;
+  bool _showPopup = false;
 
   final _nameKey = GlobalKey<_CustomTextFormFieldState>();
   final _contactKey = GlobalKey<_CustomTextFormFieldState>();
@@ -1175,22 +1183,24 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
 
-                        // Profile pic
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                // TODO: Navigator.push(context, MaterialPageRoute(builder: (context) => AvatarSelectionPage()));
-                              },
-                              child:
-                              const CircleAvatar(
-                                backgroundColor: Colors.grey, radius: 40,
-                              ),
+                        // Profile picture
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + 30,
+                          left: 30,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                // view profile pic
+                              });
+                            },
+                            child: const CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.grey,
+                              // TODO:
+                              // Replace with the actual profile picture of the rider
+                              child: Icon(Icons.person, size: 60, color: Colors.white),
                             ),
-                            const SizedBox(width: 50),
-
-
-                          ],
+                          ),
                         ),
                         const SizedBox(width: 300),
 
@@ -1204,7 +1214,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                               icon: const Icon(Icons.menu,
                                   color: Color(0xFF003366), size: 50),
                               onPressed: () {
-                                setState(() => _isMenuOpen = !_isMenuOpen);
+                                setState(() => _showPopup = !_showPopup);
                               },
                             ),
                           ],
@@ -1362,84 +1372,80 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
             ),
 
 
-            // Menu dropdown
-            if (_isMenuOpen)
+            // Popup menu
+            if (_showPopup)
               Positioned(
-                top: kToolbarHeight + MediaQuery.of(context).padding.top + 75,
+                top: MediaQuery.of(context).padding.top + 100,
                 right: 35,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  height: 350,
-                  width: 250,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: MediaQuery.of(context).size.height * 0.8,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(color: const Color(0xFF00a896), width: 3),
                     borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        bottomLeft: Radius.circular(25),
-                        bottomRight: Radius.circular(25)),
+                      topLeft: Radius.circular(25),
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                    border: Border.all(color: const Color(0xFF00a896), width: 2),
                   ),
-                  child: SingleChildScrollView(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 20),
-                            TextButton.icon(onPressed: () {
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children:[
+                        const SizedBox(height: 20),
+                        // Home button
+                        ListTile(
+                          leading:
+                          const Icon(Icons.home, color:  Color(0xFF003366), size: 44),
+                          title: const Text('Home',
+                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          onTap : () {
+                            // Navigate to the home page
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                          },
+                        ), const SizedBox(height: 40),
 
-                              Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) => const HomePage()));
-                            },
-                                icon: const Icon(Icons.home,color:  Color(0xFF003366), size: 44),
+                        // Deliveries button
+                        ListTile(
+                          leading:
+                          const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
+                          title:  const Text('Deliveries',
+                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          onTap : () {Navigator.push( context,
+                              MaterialPageRoute(builder: (context) => const DeliveriesPage(deliveries: [])));
+                          },
+                        ),const SizedBox(height: 40),
 
-                                label: const Text('Home',style:
-                                TextStyle(color: Color(0xFF00a896),fontSize :20, fontFamily: 'Nunito',fontWeight: FontWeight.bold))
-                            ),
-                            const SizedBox(height: 40),
+                        // Log out button
+                        ListTile(
+                          leading:
+                          const Icon(Icons.logout, color:  Color(0xFF003366), size: 44),
+                          title: const Text('Log Out',
+                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          onTap : () {
 
-                            TextButton.icon(onPressed: () {
-                              Navigator.pop(context);
-                              //TODO: Navigator.push(context, MaterialPageRoute(builder:(context) => DeliveriesPage()));
-                            },
-                                icon: const Icon(Icons.motorcycle,color: Color(0xFF003366), size: 44),
-                                label: const Text('Deliveries',style:
-                                TextStyle(color: Color(0xFF00a896),fontSize :20, fontFamily: 'Nunito',fontWeight: FontWeight.bold))
-                            ),
-                            const SizedBox(height: 40),
-
-                            TextButton.icon(onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) => const LoginPage()));
-                            },
-
-                                icon: const Icon(Icons.logout,color: Color(0xFF003366), size: 44),
-                                label: const Text('Log Out',style:
-                                TextStyle(color: Color(0xFF00a896), fontSize :20, fontFamily: 'Nunito',fontWeight: FontWeight.bold))
-                            ),
-                            const SizedBox(height: 65),
-
-                            Row(children:[
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    //TODO: Navigator.push(context, MaterialPageRoute(builder:(context) => AccountPage()));
-                                  },
-                                  child: const Text('My Account',
-                                      style: TextStyle(fontFamily: 'Nunito', color: Colors.white, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(primary: const Color(0xFF00a896),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-                                ),
-                              ),
-                              const SizedBox(width: 70),
-                              const CircleAvatar(backgroundColor: Colors.grey, radius: 20,),
-                            ])
+                            // Log out and navigate to the login page
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                          },
+                        ), const SizedBox(height: 210),
 
 
-                          ])),
-
+                        // My account section
+                        Padding(padding : const EdgeInsets.all(8.0),
+                            child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                                children:[
+                                  ElevatedButton(onPressed : () {
+                                    Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
+                                  }, child : const Text('My Account',
+                                      style : TextStyle(color : Colors.white)),
+                                      style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
+                                          shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),
+                                  const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
+                                      // TODO:
+                                      // Replace with the actual profile picture of the rider
+                                      child : Icon(Icons.person, size : 40, color : Colors.white))
+                                ])),
+                      ]),
                 ),
               ),
           ],
@@ -1678,40 +1684,11 @@ class DeliveriesPage extends StatefulWidget {
 }
 
 class _DeliveriesPageState extends State<DeliveriesPage> {
-  bool _isMenuOpen = false;
+  bool _showPopup = false;
   String _filter = 'All';
 
 // TODO Replace with actual data from backend
-  List<Map<String, dynamic>> _deliveries = [
-    {
-      'orderNumber': '12345',
-      'customerName': 'John Doe',
-      'customerLocation': 'Nairobi',
-      'rider': 'Jane Doe',
-      'status': 'To Assign',
-    },
-    {
-      'orderNumber': '67890',
-      'customerName': 'Bob Smith',
-      'customerLocation': 'Mombasa',
-      'rider': 'Alice Johnson',
-      'status': 'To Pick Up',
-    },
-    {
-      'orderNumber': '111213',
-      'customerName': 'Charlie Brown',
-      'customerLocation': 'Kisumu',
-      'rider': 'Eve Black',
-      'status': 'En-Route',
-    },
-    {
-      'orderNumber': '141516',
-      'customerName': 'Dave White',
-      'customerLocation': 'Nakuru',
-      'rider': 'Frank Green',
-      'status': 'Delivered',
-    },
-  ];
+  List<Map<String, dynamic>> _deliveries = [];
 
   @override
   void initState() {
@@ -1722,222 +1699,274 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor :Colors.white,body :
-    SafeArea(child :
-    Stack(children:[
-      Column(children:[
+        backgroundColor: Colors.white,
+        body: SafeArea(
+            child: Stack(children: [
+              Column(children: [
 // Nav bar
-        Padding(padding :
-        const EdgeInsets.symmetric(horizontal :50,vertical :20),child :
-        Row(mainAxisAlignment :MainAxisAlignment.spaceBetween,children:[
-// Profile pic
-          Row(children:[
-            GestureDetector(onTap :
-                () {
-// TODO Navigator.push(context, MaterialPageRoute(builder:(context) =>AvatarSelectionPage()));
-            },child :
-            const CircleAvatar(backgroundColor :Colors.grey,radius :40),),
-            const SizedBox(width :50),]),
-          const SizedBox(width :300),
+                Padding(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+// Profile picture
+                          Positioned(
+                            top: MediaQuery.of(context).padding.top + 30,
+                            left: 30,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  // view profile pic
+                                });
+                              },
+                              child: const CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.grey,
+                                // TODO:
+                                // Replace with the actual profile picture of the rider
+                                child:
+                                Icon(Icons.person, size: 60, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 300),
+
 // Menu
-          Row(children:[
-            Padding(padding :
-            const EdgeInsets.only(top :20), // Add this line
-              child :
-              Container(width :180,height :40,decoration:
-              BoxDecoration(color:
-              Colors.white,borderRadius:
-              BorderRadius.circular(30),border:
-              Border.all(color:
-              const Color(0xFF003366),width:
-              2)),child:
-              DropdownButtonHideUnderline(child:
-              DropdownButton<String>(value:
-              _filter,iconSize:
-              30,iconEnabledColor:
-              const Color(0xFF00a896),onChanged:
-                  (String? newValue) {
-                setState(() {
-                  _filter = newValue!;
-                });
-              },items:
-              <String>['All','Today','Last 7 days','Last month','Older'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(value:value,child:Padding(padding:
-                const EdgeInsets.only(left:20),child:
-                Text(value)));
-              }).toList(),),),),),
-            const SizedBox(width :10),
+                          Row(children: [
+                            Padding(
+                              padding:
+                              const EdgeInsets.only(top: 20), // Add this line
+                              child: Container(
+                                width: 180,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                    BorderRadius.circular(30),
+                                    border:
+                                    Border.all(color:
+                                    const Color(0xFF003366),
+                                        width:
+                                        2)),
+                                child:
+                                DropdownButtonHideUnderline(child:
+                                DropdownButton<String>(
+                                  value:
+                                  _filter,
+                                  iconSize:
+                                  30,
+                                  iconEnabledColor:
+                                  const Color(0xFF00a896),
+                                  onChanged:
+                                      (String? newValue) {
+                                    setState(() {
+                                      _filter = newValue!;
+                                    });
+                                  },
+                                  items:
+                                  <String>['All', 'Today', 'Last 7 days', 'Last month', 'Older']
+                                      .map<DropdownMenuItem<String>>(
+                                          (String value) {
+                                        return DropdownMenuItem<String>(
+                                            value:value,child:
+                                        Padding(padding:
+                                        const EdgeInsets.only(left:
+                                        20),child:
+                                        Text(value)));
+                                      }).toList(),),),),),
+                            const SizedBox(width :10),
 
 // Nav bar icon
-            IconButton(icon:
-            const Icon(Icons.menu,color :Color(0xFF003366),size :50),onPressed :
-                () {
-              setState(() =>_isMenuOpen =!_isMenuOpen);
-            },),
+                            IconButton(icon:
+                            const Icon(Icons.menu,color :Color(0xFF003366),size :50),onPressed :
+                                () {
+                              setState(() =>_showPopup =!_showPopup);
+                            },),
 
-          ])
-        ]),),
+                          ])
+                        ])),
+                Expanded(child:
+                SingleChildScrollView(child:
+                Column(mainAxisAlignment :MainAxisAlignment.center,children:[
+                  Stack(clipBehavior :Clip.none,children:[
+                    Form(child:
+                    Column(children:[
+                      const Padding(padding:
+                      EdgeInsets.symmetric(horizontal :150.0,vertical :2),child:
+                      Row(mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,children:[
+                        Text('All Deliveries',style:
+                        TextStyle(fontSize :20,
+                            fontFamily :'Nunito',color :
+                            Color(0xFF003366),fontWeight :
+                            FontWeight.bold)),
 
+                      ])),
 
-        Expanded(child:
-        SingleChildScrollView(child:
-        Column(mainAxisAlignment :MainAxisAlignment.center,children:[
-          Stack(clipBehavior :Clip.none,children:[
-            Form(child:
-            Column(children:[
-              const Padding(padding:
-              EdgeInsets.symmetric(horizontal :150.0,vertical :2),child:
-              Row(mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,children:[
-                Text('All Deliveries',style:
-                TextStyle(fontSize :20,
-                    fontFamily :'Nunito',color :
-                    Color(0xFF003366),fontWeight :
-                    FontWeight.bold)),
+                      ..._deliveries.map((delivery) {
+                        return Card(shape :
+                        RoundedRectangleBorder(borderRadius :
+                        BorderRadius.circular(15)),margin :
+                        const EdgeInsets.symmetric(vertical :
+                        5,horizontal :20),child :
+                        Container(width :1080,height :100,decoration :
+                        BoxDecoration(borderRadius :
+                        BorderRadius.circular(20),border :
+                        Border.all(color :
+                        const Color(0xFF003366),width :
+                        2)),child :
+                        Padding(padding :
+                        const EdgeInsets.all(10),child :
+                        Column(crossAxisAlignment :
+                        CrossAxisAlignment.start,children:[
+                          Row(mainAxisAlignment :
+                          MainAxisAlignment.spaceBetween,children:[
+                            Column(crossAxisAlignment :
+                            CrossAxisAlignment.start,children:[
+                              Text('Order number:${delivery['orderNumber']}',style :
+                              const TextStyle(color :
+                              Color(0xFF003366),fontWeight :
+                              FontWeight.bold)),
+                              Text('Customer name: ${delivery['customerName']}',
+                                  style: const TextStyle(
+                                      color: Color(0xFF003366),
+                                      fontWeight: FontWeight.bold)),
+                              Text('Customer location: ${delivery['customerLocation']}',
+                                  style: const TextStyle(
+                                      color: Color(0xFF003366),
+                                      fontWeight: FontWeight.bold)),
+                              Text('Rider: ${delivery['rider']}',
+                                  style: const TextStyle(
+                                      color: Color(0xFF003366),
+                                      fontWeight: FontWeight.bold)),
+                            ]),
+                            const Spacer(),
+                            Align(alignment :Alignment.bottomRight,child :
+                            Container(width :100,height :30,decoration:
+                            BoxDecoration(borderRadius:
+                            BorderRadius.circular(15),color:
+                            const Color(0xFF00a896)),child:
+                            Center(child:
+                            Text(delivery['status'],style:
+                            TextStyle(color:
+                            delivery['status'] =='To Assign' ?Colors.red
+                                : delivery['status'] =='To Pick Up' ?Colors.yellow
+                                : delivery['status'] =='En-Route' ?const Color(0xFF1B5E20)
+                                : const Color(0xFF003366)))))),
+                          ])
+                        ]))));
+                      }).toList()
 
-              ])),
-              // Menu dropdown
-              if (_isMenuOpen)
-                Stack(
-                  children: [
-                    Positioned(
-                      top: kToolbarHeight + MediaQuery.of(context).padding.top + 100,
-                      right: 35,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        height: 350,
-                        width: 250,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: const Color(0xFF00a896), width: 3),
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(25),
-                              bottomLeft: Radius.circular(25),
-                              bottomRight: Radius.circular(25)),
-                        ),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height :20),
-                              TextButton.icon(onPressed :
-                                  () {
-                                Navigator.pop(context);
-                                Navigator.push(context,MaterialPageRoute(builder :(context) =>const HomePage()));
-                              },icon :
-                              const Icon(Icons.home,color :Color(0xFF003366),size :44),label :
-                              const Text('Home',style :TextStyle(color :Color(0xFF00a896),fontSize :20,fontFamily :'Nunito',fontWeight :FontWeight.bold))),
-                              const SizedBox(height :40),
-                              TextButton.icon(onPressed :
-                                  () {
-                                Navigator.pop(context);
-//TODO
-                              },icon :
-                              const Icon(Icons.motorcycle,color :Color(0xFF003366),size :44),label :
-                              const Text('Deliveries',style :TextStyle(color :Color(0xFF00a896),fontSize :20,fontFamily :'Nunito',fontWeight :FontWeight.bold))),
-                              const SizedBox(height :40),
-                              TextButton.icon(onPressed :
-                                  () {
-                                Navigator.pop(context);
-                                Navigator.push(context,MaterialPageRoute(builder :(context) =>const LoginPage()));
-                              },icon :
-                              const Icon(Icons.logout,color :Color(0xFF003366),size :44),label :
-                              const Text('Log Out',style :TextStyle(color :Color(0xFF00a896),fontSize :20,fontFamily :'Nunito',fontWeight :FontWeight.bold))),
-                              const SizedBox(height :65),
-                              Row(children:[
-                                Padding(padding :
-                                const EdgeInsets.only(left :10),child :
-                                ElevatedButton(onPressed :
-                                    () {
-//TODO
-                                },child :
-                                const Text('My Account',style:
-                                TextStyle(fontFamily :'Nunito',color:
-                                Colors.white,fontWeight:
-                                FontWeight.bold)),style:
-                                ElevatedButton.styleFrom(primary:
-                                const Color(0xFF00a896),shape:
-                                RoundedRectangleBorder(borderRadius:
-                                BorderRadius.circular(15))))),
-                              ]),
-                              const SizedBox(width:70),
-                              const CircleAvatar(backgroundColor:
-                              Colors.grey,radius:20,),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ..._deliveries.map((delivery) {
-                return Card(shape :
-                RoundedRectangleBorder(borderRadius :
-                BorderRadius.circular(15)),margin :
-                const EdgeInsets.symmetric(vertical :
-                5,horizontal :20),child :
-                Container(width :1080,height :100,decoration :
-                BoxDecoration(borderRadius :
-                BorderRadius.circular(20),border :
-                Border.all(color :
-                const Color(0xFF003366),width :
-                2)),child :
-                Padding(padding :
-                const EdgeInsets.all(10),child :
-                Column(crossAxisAlignment :
-                CrossAxisAlignment.start,children:[
-                  Row(mainAxisAlignment :
-                  MainAxisAlignment.spaceBetween,children:[
-                    Column(crossAxisAlignment :
-                    CrossAxisAlignment.start,children:[
-                      Text('Order number:${delivery['orderNumber']}',style :
-                      const TextStyle(color :
-                      Color(0xFF003366),fontWeight :
-                      FontWeight.bold)),
-                      Text('Customer name: ${delivery['customerName']}',
-                          style: const TextStyle(
-                              color: Color(0xFF003366),
-                              fontWeight: FontWeight.bold)),
-                      Text('Customer location: ${delivery['customerLocation']}',
-                          style: const TextStyle(
-                              color: Color(0xFF003366),
-                              fontWeight: FontWeight.bold)),
-                      Text('Rider: ${delivery['rider']}',
-                          style: const TextStyle(
-                              color: Color(0xFF003366),
-                              fontWeight: FontWeight.bold)),
-                    ]),
-                    const Spacer(),
-                    Align(alignment :Alignment.bottomRight,child :
-                    Container(width :100,height :30,decoration:
-                    BoxDecoration(borderRadius:
-                    BorderRadius.circular(15),color:
-                    const Color(0xFF00a896)),child:
-                    Center(child:
-                    Text(delivery['status'],style:
-                    TextStyle(color:
-                    delivery['status'] =='To Assign' ?Colors.red
-                        : delivery['status'] =='To Pick Up' ?Colors.yellow
-                        : delivery['status'] =='En-Route' ?Color(0xFF1B5E20)
-                        : const Color(0xFF003366)))))),
+                    ]))
                   ])
-                ]))));
-              }).toList()
+                ]))
+                ),
+              ]),
+              // Menu popup
+              if (_showPopup)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 100,
+                  right: 35,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.2,
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        bottomLeft: Radius.circular(25),
+                        bottomRight: Radius.circular(25),
+                      ),
+                      border:
+                      Border.all(color: const Color(0xFF00a896), width: 2),
+                    ),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:[
+                          const SizedBox(height: 20),
+                          // Home button
+                          ListTile(
+                            leading:
+                            const Icon(Icons.home, color:
+                            Color(0xFF003366), size: 44),
+                            title:
+                            const Text('Home',
+                                style:
+                                TextStyle(fontSize:
+                                20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color:
+                                Color(0xFF00a896))),
+                            onTap : () {
+                              // Navigate to the home page
+                              Navigator.push(context, MaterialPageRoute(builder:
+                                  (context) => const HomePage()));
+                            },
+                          ),const SizedBox(height: 40),
 
-            ]))
-          ])
-        ]))
-        ),
+                          // Deliveries button
+                          ListTile(
+                            leading:
+                            const Icon(Icons.motorcycle, color:
+                            Color(0xFF003366), size: 44),
+                            title:
+                            const Text('Deliveries',
+                                style:
+                                TextStyle(fontSize:
+                                20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color:
+                                Color(0xFF00a896))),
+                            onTap : () { Navigator.push( context,
+                                  MaterialPageRoute( builder: (context) => DeliveriesPage(deliveries: _deliveries)));
+                            },
+                          ),const SizedBox(height: 40),
 
+                          // Log out button
+                          ListTile(
+                            leading:
+                            const Icon(Icons.logout, color:
+                            Color(0xFF003366), size: 44),
+                            title:
+                            const Text('Log Out',
+                                style:
+                                TextStyle(fontSize:
+                                20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color:
+                                Color(0xFF00a896))),
+                            onTap : () {
 
-      ])
-    ])
-    ));
+                              // Log out and navigate to the login page
+                              Navigator.push(context, MaterialPageRoute(builder:
+                                  (context) => const LoginPage()));
+                            },
+                          ),const SizedBox(height: 210),
 
+// My account section
+                          Padding(padding :const EdgeInsets.all(8.0),
+                              child :Row(mainAxisAlignment :
+                              MainAxisAlignment.spaceBetween,
+                                  children:[
+                                    ElevatedButton(onPressed : () {
+                                      Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
+                                    }, child :const Text('My Account',
+                                        style :TextStyle(color :Colors.white)),
+                                        style :ElevatedButton.styleFrom(primary :
+                                        const Color(0xFF00a896),
+                                            shape :
+                                            RoundedRectangleBorder(borderRadius :
+                                            BorderRadius.circular(25)))),
+                                    const CircleAvatar(radius :20,
+                                        backgroundColor :Colors.grey,
+                                        // TODO:
+                                        // Replace with the actual profile picture of the rider
+                                        child :
+                                        Icon(Icons.person, size :40,
+                                            color :Colors.white))
+                                  ])),
+                        ]),
+                  ),
+                ),
+            ])
+        ));
   }
 }
-
 
 
 class AccountPage extends StatefulWidget {
@@ -1950,6 +1979,20 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  File? _image;
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      print(image.path);
+      setState(() {
+        _image = File(image.path);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1958,109 +2001,90 @@ class _AccountPageState extends State<AccountPage> {
       body: SafeArea(
         child:
         SingleChildScrollView(child:
-        Column(crossAxisAlignment:
-        CrossAxisAlignment.start,
+        Column(crossAxisAlignment: CrossAxisAlignment.start,
             children:[
-              Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal:
-                16.0, vertical :16.0),
+              Padding( padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical :10.0),
                 child:
                 Row(children:[
-                  GestureDetector(
-                    onTap: () {
-                      // Show options to upload photo or open camera
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children:<Widget>[
-                              ListTile(
-                                leading:
-                                const Icon(Icons.photo_library),
-                                title:
-                                const Text('Upload Photo'),
-                                onTap:
-                                    () {
-                                  // TODO:
-                                  // Implement photo upload logic
-                                },
-                              ),
-                              ListTile(
-                                leading:
-                                const Icon(Icons.camera_alt),
-                                title:
-                                const Text('Open Camera'),
-                                onTap:
-                                    () {
-                                  // TODO:
-                                  // Implement camera logic
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child:
-                    Stack(children:[
-                      CircleAvatar(backgroundColor:
-                      Colors.grey, radius :40,),
-                      Positioned(top:-10,left:-10,
-                          child:
-                          Icon(Icons.camera_alt,color:
-                          Color(0xFF003366),size :80)
+                  Stack(children: [
+                    if (_image == null)
+                      const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 90,
+                        child: Icon(
+                          Icons.person,
+                          size: 100,
+                          color: Colors.white,
+                        ),
+                      )
+                    else
+                      CircleAvatar(
+                        radius: 90,
+                        backgroundImage: FileImage(_image!),
                       ),
-                    ]),
+
+                    Positioned(top: 130, left: 72,
+                        child: PopupMenuButton(
+                          onSelected: (value) async {
+                            if (value == 'upload') {
+                              await _pickImage();
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                            const PopupMenuItem(
+                              value: 'upload',
+                              child: ListTile(
+                                leading: Icon(Icons.photo_library),
+                                title: Text('Upload Photo'),
+                              ),
+                            ),
+                          ],
+                          child: const Icon(Icons.camera_alt, color: Color(0xFF003366), size: 40,),
+                        ),
+
+                      ),
+
+                    ],
                   ),
-                  Padding(padding :
-                  const EdgeInsets.only(left :20),
-                      child :
-                      Column(crossAxisAlignment :
-                      CrossAxisAlignment.start,
-                          children:[
-                            Row(children:[
-                              Icon(Icons.business,color :
-                              Color(0xFF003366),size :40),
-                              Padding(padding :
-                              const EdgeInsets.only(left :10),
-                                  child :
-                                  Text('Business Name',
-                                      style :
-                                      TextStyle(color :
-                                      Color(0xFF003366),fontSize :20, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+
+                  Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Container(
+              margin: const EdgeInsets.only(top: 150), // Add this Container widget with top margin of 80
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                        children: [
+                          Icon(Icons.business,
+                              color: Color(0xFF003366), size: 30),
+                              Padding(padding : EdgeInsets.only(left :10),
+                                  child : Text('Business Name',
+                                      style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
                               )
-                            ]),
-                            Row(children:[
+                            ]), const SizedBox(height: 30),
+
+                            const Row(children:[
                               Icon(Icons.location_on,color :
-                              Color(0xFF003366),size :40),
-                              Padding(padding :
-                              const EdgeInsets.only(left :10),
-                                  child :
-                                  Text('Business Location',
-                                      style :
-                                      TextStyle(color :
-                                      Color(0xFF003366),fontSize :20, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+                              Color(0xFF003366),size :30),
+                              Padding(padding : EdgeInsets.only(left :10),
+                                  child : Text('Business Location',
+                                      style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
                               )
-                            ]),
-                            Row(children:[
-                              Icon(Icons.email,color :
-                              Color(0xFF003366),size :40),
-                              Padding(padding :
-                              const EdgeInsets.only(left :10),
-                                  child :
-                                  Text('Business Email',
-                                      style :
-                                      TextStyle(color :
-                                      Color(0xFF003366),fontSize :20, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+                            ]), const SizedBox(height: 30),
+
+                            const Row(children:[
+                              Icon(Icons.email,color : Color(0xFF003366),size :30),
+                              Padding(padding : EdgeInsets.only(left :10),
+                                  child : Text('Business Email',
+                                      style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
                               )
-                            ]),
+                            ]), const SizedBox(height: 30),
+
                             Padding(padding :
                             const EdgeInsets.only(top :20),
-                                child :
-                                ElevatedButton(onPressed:
-                                    () {
+                                child : ElevatedButton(onPressed: () {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -2077,68 +2101,60 @@ class _AccountPageState extends State<AccountPage> {
                                         content:
                                         SingleChildScrollView(child:
                                         ListBody(children:<Widget>[
-                                          Text('Name: Business Name',
-                                              style :
-                                              TextStyle(color :
-                                              Color(0xFF003366),fontSize :20, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                          const Text('Name: Business Name',
+                                              style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                          const SizedBox(height: 10),
+
                                           TextField(
-                                            controller:
-                                            _locationController,
-                                            textAlign :
-                                            TextAlign.center,
+                                            controller: _locationController,
+                                            textAlign : TextAlign.center,
                                             decoration:
                                             InputDecoration(
-                                                border :
-                                                outlineInputBorder(),
-                                                focusedBorder :
-                                                outlineInputBorder(),
-                                                enabledBorder :
-                                                outlineInputBorder(),
-                                                hintText:
-                                                'Location',
-                                                contentPadding:
-                                                const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
-                                                alignLabelWithHint:
-                                                true,
-                                                hintStyle:
-                                                const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
-                                          ),
+                                                border : outlineInputBorder(),
+                                                focusedBorder : outlineInputBorder(),
+                                                enabledBorder : outlineInputBorder(),
+                                                hintText: 'Location',
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
+                                                alignLabelWithHint: true,
+                                                hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                                          ), const SizedBox(height: 20),
+
                                           TextField(
-                                            controller:
-                                            _phoneNumberController,
-                                            textAlign :
-                                            TextAlign.center,
-                                            decoration:
-                                            InputDecoration(
-                                                border :
-                                                outlineInputBorder(),
-                                                focusedBorder :
-                                                outlineInputBorder(),
-                                                enabledBorder :
-                                                outlineInputBorder(),
-                                                hintText:
-                                                'Phone Number',
-                                                contentPadding:
-                                                const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
-                                                alignLabelWithHint:
-                                                true,
-                                                hintStyle:
-                                                const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                                            controller: _phoneNumberController,
+                                            textAlign : TextAlign.center,
+                                            decoration: InputDecoration(
+                                                border : outlineInputBorder(),
+                                                focusedBorder : outlineInputBorder(),
+                                                enabledBorder : outlineInputBorder(),
+                                                hintText: 'Phone Number',
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
+                                                alignLabelWithHint: true,
+                                                hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
                                           ),
                                         ])),
-                                        actions:<Widget>[
-                                          TextButton(onPressed:
-                                              () {
-                                            // TODO:
-                                            // Implement save logic
-                                            Navigator.of(context).pop();
-                                          },
-                                              child:
-                                              const Text('Save',
-                                                style:
-                                                TextStyle(fontSize: 16, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
-                                              )),
+                                        actions: <Widget>[
+                                          Center(
+                                            child: Container(
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  // TODO:
+                                                  // Implement save logic
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text('Save',
+                                                  style: TextStyle( fontSize: 16, fontFamily: 'Nunito',
+                                                    color: Colors.white, fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                style: ElevatedButton.styleFrom(primary: Color(0xFF003366),
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ],
+
                                       );
                                     },
                                   );
@@ -2151,44 +2167,41 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ])
                   )
+      )
                 ]),
               ),
-              Padding(padding :
-              const EdgeInsets.only(left :80,top :80),
+
+              Padding(padding : const EdgeInsets.only(left :80,top :50),
                   child :
-                  Column(crossAxisAlignment :
-                  CrossAxisAlignment.start,
+                  Column(crossAxisAlignment : CrossAxisAlignment.start,
                       children:[
-                        Row(children:[
-                          Icon(Icons.headset_mic,color :
-                          Color(0xFF003366),size :40),
-                          Padding(padding :
-                          const EdgeInsets.only(left :10),
+                        const Row(children:[
+                          Icon(Icons.headset_mic,
+                              color : Color(0xFF003366),size :30),
+                          Padding(padding : EdgeInsets.only(left :10),
                               child :
                               Text('Support',
-                                  style :
-                                  TextStyle(color :
-                                  Color(0xFF003366),fontSize :20, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+                                  style : TextStyle(color : Color(0xFF003366),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
                           )
                         ]),
-                        Padding(padding :
-                        const EdgeInsets.only(left :50,top :20),
+                        const Padding(padding :
+                        EdgeInsets.only(left :50,top :20),
                             child :
                             Column(crossAxisAlignment :
                             CrossAxisAlignment.start,
                                 children:[
                                   Text('+254 704 134 095',
-                                      style :
-                                      TextStyle(color :
-                                      Color(0xFF003366),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      style :TextStyle(color :
+                                      Color(0xFF00a896),fontSize :14, fontFamily : 'Nunito')),
+                                  const SizedBox(height: 20),
+
                                   Text('hello@try.ke',
-                                      style :
-                                      TextStyle(color :
-                                      Color(0xFF003366),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      style :TextStyle(color :
+                                      Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito')),
                                 ])
                         ),
                         Padding(padding :
-                        const EdgeInsets.only(top :150,left :150),
+                        const EdgeInsets.only(top :50,left :150),
                             child :
 
                             GestureDetector(onTap:
@@ -2200,9 +2213,49 @@ class _AccountPageState extends State<AccountPage> {
                                   return AlertDialog(
                                     content:
                                     const SingleChildScrollView(child:
-                                    ListBody(children:<Widget>[
-                                      Text('Terms and Conditions'),
-                                      // Insert terms and conditions text here
+                                    ListBody(
+                                        children: <Widget>[
+                                          const Text(
+                                            'Terms and Conditions',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          const Text(
+                                            '1. Definitions\n\n'
+                                                '- "Company" refers to [Your Company Name], a logistics service provider.\n'
+                                                '- "Client" refers to the individual, business, or organization engaging the services of the Company.\n'
+                                                '- "Services" refers to the logistics, transportation, and related services provided by the Company.\n'
+                                                '- "Cargo" refers to the goods, items, or products being transported by the Company.\n'
+                                                '- "Agreement" refers to the contractual relationship established between the Company and the Client, including these terms and conditions.\n\n'
+                                                '2. Service Agreement\n\n'
+                                                'By engaging the services of the Company, the Client agrees to abide by these terms and conditions. This Agreement supersedes any prior verbal or written agreements.\n\n'
+                                                '3. Booking and Confirmation\n\n'
+                                                '- All service bookings are subject to availability and confirmation by the Company.\n'
+                                                '- The Client must provide accurate and complete information regarding the nature of the Cargo, dimensions, weight, packaging, pickup and delivery locations, and any special handling requirements.\n\n'
+                                                '4. Charges and Payment\n\n'
+                                                '- The Client agrees to pay the quoted charges for the Services as per the agreed terms.\n'
+                                                '- Charges may include transportation, handling, packaging, insurance, and any applicable taxes or duties.\n'
+                                                '- Payment is due within the agreed timeframe from the date of invoice. Late payments may incur additional charges.\n\n'
+                                                '5. Liability and Insurance\n\n'
+                                                '- The Company will take reasonable care of the Cargo during transportation; however, the Client acknowledges that the Company is not liable for damage, loss, or delay beyond its control.\n'
+                                                '- The Client is responsible for providing appropriate insurance coverage for the Cargo during transit, if desired.\n\n'
+                                                '6. Delays\n\n'
+                                                '- The Company will make reasonable efforts to meet agreed-upon delivery timelines. However, delays due to unforeseen circumstances, including but not limited to weather, traffic, customs, or mechanical issues, may occur.\n\n'
+                                                '7. Cancellations and Changes\n\n'
+                                                '- Cancellation of a booked service must be made in writing within a reasonable time prior to the scheduled pickup.\n'
+                                                '- Changes to booking details may incur additional charges or lead to adjustments in the agreed timeline.\n\n'
+                                                '8. Confidentiality\n\n'
+                                                '- Both parties agree to keep all non-public information obtained during the course of the Agreement confidential.\n\n'
+                                                '9. Governing Law\n\n'
+                                                '- This Agreement shall be governed by and construed in accordance with the laws of [Jurisdiction]. Any disputes shall be subject to the exclusive jurisdiction of the courts in [Jurisdiction].\n\n'
+                                                '10. Termination\n\n'
+                                                '- Either party may terminate this Agreement in the event of a material breach by the other party. Written notice of such breach must be provided, and the breaching party shall have a reasonable opportunity to remedy the breach.\n\n'
+                                                '11. Miscellaneous\n\n'
+                                                '- This Agreement constitutes the entire understanding between the parties and supersedes all prior agreements.\n'
+                                                '- No modifications or amendments to this Agreement shall be valid unless made in writing and signed by both parties.',
+                                          ),
                                     ])),
                                     actions:<Widget>[
                                       TextButton(child:
@@ -2219,10 +2272,10 @@ class _AccountPageState extends State<AccountPage> {
                                 },
                               );
                             },
-                                child : Text('Terms & Conditions',
+                                child : const Text('Terms & Conditions',
                                     style :
                                     TextStyle(color :
-                                    Color(0xFF003366),fontSize :20, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+                                    Color(0xFF003366),fontSize :14, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
                             )
                         )
                       ])
