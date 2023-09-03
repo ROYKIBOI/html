@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                 children:<Widget>[
 
                   TextButton(onPressed:
-                      () { Navigator.push(context, MaterialPageRoute(builder:(context) => const ForgotPasswordPage())); }
+                      () { Navigator.push(context, MaterialPageRoute(builder:(context) =>  ForgotPasswordPage())); }
                       , child:
                       const Text('Forgot Password?', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
                   const SizedBox(width: 50),
@@ -208,6 +208,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  final _signUpEmailController = TextEditingController();
+  final _signUpPasswordController = TextEditingController();
+  final _signUpConfirmPasswordController = TextEditingController();
   bool _obscureText1 = true;
   bool _obscureText2 = true;
 
@@ -265,17 +268,16 @@ class _SignUpPageState extends State<SignUpPage> {
             // Email input field
             SizedBox(width: 300, height: 50,
               child: TextField(
+                controller: _signUpEmailController,
                 textAlign : TextAlign.center,
                 decoration: InputDecoration(
                     border : outlineInputBorder(),
                     focusedBorder : outlineInputBorder(),
                     enabledBorder : outlineInputBorder(),
-                    hintText:
-                    'Email',
+                    hintText: 'Email',
                     contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
                     alignLabelWithHint: true,
-                    hintStyle:
-                    const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
               ),
             ),
             const SizedBox(height: 20),
@@ -283,6 +285,7 @@ class _SignUpPageState extends State<SignUpPage> {
             // Password input field
             SizedBox(width: 300, height: 50,
               child: TextField(
+                  controller: _signUpPasswordController,
                   obscureText: _obscureText1,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -292,15 +295,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       hintText: 'Enter Password',
                       contentPadding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle:
-                      const TextStyle(color:
-                      Colors.grey, fontFamily:
-                      'Nunito'),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                       suffixIcon:
-                      IconButton(icon:
-                      Icon(_obscureText1 ?
-                      Icons.visibility :
-                      Icons.visibility_off),
+                      IconButton(icon: Icon(_obscureText1 ?
+                      Icons.visibility : Icons.visibility_off),
                           onPressed:
                           _togglePasswordVisibility1)
                   )),
@@ -310,6 +308,7 @@ class _SignUpPageState extends State<SignUpPage> {
             // Confirm password input field
             SizedBox(width: 300, height: 50,
               child: TextField(
+                  controller: _signUpConfirmPasswordController,
                   obscureText: _obscureText2,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -319,15 +318,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       hintText: 'Confirm Password',
                       contentPadding: const EdgeInsets.symmetric(horizontal: 70.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle:
-                      const TextStyle(color:
-                      Colors.grey, fontFamily:
-                      'Nunito'),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                       suffixIcon:
-                      IconButton(icon:
-                      Icon(_obscureText2 ?
-                      Icons.visibility :
-                      Icons.visibility_off),
+                      IconButton(icon: Icon(_obscureText2 ?
+                      Icons.visibility : Icons.visibility_off),
                           onPressed:
                           _togglePasswordVisibility2)
                   )),
@@ -353,7 +347,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
 // The forgot password page widget
 class ForgotPasswordPage extends StatelessWidget {
-  const ForgotPasswordPage({super.key});
+  final TextEditingController emailController = TextEditingController();
+   ForgotPasswordPage({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -398,6 +394,7 @@ class ForgotPasswordPage extends StatelessWidget {
             // Email input field
             SizedBox(width: 300, height: 50,
               child: TextField(
+                controller: emailController,
                 textAlign : TextAlign.center,
                 decoration: InputDecoration(
                     border : outlineInputBorder(),
@@ -416,6 +413,7 @@ class ForgotPasswordPage extends StatelessWidget {
             // Submit button
             ElevatedButton(onPressed:
                 () {
+                  String email = emailController.text;
               Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
               // Send email with link to reset password page
               //TODO: sendEmail(email, 'Reset Password', 'Please click this link to reset your password: <URL>');
@@ -430,6 +428,7 @@ class ForgotPasswordPage extends StatelessWidget {
   }
 }
 
+// Reset password page
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
 
@@ -438,6 +437,8 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
+  final _resetPasswordController = TextEditingController();
+  final _reserConfirmPasswordController = TextEditingController();
   bool _obscureText1 = true;
   bool _obscureText2 = true;
 
@@ -494,7 +495,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
             // New Password input field
             SizedBox(width: 300, height: 50, child:
-            TextField(obscureText: _obscureText1,
+            TextField(
+                controller: _resetPasswordController,
+                obscureText: _obscureText1,
                 textAlign: TextAlign.center,
                 decoration:
                 InputDecoration(border :
@@ -502,17 +505,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     focusedBorder : outlineInputBorder(),
                     enabledBorder : outlineInputBorder(),
                     hintText: 'New Password',
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0), alignLabelWithHint:
-                    true, hintStyle:
-                    const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
+                    alignLabelWithHint: true,
+                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                     suffixIcon:
-                    IconButton(icon:
-                    Icon(_obscureText1 ?
-                    Icons.visibility :
-                    Icons.visibility_off),
-                        onPressed:
-                        _togglePasswordVisibility1)
+                    IconButton(icon: Icon(_obscureText1 ?
+                    Icons.visibility : Icons.visibility_off),
+                        onPressed: _togglePasswordVisibility1)
                 )),
             ),
             const SizedBox(height: 20),
@@ -520,6 +519,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             // Confirm password input field
             SizedBox(width: 300, height: 50,
               child: TextField(
+                  controller: _reserConfirmPasswordController,
                   obscureText: _obscureText2,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -531,12 +531,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       alignLabelWithHint: true,
                       hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                       suffixIcon:
-                      IconButton(icon:
-                      Icon(_obscureText2 ?
-                      Icons.visibility :
-                      Icons.visibility_off),
-                          onPressed:
-                          _togglePasswordVisibility2)
+                      IconButton(icon: Icon(_obscureText2 ?
+                      Icons.visibility : Icons.visibility_off),
+                          onPressed: _togglePasswordVisibility2)
                   )),
             ),
             const SizedBox(height: 20),
@@ -589,10 +586,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                   RichText(
                     text: const TextSpan(
                       text: 'tuma',
-                      style: TextStyle(
-                          fontSize: 70,
-                          fontFamily: 'Nunito',
-                          color: Color(0xFF003366),
+                      style: TextStyle( fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366),
                           fontWeight: FontWeight.bold),
                       children: <TextSpan>[
                         TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
@@ -600,19 +594,13 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                       ],
                     ),
                   ),
-                  const Positioned(
-                    top: 70, left: 65,
+                  const Positioned( top: 70, left: 65,
                     child: Text('swift. secure. seamless',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontFamily: 'Nunito',
-                          color: Color(0xFF00a896),
+                        style: TextStyle( fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
                         )),
                   ),
                 ],
-              ),
-
-              const SizedBox(height: 30),
+              ), const SizedBox(height: 30),
 
               // Business name input field
               SizedBox( width: 300, height: 50,
@@ -624,11 +612,9 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                       focusedBorder : outlineInputBorder(),
                       enabledBorder : outlineInputBorder(),
                       hintText: 'Business Name',
-                      contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle:
-                      const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
                 ),
               ),
               const SizedBox(height: 20),
@@ -643,11 +629,9 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                       focusedBorder : outlineInputBorder(),
                       enabledBorder : outlineInputBorder(),
                       hintText: 'Phone Number',
-                      contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle:
-                      const TextStyle(color: Colors.grey, fontFamily: 'Nunito')))),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')))),
               const SizedBox(height: 20),
 
               // Location input field
@@ -695,9 +679,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                       hintText: 'Business Category',
                       contentPadding: const EdgeInsets.symmetric(horizontal: 70.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle:
-                      const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
-
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
                   readOnly: true,
                   onTap: () {
 
@@ -767,9 +749,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                     );
                   },
                 ),
-              ),
-
-              const SizedBox(height: 30),
+              ), const SizedBox(height: 30),
 
               // Terms and conditions checkbox and text
               Row(
@@ -817,8 +797,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                     )),
                   ),
                 ],
-              ),
-              const SizedBox(height: 20),
+              ), const SizedBox(height: 20),
 
               // Get started button
               ElevatedButton(
@@ -848,6 +827,8 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   }
 }
 
+
+//home page widget
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -1075,6 +1056,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// Custom Text Form Field widget
 class CustomTextFormField extends StatefulWidget {
   final String hintText;
   final String errorMessage;
@@ -1140,7 +1122,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   }
 }
 
-
+// delivery request page widget
 class DeliveryRequestPage extends StatefulWidget {
   const DeliveryRequestPage({Key? key}) : super(key: key);
 
@@ -1674,6 +1656,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   }
 }
 
+// deliveries page widget
 class DeliveriesPage extends StatefulWidget {
   final List<Map<String, dynamic>> deliveries;
 
@@ -1968,7 +1951,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   }
 }
 
-
+//my account page widget
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key}) : super(key: key);
 
@@ -2193,7 +2176,7 @@ class _AccountPageState extends State<AccountPage> {
                                   Text('+254 704 134 095',
                                       style :TextStyle(color :
                                       Color(0xFF00a896),fontSize :14, fontFamily : 'Nunito')),
-                                  const SizedBox(height: 20),
+                                  SizedBox(height: 20),
 
                                   Text('hello@try.ke',
                                       style :TextStyle(color :
@@ -2215,14 +2198,14 @@ class _AccountPageState extends State<AccountPage> {
                                     const SingleChildScrollView(child:
                                     ListBody(
                                         children: <Widget>[
-                                          const Text(
+                                          Text(
                                             'Terms and Conditions',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          const SizedBox(height: 10),
-                                          const Text(
+                                          SizedBox(height: 10),
+                                          Text(
                                             '1. Definitions\n\n'
                                                 '- "Company" refers to [Your Company Name], a logistics service provider.\n'
                                                 '- "Client" refers to the individual, business, or organization engaging the services of the Company.\n'
