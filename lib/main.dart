@@ -10,6 +10,9 @@ import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:another_flushbar/flushbar_route.dart';
 //import 'package:sendgrid_mailer/sendgrid_mailer.dart';
 import 'loading_animation.dart'; // Import the LoadingAnimation widget
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 
 // The main function that runs the app
@@ -154,9 +157,8 @@ class _LoginPageState extends State<LoginPage> {
                   )),
             ), const SizedBox(height: 20),
 
-            // Login button
             ElevatedButton(
-                onPressed: () async {
+                onPressed :() async {
                   // Check if email and password fields are not empty
                   if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
                     // Show error message if either one or all fields are empty
@@ -164,36 +166,39 @@ class _LoginPageState extends State<LoginPage> {
                     return;
                   }
 
-                  // Show loading animation while checking email and password against database
+                  // Show loading animation
                   showDialog(
                     context: context,
                     barrierDismissible: false,
+                    barrierColor: Colors.transparent, // Set barrierColor to transparent
                     builder: (BuildContext context) {
-                      return Dialog(
-                        child: const LoadingAnimation(),
+                      return const Dialog(
                         backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        child: LoadingAnimation(),
                       );
                     },
                   );
 
-                  // Check email and password against database
-                  bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
-                  if (isValid) {
-                    // Redirect to home page if email and password are valid
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                  } else {
-                    // Show error message if email or password is invalid
-                    _showErrorMessage('Invalid email or password');
-                  }
-
-                  // Hide loading animation after checking email and password against database
+                  // Wait for 5 seconds to simulate checking email and password against database
+                  await Future.delayed(const Duration(seconds : 5));
+                  // Dismiss loading animation
                   Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                    primary: const Color(0xFF003366),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
-                child: const Text('Log In', style: TextStyle(color: Colors.white))),
 
+                  // Check if email and password are correct and found in the database (this will be done in the backend)
+                  // TODO : bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
+                  // TODO : if (isValid) {
+                  // Redirect to home page if email and password are valid
+                  Navigator.push(context, MaterialPageRoute(builder:(context) => const HomePage()));
+                  // TODO : } else {
+                  // Show error message if email or password is invalid
+                  // TODO : _showErrorMessage('Invalid email or password');
+                  // TODO : }
+                },
+                style:ElevatedButton.styleFrom(primary : const Color(0xFF003366),
+                    shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25))),
+                child : const Text('Log In', style : TextStyle(color : Colors.white))
+            ),
 
             //When the user clicks the Log In button, the email and password entered by the user will be checked against the database to see if they are valid.
             //If the email and password are found to be valid, the user will be redirected to the home page of the app.
@@ -697,84 +702,93 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         onPressed:_togglePasswordVisibility1)
                 )),
             ),
-            const SizedBox(height:
-            20),
+            const SizedBox(height: 20),
 
             // Confirm password input field
-            SizedBox(width:
-            300, height:
-            50,
+            SizedBox(width: 300, height: 50,
               child:
               TextField(
                   controller:_resetConfirmPasswordController,
                   obscureText:_obscureText2,
-                  textAlign:
-                  TextAlign.center,
-                  decoration:
-                  InputDecoration(border :
-                  outlineInputBorder(),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                      border : outlineInputBorder(),
                       focusedBorder : outlineInputBorder(),
                       enabledBorder : outlineInputBorder(),
                       hintText:'Confirm Password',
-                      contentPadding:
-                      const EdgeInsets.symmetric(horizontal:
-                      70.0, vertical:
-                      10.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 70.0, vertical: 10.0),
                       alignLabelWithHint:true,
-                      hintStyle:
-                      const TextStyle(color:
-                      Colors.grey, fontFamily:
-                      'Nunito'),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                       suffixIcon:
-                      IconButton(icon:
-                      Icon(_obscureText2 ?
-                      Icons.visibility :
-                      Icons.visibility_off),
+                      IconButton(icon: Icon(_obscureText2 ?
+                      Icons.visibility : Icons.visibility_off),
                           onPressed:_togglePasswordVisibility2)
                   )),
-            ),
-            const SizedBox(height:
-            20),
+            ),  const SizedBox(height: 20),
 
             // Confirm button
-            ElevatedButton(onPressed:
-                () {
-              // When the button is pressed, it retrieves the current value of the new password and confirm new password input fields.
-              String newPassword = _resetPasswordController.text;
-              String confirmNewPassword = _resetConfirmPasswordController.text;
-                    // Check if the password fields are not empty
-                  if (_resetPasswordController.text.isEmpty || _resetConfirmPasswordController.text.isEmpty) {
-                    // Show error message if either one or all fields are empty
-                    _showErrorMessage('Please enter and confirm your new password');
-                    return;
-                  }
+            ElevatedButton(
+              onPressed: () async {
+                // When the button is pressed, it retrieves the current value of the new password and confirm new password input fields.
+                String newPassword = _resetPasswordController.text;
+                String confirmNewPassword = _resetConfirmPasswordController.text;
+                // Check if the password fields are not empty
+                if (_resetPasswordController.text.isEmpty || _resetConfirmPasswordController.text.isEmpty) {
+                  // Show error message if either one or all fields are empty
+                  _showErrorMessage('Please enter and confirm your new password');
+                  return;
+                }
 
-              // It then checks if the new password and confirm new password are the same.
-              if (newPassword != confirmNewPassword) {
-              // Show error message if new password and confirm new password do not match
-                _showErrorMessage('The passwords do not match');
-                return;
-              }
-                    // Check if the password is strong enough
-                  String password = _resetPasswordController.text;
-                  bool hasUppercase = password.contains(RegExp(r'[A-Z]'));
-                  bool hasDigits = password.contains(RegExp(r'[0-9]'));
-                  bool hasLowercase = password.contains(RegExp(r'[a-z]'));
-                  bool hasSpecialCharacters = password.contains(RegExp(r'[!@#$%^&£*(),.?":{}|<>]'));
-                  bool hasMinLength = password.length >= 8;
+                // It then checks if the new password and confirm new password are the same.
+                if (newPassword != confirmNewPassword) {
+                  // Show error message if new password and confirm new password do not match
+                  _showErrorMessage('The passwords do not match');
+                  return;
+                }
+                // Check if the password is strong enough
+                String password = _resetPasswordController.text;
+                bool hasUppercase = password.contains(RegExp(r'[A-Z]'));
+                bool hasDigits = password.contains(RegExp(r'[0-9]'));
+                bool hasLowercase = password.contains(RegExp(r'[a-z]'));
+                bool hasSpecialCharacters = password.contains(RegExp(r'[!@#$%^&£*(),.?":{}|<>]'));
+                bool hasMinLength = password.length >= 8;
 
-                  if (!hasUppercase || !hasDigits || !hasLowercase || !hasSpecialCharacters || !hasMinLength) {
-                    // Show error message if the password is not strong enough
-                    _showErrorMessage('The password should be at least 8 characters long, contain uppercase and lowercase letters, digits, and special characters');
-                    return;
-                  }
-              // TODO action to update the user's password in the database.
+                if (!hasUppercase || !hasDigits || !hasLowercase || !hasSpecialCharacters || !hasMinLength) {
+                  // Show error message if the password is not strong enough
+                  _showErrorMessage('The password should be at least 8 characters long, contain uppercase and lowercase letters, digits, and special characters');
+                  return;
+                }
 
-              Navigator.push(context, MaterialPageRoute(builder:(context) =>const HomePage()));
-            },
-                style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
-                    shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
-                child:const Text('Confirm', style:TextStyle(color:Colors.white))),
+                // Show loading animation
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  barrierColor: Colors.transparent, // Set barrierColor to transparent
+                  builder: (BuildContext context) {
+                    return const Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      child: LoadingAnimation(),
+                    );
+                  },
+                );
+
+                // TODO action to update the user's password in the database.
+
+                // Wait for 5 seconds to simulate updating user's password in database
+                await Future.delayed(const Duration(seconds: 5));
+
+                // Dismiss loading animation
+                Navigator.pop(context);
+
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              style: ElevatedButton.styleFrom(
+                  primary: const Color(0xFF003366),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+              child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+            )
+
           ],
         ),
       ),
@@ -804,8 +818,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
   void _showErrorMessage(String message) {
     Flushbar(
-      messageText: Text(
-        message,
+      messageText: Text(message,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
@@ -883,39 +896,44 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
               const SizedBox(height: 20),
 
               // Location input field
-              SizedBox(width: 300, height: 50,
-                child: TextField(
+                SizedBox(width: 300, height: 50,
+                  child: TypeAheadField(
+                  textFieldConfiguration: TextFieldConfiguration(
                   controller: _locationController,
                   textAlign : TextAlign.center,
                   decoration: InputDecoration(
-                      border : outlineInputBorder(),
-                      focusedBorder : outlineInputBorder(),
-                      enabledBorder : outlineInputBorder(),
-                      hintText: 'Location',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
-                      alignLabelWithHint: true,
-                      hintStyle:
-                      const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
-                  onTap: () async { // This function is supposed to show a place autocomplete dialog when the TextField is tapped.
-                    // The selected place's description is then set as the text of the TextField.
-
-                    // Prediction? prediction = await PlacesAutocomplete.show(
-                    //  context: context,
-                    // apiKey: '<YOUR_API_KEY>',
-                    // mode: Mode.overlay,
-                    // language: "en",
-                    //  components: [Component(Component.country, "ke")],
-                    //);
-
-                    //if (prediction != null) {
-                    // setState(() {
-                    //   _locationController.text = prediction.description;
-                    // });
-                    //}
-                  },
+                    border: outlineInputBorder(),
+                    focusedBorder: outlineInputBorder(),
+                    enabledBorder: outlineInputBorder(),
+                    hintText: 'Location',
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
+                    alignLabelWithHint: true,
+                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                suggestionsCallback: (pattern) async {
+                  // Get place predictions from Google Maps API
+                  final response = await http.get(
+                    Uri.parse(
+                      'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$pattern'
+                          '&key=AIzaSyCFpsDz1unugy3fOZPjIN1qjHrUB-jFnXE',
+                    ),
+                  );
+                  final data = jsonDecode(response.body);
+                  final predictions = data['predictions'] as List<dynamic>;
+                  return predictions.map((prediction) => prediction['description'] as String).toList();
+                },
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    title: Text(suggestion),
+                  );
+                },
+                onSuggestionSelected: (suggestion) {
+                  // Set the selected place's description as the text of the TextField
+                  _locationController.text = suggestion;
+                    },
+                  ),
+                ), const SizedBox(height: 20),
 
               // Business category selection
               SizedBox( width: 300, height: 50,
@@ -1074,7 +1092,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
               // Get started button
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Validate phone number
                     String phoneNumber = _phoneNumberController.text;
                     if (phoneNumber.isEmpty || phoneNumber.length != 10 || !phoneNumber.startsWith('07')) {
@@ -1088,17 +1106,34 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                       _showErrorMessage('Please accept the terms and conditions');
                       return;
                     }
-                      // Perform validation and submission logic here
-                      // If they are accepted, it navigates to the HomePage.
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
 
-                    // TODO Perform validation and submission logic here
+                    // Show loading animation
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      barrierColor: Colors.transparent, // Set barrierColor to transparent
+                      builder: (BuildContext context) {
+                        return const Dialog(
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          child: LoadingAnimation(),
+                        );
+                      },
+                    );
+
+                    // Wait for 5 seconds to simulate checking email and password against database
+                    await Future.delayed(const Duration(seconds : 5));
+                    // Dismiss loading animation
+                    Navigator.pop(context);
+
+                    // Perform validation and submission logic here
+                    // If they are accepted, it navigates to the HomePage.
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
                   style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
                       shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
-                  child:const Text('Get Started', style:TextStyle(color:Colors.white))
+                  child:const Text('Get Started', style:TextStyle(color:Colors.white))),
 
-              ),
             ],
           ),
         ),
