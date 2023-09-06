@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class LoadingAnimation extends StatefulWidget {
@@ -15,7 +16,8 @@ class _LoadingAnimationState extends State<LoadingAnimation> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
       ..addListener(() {
         setState(() {});
@@ -31,39 +33,46 @@ class _LoadingAnimationState extends State<LoadingAnimation> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // The ten dots spinner
-        SizedBox(width: 200, height: 200,
-          child: CustomPaint(
-            painter: DotsPainter(
-              progress: _animation.value,
-              color: const Color(0xFF00a896),
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // The ten dots spinner
+          SizedBox(width: 200, height: 200,
+            child: CustomPaint(
+              painter: DotsPainter(
+                progress: _animation.value,
+                color: const Color(0xFF00a896),
+              ),
             ),
           ),
-        ),
 
-        // The app's title
-        Opacity(
-          opacity: (_animation.value - 1).abs(),
-          child: RichText(
-            text: const TextSpan(text: 'tuma',
-              style: TextStyle(fontSize: 30, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.w900),
-              children: <TextSpan>[
-                TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
-                TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
-              ],
+          // The app's title
+          Opacity(
+            opacity: (_animation.value - 1).abs(),
+            child: RichText(
+              text: const TextSpan(text: 'tuma',
+                style: TextStyle(fontSize: 30,
+                    fontFamily: 'Nunito',
+                    color: Color(0xFF003366),
+                    fontWeight: FontWeight.w900),
+                children: <TextSpan>[
+                  TextSpan(
+                      text: '.', style: TextStyle(color: Color(0xFF00a896))),
+                  TextSpan(text: 'today',
+                      style: TextStyle(color: Color(0xFF003366))),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class DotsPainter extends CustomPainter {
+  class DotsPainter extends CustomPainter {
   final double progress;
   final Color color;
 
