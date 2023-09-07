@@ -73,15 +73,20 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     _deliveries = widget.deliveries;
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
+        backgroundColor: Colors.white,
+        body: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            setState(() => _showPopup = false);
+          },
+          child: SafeArea(
+            child: Stack(
               children: [
+                Column(
+                  children: [
                 // Nav bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20,),
@@ -386,6 +391,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
           ],
         ),
       ),
+    )
     );
   }
 

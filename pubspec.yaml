@@ -73,6 +73,9 @@ flutter:
         - asset: fonts/static/Nunito-Regular.ttf
         - asset: fonts/static/Nunito-Bold.ttf
           weight: 700
+  assets:
+    - images/gif.gif
+    #- images/add.png
 
 
 

@@ -1,6 +1,7 @@
 // account_page.dart
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
 import 'dart:io';
 
 // Function that returns an OutlineInputBorder with the desired properties
@@ -48,7 +49,7 @@ class _AccountPageState extends State<AccountPage> {
         Column(crossAxisAlignment: CrossAxisAlignment.start,
             children:[
               Padding( padding:
-              const EdgeInsets.symmetric(horizontal: 10.0, vertical :10.0),
+              const EdgeInsets.symmetric(horizontal: 100.0, vertical :40.0),
                 child:
                 Row(children:[
                   Stack(children: [
@@ -180,10 +181,30 @@ class _AccountPageState extends State<AccountPage> {
                                               Center(
                                                 child: Container(
                                                   child: ElevatedButton(
-                                                    onPressed: () {
+                                                    onPressed: () async {
+
                                                       // TODO:
                                                       // Implement save logic
-                                                      Navigator.of(context).pop();
+                                                      // Show loading animation
+                                                      showDialog(
+                                                        context: context,
+                                                        barrierDismissible: false,
+                                                        barrierColor: Colors.transparent, // Set barrierColor to transparent
+                                                        builder: (BuildContext context) {
+                                                          return const Dialog(
+                                                            backgroundColor: Colors.transparent,
+                                                            elevation: 0,
+                                                            child: LoadingAnimation(),
+                                                          );
+                                                        },
+                                                      );
+
+                                                      // Wait for 5 seconds to simulate checking email and password against database
+                                                      await Future.delayed(const Duration(seconds : 5));
+                                                      // Dismiss loading animation
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
+
                                                     },
                                                     child: const Text('Save',
                                                       style: TextStyle( fontSize: 16, fontFamily: 'Nunito',

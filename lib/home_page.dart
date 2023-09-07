@@ -26,6 +26,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> deliveries = <Map<String, dynamic>>[];
+  Color _buttonColor = const Color(0xFF00a896);
+
+  final gif = Image.asset('images/gif.gif');
 
   String _salutation = '';
   bool _showPopup = false;
@@ -50,12 +53,18 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
+        backgroundColor: Colors.white,
+        body: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            setState(() => _showPopup = false);
+          },
+          child: SafeArea(
+            child: Stack(
               children: [
+                Column(
+                  children: [
+
                 // Nav bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10,),
@@ -68,16 +77,14 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             // Profile picture
                             Positioned(
-                              top: MediaQuery.of(context).padding.top + 30,
-                              left: 30,
+                              top: MediaQuery.of(context).padding.top + 30, left: 30,
                               child: GestureDetector(
                                 onTap: () {
                                   setState(() {
                                     // view profile pic
                                   });
                                 },
-                                child: const CircleAvatar(
-                                  radius: 40,
+                                child: const CircleAvatar( radius: 40,
                                   backgroundColor: Colors.grey,
                                   // TODO:
                                   // Replace with the actual profile picture of the rider
@@ -85,12 +92,12 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 20, height: 50,),
+                            const SizedBox(width: 20, height: 30,),
 
                             // Salutation
                             Text(_salutation, style: const TextStyle(color: Color(0xFF003366), fontSize: 16, fontFamily: 'Nunito', fontWeight: FontWeight.bold)),
                             const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 50,),
+                              padding: EdgeInsets.symmetric(vertical: 40,),
                             ),
                           ],
                         ),
@@ -115,65 +122,77 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                Expanded(
-                    child:
-                    Column(mainAxisAlignment:
-                    MainAxisAlignment.center,
-                        children:[
+                Container(
+                  width: 800,
+                  height: 400,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(color: const Color(0xFF00a896), width: 2),
+                  ),
+                  child: gif,
+                ), const SizedBox(height: 40),
 
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Stack(
                             clipBehavior: Clip.none,
                             children: [
-                        ElevatedButton(
-                        onPressed: () {
-                Navigator.push(
-                context,
-                MaterialPageRoute(
-                builder: (context) => DeliveryRequestPage(deliveries: deliveries),
-                ),
-                );
-                },
-                  style: ElevatedButton.styleFrom(
-                    primary: const Color(0xFF00a896),
-                    fixedSize: const Size(200, 70),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: 70),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Delivery',
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Request',
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ), const Positioned(top:-50,left:-10,
-                                  child:
-                                  Icon(Icons.note_add_outlined,color: Color(0xFF003366),size: 120)
+                              MouseRegion(
+                                onEnter: (event) => setState(() => _buttonColor = const Color(0xFF00a4cd)),
+                                onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DeliveryRequestPage(deliveries: deliveries),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: _buttonColor,
+                                    fixedSize: const Size(200, 70),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(left: 70),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Delivery',
+                                          style:
+                                          TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          'Request',
+                                          style:
+                                          TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const Positioned(
+                                top: -50,
+                                left: -10,
+                                child:
+                                Icon(Icons.note_add_outlined, color: Color(0xFF003366), size: 120),
                               ),
                             ],
                           )
-                        ])
-                )
-              ],
-            ),
+                        ],
+                      ),
+                    )
+
+
+                  ],
+                        ),
 
             // Popup menu
             if (_showPopup)
@@ -254,6 +273,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+        )
     );
   }
 }
