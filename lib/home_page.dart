@@ -25,6 +25,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Map<String, dynamic>> deliveries = <Map<String, dynamic>>[];
+
   String _salutation = '';
   bool _showPopup = false;
 
@@ -122,35 +124,47 @@ class _HomePageState extends State<HomePage> {
                           Stack(
                             clipBehavior: Clip.none,
                             children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder:(context) => const DeliveryRequestPage()));
-                                },
-                                style:
-                                ElevatedButton.styleFrom(primary: const Color(0xFF00a896),
-                                    fixedSize: const Size(200,70),
-                                    shape: RoundedRectangleBorder(borderRadius:
-                                    BorderRadius.circular(10))
-                                ),
-                                child:
-                                const Padding(padding: EdgeInsets.only(left: 70),
-                                  child:
-                                  Column(mainAxisAlignment:
-                                  MainAxisAlignment.center,
-                                      children:[
-                                        Text('Delivery',
-                                            style:
-                                            TextStyle(fontFamily:'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold,)
-                                        ),
-                                        Text('Request',
-                                            style:
-                                            TextStyle(fontFamily:'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold,)
-                                        ),
-                                      ]
-                                  ),
-                                ),
-                              ),
-                              const Positioned(top:-50,left:-10,
+                        ElevatedButton(
+                        onPressed: () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                builder: (context) => DeliveryRequestPage(deliveries: deliveries),
+                ),
+                );
+                },
+                  style: ElevatedButton.styleFrom(
+                    primary: const Color(0xFF00a896),
+                    fixedSize: const Size(200, 70),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 70),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Delivery',
+                          style: TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Request',
+                          style: TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ), const Positioned(top:-50,left:-10,
                                   child:
                                   Icon(Icons.note_add_outlined,color: Color(0xFF003366),size: 120)
                               ),

@@ -523,7 +523,7 @@ class ForgotPasswordPage extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
 
               // When the button is pressed, it retrieves the current value of the email input field.
-              String email = emailController.text;
+              //String email = emailController.text;
 
 
               // TODO action to send an email with a link to reset password.
@@ -784,7 +784,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   // Controllers for each TextField
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _businessLocationController = TextEditingController();
   final TextEditingController _businessCategoryController = TextEditingController();
   String? _businessCategory;
   // Boolean to check if terms and conditions are accepted
@@ -874,7 +874,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
               SizedBox(width: 300, height: 50,
                 child: TypeAheadField(
                   textFieldConfiguration: TextFieldConfiguration(
-                    controller: _locationController,
+                    controller: _businessLocationController,
                     textAlign : TextAlign.center,
                     decoration: InputDecoration(
                       border: outlineInputBorder(),
@@ -905,7 +905,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                   },
                   onSuggestionSelected: (suggestion) {
                     // Set the selected place's description as the text of the TextField
-                    _locationController.text = suggestion;
+                    _businessLocationController.text = suggestion;
                   },
                 ),
               ), const SizedBox(height: 20),

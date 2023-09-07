@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 // Import the pages
 import '../login_signup_forgot_reset_business_details_page.dart';
@@ -20,13 +21,16 @@ OutlineInputBorder outlineInputBorder() {
 
 // delivery request page widget
 class DeliveryRequestPage extends StatefulWidget {
-  const DeliveryRequestPage({Key? key}) : super(key: key);
+  final List<Map<String, dynamic>> deliveries;
+
+  const DeliveryRequestPage({Key? key, required this.deliveries}) : super(key: key);
 
   @override
   _DeliveryRequestPageState createState() => _DeliveryRequestPageState();
 }
 
 class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
+  late List<Map<String, dynamic>> _deliveries;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _contactController = TextEditingController();
@@ -40,11 +44,36 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final _contactKey = GlobalKey<CustomTextFormFieldState>();
   final _locationKey = GlobalKey<CustomTextFormFieldState>();
 
-  final _nameFocusNode = FocusNode();
-  final _contactFocusNode = FocusNode();
-  final _locationFocusNode = FocusNode();
+  //final _nameFocusNode = FocusNode();
+  //final _contactFocusNode = FocusNode();
+  //final _locationFocusNode = FocusNode();
 
+  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  void _showErrorMessage(String message) {
+    Flushbar(
+      messageText: Text(message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: Colors.transparent,
+      // Set backgroundColor to transparent
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      margin: const EdgeInsets.only(top: 80, left: 20, right: 2),
+      maxWidth: 350,
+      borderRadius: BorderRadius.circular(25),
+      duration: const Duration(seconds: 10),
+    ).show(context);
+  }
   @override
+  void initState() {
+    super.initState();
+
+    // Initialize _deliveries with the list of deliveries passed from DeliveriesPage
+    _deliveries = widget.deliveries;
+  }
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -55,24 +84,20 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
               children: [
                 // Nav bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 50, vertical: 20,),
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20,),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
 
                         // Profile picture
                         Positioned(
-                          top: MediaQuery.of(context).padding.top + 30,
-                          left: 30,
+                          top: MediaQuery.of(context).padding.top + 30, left: 30,
                           child: GestureDetector(
-                            onTap: () {
-                              setState(() {
+                            onTap: () { setState(() {
                                 // view profile pic
                               });
                             },
-                            child: const CircleAvatar(
-                              radius: 40,
+                            child: const CircleAvatar(radius: 40,
                               backgroundColor: Colors.grey,
                               // TODO:
                               // Replace with the actual profile picture of the rider
@@ -117,67 +142,85 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                 Column(children: [
                                   Transform.translate(
                                     offset: const Offset(0, -50),
-                                    child: Container(
-                                      width: 350,
-                                      height: 500,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
+                                    child: Container(width: 350, height: 500,
+                                      decoration: BoxDecoration(color: Colors.white,
                                         border: Border.all(
-                                            color: const Color(0xFF00a896),
-                                            width: 3),
-                                        borderRadius:
-                                        BorderRadius.circular(30),
+                                            color: const Color(0xFF00a896), width: 3),
+                                        borderRadius: BorderRadius.circular(30),
                                       ),
                                       child:
                                       Column(children: [
                                         const SizedBox(height: 60),
-                                        CustomTextFormField(key: _nameKey,
-                                          hintText: 'Customer Name',
-                                          errorMessage: 'Please enter customer name',
-                                          controller: _nameController,
-                                          focusNode: _nameFocusNode,),
+                                        SizedBox(width: 300, height: 40,
+                                          child: TextFormField(
+                                            controller: _nameController,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.bold,
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText: 'Customer Name',
+                                              hintStyle: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'Nunito', fontWeight: FontWeight.w100
+                                              ),
+                                              fillColor: const Color(0xFF00a896),
+                                              filled: true,
+                                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                                              contentPadding:
+                                              const EdgeInsets.symmetric(vertical: 12, horizontal: 80),
+                                            ),
+                                          ),
+                                        ),
                                         const SizedBox(height: 30),
 
-                                        CustomTextFormField(key: _contactKey,
-                                          hintText: 'Customer Contact',
-                                          errorMessage: 'Please enter contact info',
-                                          controller: _contactController,
-                                          focusNode: _contactFocusNode,),
-                                        const SizedBox(height: 30),
+                                        SizedBox(width: 300, height: 40,
+                                          child: TextFormField(
+                                            controller: _contactController,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.bold,
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText: 'Customer Contact',
+                                              hintStyle: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'Nunito', fontWeight: FontWeight.w100
+                                              ),
+                                              fillColor: const Color(0xFF00a896),
+                                              filled: true,
+                                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                                              contentPadding:
+                                              const EdgeInsets.symmetric(vertical: 12, horizontal: 80),
+                                            ),
+                                          ),
+                                        ), const SizedBox(height: 30),
 
-                                        CustomTextFormField(key: _locationKey,
-                                          hintText: 'Delivery Location',
-                                          errorMessage: 'Please enter the location',
-                                          controller: _locationController,
-                                          focusNode: _locationFocusNode,
-                                          onTap: _handleLocationTap,),
-                                        const SizedBox(height: 30),
-
+                                        SizedBox(width: 300, height: 40,
+                                          child: TextFormField(
+                                            controller:_locationController,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.bold,
+                                            ),
+                                            decoration: InputDecoration(hintText:
+                                          'Delivery Location',
+                                            hintStyle: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'Nunito', fontWeight: FontWeight.w100
+                                            ),
+                                            fillColor: const Color(0xFF00a896),
+                                            filled: true,
+                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                                            contentPadding:
+                                            const EdgeInsets.symmetric(vertical: 12, horizontal: 80)),
+                                            onTap:_handleLocationTap,),
+                                        ), const SizedBox(height :30),
 
                                         SizedBox(width: 300, height: 40, child:
-                                        TextFormField(controller:
-                                        _instructionsController, textAlign:
-                                        TextAlign.center, style:
-                                        const TextStyle(color:
-                                        Colors.white, fontSize:
-                                        18, fontFamily: 'Nunito', fontWeight:
-                                        FontWeight.bold), decoration:
-                                        InputDecoration(hintText:
-                                        'Extra Instructions',
-                                            hintStyle:
-                                            const TextStyle(color:
-                                            Colors.white, fontSize:
-                                            12, fontFamily: 'Nunito'),
-                                            fillColor:
-                                            const Color(0xFF00a896),
-                                            filled:
-                                            true,
-                                            border:
-                                            OutlineInputBorder(borderRadius:
-                                            BorderRadius.circular(30)),
-                                            contentPadding:
-                                            const EdgeInsets.symmetric(vertical:
-                                            12, horizontal: 80)),),),
+                                        TextFormField(
+                                          controller: _instructionsController,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.bold),
+                                          decoration: InputDecoration(
+                                              hintText: 'Extra Instructions',
+                                            hintStyle: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'Nunito'),
+                                            fillColor: const Color(0xFF00a896),
+                                            filled: true,
+                                            border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(30)),
+                                            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 80)),),),
                                         const SizedBox(height: 15),
 
                                         Padding(
@@ -223,18 +266,32 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                               Align( // Add this line
                                                   alignment :Alignment.centerLeft, // Add this line
                                                   child:
-                                                  Padding( // Add this line
+                                                  Padding(
                                                       padding :const EdgeInsets.only(left :90), // Add this line
                                                       child :
                                                       ElevatedButton(
-                                                          onPressed :_handlePlaceOrder,style :
-                                                      ElevatedButton.styleFrom(primary :
-                                                      const Color(0xFF003366),shape :
-                                                      RoundedRectangleBorder(borderRadius :
-                                                      BorderRadius.circular(15))),child :
-                                                      const Text('Place Order',style :
-                                                      TextStyle(color :
-                                                      Colors.white,)))
+                                                        onPressed: () {
+                                                          // Check if any of the fields are empty
+                                                          if (_nameController.text.isEmpty ||
+                                                              _contactController.text.isEmpty ||
+                                                              _locationController.text.isEmpty) {
+                                                            // Show error message if either one or all fields are empty
+                                                            _showErrorMessage('Please fill in all the fields');
+                                                            return;
+                                                          }
+
+                                                          // Call the _handlePlaceOrder method if all fields are filled
+                                                          _handlePlaceOrder();
+                                                        },
+                                                        style: ElevatedButton.styleFrom(
+                                                          primary: const Color(0xFF003366),
+                                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                                        ),
+                                                        child: const Text('Place Order',
+                                                          style: TextStyle(color: Colors.white),
+                                                        ),
+                                                      )
+
                                                   )
                                               )
                                             ],
@@ -334,7 +391,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
 
   void _handleLocationTap() async {
     // TODO Replace with your own API key
-    const apiKey = 'AIzaSyDJqeRm7RSk2fCJCly_BeMYRuCBbFgqSB8';
+    const apiKey = 'AIzaSyCFpsDz1unugy3fOZPjIN1qjHrUB-jFnXE';
     final places = GoogleMapsPlaces(apiKey: apiKey);
     final result = await PlacesAutocomplete.show(
       context: context,
@@ -371,6 +428,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
       if (isFormFilled) {
         // Show confirmation dialog
         showDialog(
+            barrierDismissible: false, // Prevents the dialog from closing when the user clicks outside of it
             context: context,
             builder: (context) {
               return AlertDialog(
@@ -419,22 +477,17 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                       () {
                     Navigator.pop(context);
                   }, child:
-                  const Text('Edit', style:
-                  TextStyle(color: Colors.white)), style:
-                  TextButton.styleFrom(backgroundColor:
-                  const Color(0xFF003366), shape:
-                  RoundedRectangleBorder(borderRadius:
-                  BorderRadius.circular(20)),)),
+                  const Text('Edit',
+                      style: TextStyle(color: Colors.white)),
+                      style: TextButton.styleFrom(backgroundColor: const Color(0xFF003366),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),)),
                   const SizedBox(width: 50),
 
-                  TextButton(onPressed:
-                  _handleConfirmation, child:
-                  const Text('OK', style:
-                  TextStyle(color: Colors.white)), style:
-                  TextButton.styleFrom(backgroundColor:
-                  const Color(0xFF003366), shape:
-                  RoundedRectangleBorder(borderRadius:
-                  BorderRadius.circular(20)),)),
+                  TextButton(onPressed: _handleConfirmation,
+                      child: const Text('OK',
+                      style: TextStyle(color: Colors.white)),
+                      style: TextButton.styleFrom(backgroundColor: const Color(0xFF003366),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),)),
 
                 ],
               );
@@ -446,18 +499,36 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   void _handleConfirmation() {
     Navigator.pop(context); // Close the confirmation dialog
 
-// Save the delivery request information
+    // Save the delivery request information
     Map<String, dynamic> delivery = {
       'orderNumber': '12345',
       // TODO Replace with actual order number from backend
       'customerName': _nameController.text,
       'customerLocation': _locationController.text,
       'rider': 'Jane Doe',
-      // TODO Replace with actual rider from admin app
+      // TODO Replace with actual rider from admin app (backend)
       'status': 'To Assign',
     };
 
-// Show Done/New dialog
+    // Append new delivery to list of deliveries
+    _deliveries.add(delivery);
+
+    // Navigate to DeliveriesPage and wait for it to return a result
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DeliveriesPage(deliveries: _deliveries),
+      ),
+    );
+
+    // Clear the input fields
+    _nameController.clear();
+    _contactController.clear();
+    _locationController.clear();
+    _instructionsController.clear();
+    _costController.clear();
+
+    // Show Done/New dialog
     showDialog(
       context: context, builder: (context) {
       return AlertDialog(shape: RoundedRectangleBorder(
@@ -471,50 +542,62 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
             style: TextStyle(color: Color(0xFF003366))),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(onPressed:
-              () {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => DeliveriesPage(deliveries: [delivery])));
-          }, child:
-          const Text('Done', style:
-          TextStyle(color:
-          Colors.white)), style:
-          TextButton.styleFrom(backgroundColor:
-          const Color(0xFF003366), shape:
-          RoundedRectangleBorder(borderRadius:
-          BorderRadius.circular(20))),),
-          const SizedBox(width:
-          30),
-          TextButton(onPressed:
-              () {
-            Navigator.pop(context); // Close the new/done dialog
-            _nameController.clear();
-            _contactController.clear();
-            _locationController.clear();
-            _instructionsController.clear();
-            _costController.clear();
-          }, child:
-          const Text('New', style:
-          TextStyle(color:
-          Colors.white)), style:
-          TextButton.styleFrom(backgroundColor:
-          const Color(0xFF003366), shape:
-          RoundedRectangleBorder(borderRadius:
-          BorderRadius.circular(20))),),
-        ],);
-    },
+
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the new/done dialog
+                _nameController.clear();
+                _contactController.clear();
+                _locationController.clear();
+                _instructionsController.clear();
+                _costController.clear();
+
+                // Pop this page and pass back the updated list of deliveries
+                Navigator.pop(context, _deliveries);
+
+                // Navigate to the delivery request page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DeliveryRequestPage(deliveries: _deliveries),
+                  ),
+                );
+              },
+              child: const Text('New', style: TextStyle(color: Colors.white)),
+              style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFF003366),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+              ),
+            ),
+            const SizedBox(width: 30),
+          TextButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DeliveriesPage(deliveries: _deliveries)));
+            },
+            child: const Text('Done', style: TextStyle(color: Colors.white)),
+            style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFF003366),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
+            ),
+          ),
+
+        ],
+        );
+      },
     );
 
-// Clear the input fields
+    // Clear the input fields
     _nameController.clear();
     _contactController.clear();
     _locationController.clear();
     _instructionsController.clear();
     _costController.clear();
 
-// Show notification message
+    // Show notification message
     showNotification(context, 'Order successfully placed!', Colors.green);
   }
+
 
   void showNotification(BuildContext context, String message, Color color) {
     final overlay = Overlay.of(context)!;

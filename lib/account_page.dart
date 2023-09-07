@@ -21,7 +21,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _businessLocationController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   File? _image;
 
@@ -150,7 +150,7 @@ class _AccountPageState extends State<AccountPage> {
                                               const SizedBox(height: 10),
 
                                               TextField(
-                                                controller: _locationController,
+                                                controller: _businessLocationController,
                                                 textAlign : TextAlign.center,
                                                 decoration:
                                                 InputDecoration(
