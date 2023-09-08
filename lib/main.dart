@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 // Import the pages
-import 'login_signup_forgot_reset_business_details_page.dart';
+import 'user_details.dart';
 
 
 // The main function that runs the app

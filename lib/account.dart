@@ -1,4 +1,4 @@
-// account_page.dart
+// account.dart
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget

@@ -1,12 +1,12 @@
-// home_page.dart
+// home.dart
 
 import 'package:flutter/material.dart';
 
 // Import the pages
-import '../login_signup_forgot_reset_business_details_page.dart';
-import 'delivery_request_page.dart';
-import 'deliveries_page.dart';
-import '../account_page.dart';
+import '../user_details.dart';
+import 'delivery_request.dart';
+import 'deliveries.dart';
+import '../account.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {

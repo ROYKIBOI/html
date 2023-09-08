@@ -1,15 +1,15 @@
-// delivery_request_page.dart
+// delivery_request.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:another_flushbar/flushbar.dart';
 
 // Import the pages
-import '../login_signup_forgot_reset_business_details_page.dart';
-import 'home_page.dart';
+import '../user_details.dart';
+import 'home.dart';
 import 'assets/custom_text_form_field_page.dart';
-import 'deliveries_page.dart';
-import '../account_page.dart';
+import 'deliveries.dart';
+import '../account.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {

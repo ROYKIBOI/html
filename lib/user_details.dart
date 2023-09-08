@@ -1,4 +1,4 @@
-// login_signup_forgot_reset_business_details_page.dart
+// user_details.dart
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 // Import the pages
-import 'home_page.dart';
+import 'home.dart';
 
 
 // Function that returns an OutlineInputBorder with the desired properties
