@@ -57,15 +57,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               children:<Widget>[
                 SlideTransition(
                   position:_animationTuma,
-                  child:
-                  RichText(
-                    text:
-                    const TextSpan(
-                      text:'tuma',
-                      style:
-                      TextStyle(fontSize:
-                      100, fontFamily:'Nunito', color:
-                      Colors.white, fontWeight : FontWeight.bold),
+                  child: RichText(
+                    text: const TextSpan(text:'tuma',
+                      style: TextStyle(fontSize: 100, fontFamily:'Nunito', color: Colors.white, fontWeight : FontWeight.bold),
                     ),
                   ),
                 ),
@@ -73,28 +67,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   animation:_animationDot,
                   builder:(BuildContext context, Widget? child) {
                     return Transform.translate(
-                      offset:
-                      Offset(0.0,_animationDot.value),
-                      child:
-                      const Text('.',
-                          style:
-                          TextStyle(fontSize:
-                          100, fontFamily:'Nunito', color:
-                          Color(0xFF00a896), fontWeight : FontWeight.bold)),
+                      offset: Offset(0.0,_animationDot.value),
+                      child: const Text('.',
+                          style: TextStyle(fontSize: 100, fontFamily:'Nunito', color: Color(0xFF00a896), fontWeight : FontWeight.bold)),
                     );
                   },
                 ),
                 SlideTransition(
                   position:_animationToday,
-                  child:
-                  RichText(
-                    text:
-                    const TextSpan(
-                      text:'today',
-                      style:
-                      TextStyle(fontSize:
-                      100, fontFamily:'Nunito', color:
-                      Colors.white, fontWeight : FontWeight.bold),
+                  child: RichText(text:
+                    const TextSpan( text:'today',
+                      style: TextStyle(fontSize: 100, fontFamily:'Nunito', color: Colors.white, fontWeight : FontWeight.bold),
                     ),
                   ),
                 ),
@@ -103,12 +86,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
             FadeTransition(
               opacity:_animationTagline,
-              child:
-              const Text('swift.secure.seamless',
-                  style:
-                  TextStyle(fontSize:
-                  24, fontFamily:'Nunito', color:
-                  Color(0xFF00a896))),
+              child: const Text('swift.secure.seamless',
+                  style: TextStyle(fontSize: 24, fontFamily:'Nunito', color: Color(0xFF00a896))),
             ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
 
 // Import the pages
 import '../user_details.dart';
@@ -217,7 +218,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                         TextFormField(
                                           controller: _instructionsController,
                                           textAlign: TextAlign.center,
-                                          style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.bold),
+                                          style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
                                           decoration: InputDecoration(
                                               hintText: 'Extra Instructions',
                                             hintStyle: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'Nunito'),
@@ -275,7 +276,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                       padding :const EdgeInsets.only(left :90), // Add this line
                                                       child :
                                                       ElevatedButton(
-                                                        onPressed: () {
+                                                        onPressed: () async {
                                                           // Check if any of the fields are empty
                                                           if (_nameController.text.isEmpty ||
                                                               _contactController.text.isEmpty ||
@@ -489,7 +490,35 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),)),
                   const SizedBox(width: 50),
 
-                  TextButton(onPressed: _handleConfirmation,
+                  TextButton(onPressed: () async {
+
+// Show loading animation with a semi-transparent overlay that darkens the background
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return Stack(
+                          children: [
+                            Container(
+                              color: Colors.black.withOpacity(0.1),
+                            ),
+                            const Dialog(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              child: LoadingAnimation(),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    // Wait for 5 seconds to simulate checking email and password against database
+                    await Future.delayed(const Duration(seconds : 5));
+                    // Dismiss loading animation
+                    Navigator.pop(context);
+                    _handleConfirmation ();
+              },
+
                       child: const Text('OK',
                       style: TextStyle(color: Colors.white)),
                       style: TextButton.styleFrom(backgroundColor: const Color(0xFF003366),

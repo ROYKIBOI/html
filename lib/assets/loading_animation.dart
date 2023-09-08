@@ -33,8 +33,18 @@ class _LoadingAnimationState extends State<LoadingAnimation> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+             // changes position of shadow
+          ),
+        ],
+      ),
+      width: 500, height: 500,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -53,10 +63,7 @@ class _LoadingAnimationState extends State<LoadingAnimation> with SingleTickerPr
             opacity: (_animation.value - 1).abs(),
             child: RichText(
               text: const TextSpan(text: 'tuma',
-                style: TextStyle(fontSize: 30,
-                    fontFamily: 'Nunito',
-                    color: Color(0xFF003366),
-                    fontWeight: FontWeight.w900),
+                style: TextStyle(fontSize: 30, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.w900),
                 children: <TextSpan>[
                   TextSpan(
                       text: '.', style: TextStyle(color: Color(0xFF00a896))),
@@ -72,7 +79,7 @@ class _LoadingAnimationState extends State<LoadingAnimation> with SingleTickerPr
   }
 }
 
-  class DotsPainter extends CustomPainter {
+class DotsPainter extends CustomPainter {
   final double progress;
   final Color color;
 

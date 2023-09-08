@@ -5,6 +5,7 @@ import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'assets/splash_screen.dart'; // Import the splash screen
 
 // Import the pages
 import 'home.dart';
@@ -141,30 +142,15 @@ class _LoginPageState extends State<LoginPage> {
                     return;
                   }
 
-                  // Show loading animation
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    barrierColor: Colors.transparent, // Set barrierColor to transparent
-                    builder: (BuildContext context) {
-                      return const Dialog(
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        child: LoadingAnimation(),
-                      );
-                    },
-                  );
-
-                  // Wait for 5 seconds to simulate checking email and password against database
-                  await Future.delayed(const Duration(seconds : 5));
-                  // Dismiss loading animation
-                  Navigator.pop(context);
 
                   // Check if email and password are correct and found in the database (this will be done in the backend)
                   // TODO : bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
                   // TODO : if (isValid) {
                   // Redirect to home page if email and password are valid
-                  Navigator.push(context, MaterialPageRoute(builder:(context) => const HomePage()));
+                  Navigator.push( context, MaterialPageRoute( builder: (context) => SplashScreen( nextPage: const HomePage(),
+                      ),
+                    ),
+                  );
                   // TODO : } else {
                   // Show error message if email or password is invalid
                   // TODO : _showErrorMessage('Invalid email or password');
@@ -520,7 +506,6 @@ class ForgotPasswordPage extends StatelessWidget {
             // Submit button
             ElevatedButton(onPressed:
                 () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
 
               // When the button is pressed, it retrieves the current value of the email input field.
               //String email = emailController.text;
@@ -548,7 +533,7 @@ class ForgotPasswordPage extends StatelessWidget {
 
               // If user has clicked the link sent to their email
               // Navigate to the ResetPasswordPage.
-              //Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
             },
                 style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
                     shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
@@ -559,7 +544,6 @@ class ForgotPasswordPage extends StatelessWidget {
     );
   }
 }
-
 
 
 // Reset password page
@@ -643,9 +627,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       )),
                 ),
               ],
-            ),
-
-            const SizedBox(height: 30),
+            ), const SizedBox(height: 30),
 
             // New Password input field
             SizedBox(width: 300, height: 50, child:
@@ -670,14 +652,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     Colors.grey, fontFamily:
                     'Nunito'),
                     suffixIcon:
-                    IconButton(icon:
-                    Icon(_obscureText1 ?
-                    Icons.visibility :
-                    Icons.visibility_off),
+                    IconButton(icon: Icon(_obscureText1 ?
+                    Icons.visibility : Icons.visibility_off),
                         onPressed:_togglePasswordVisibility1)
                 )),
-            ),
-            const SizedBox(height: 20),
+            ), const SizedBox(height: 20),
 
             // Confirm password input field
             SizedBox(width: 300, height: 50,
@@ -734,30 +713,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   return;
                 }
 
-                // Show loading animation
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  barrierColor: Colors.transparent, // Set barrierColor to transparent
-                  builder: (BuildContext context) {
-                    return const Dialog(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      child: LoadingAnimation(),
-                    );
-                  },
-                );
 
-                // TODO action to update the user's password in the database.
 
-                // Wait for 5 seconds to simulate updating user's password in database
-                await Future.delayed(const Duration(seconds: 5));
-
-                // Dismiss loading animation
-                Navigator.pop(context);
-
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-              },
+                Navigator.push( context, MaterialPageRoute( builder: (context) => SplashScreen( nextPage: const HomePage(),
+                      ),
+                    ),
+                  );
+                },
               style: ElevatedButton.styleFrom(
                   primary: const Color(0xFF003366),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
@@ -1082,29 +1044,12 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                       return;
                     }
 
-                    // Show loading animation
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      barrierColor: Colors.transparent, // Set barrierColor to transparent
-                      builder: (BuildContext context) {
-                        return const Dialog(
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          child: LoadingAnimation(),
-                        );
-                      },
-                    );
-
-                    // Wait for 5 seconds to simulate checking email and password against database
-                    await Future.delayed(const Duration(seconds : 5));
-                    // Dismiss loading animation
-                    Navigator.pop(context);
-
                     // Perform validation and submission logic here
                     // If they are accepted, it navigates to the HomePage.
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                  },
+                    Navigator.push( context, MaterialPageRoute( builder: (context) => SplashScreen( nextPage: const HomePage(),
+                          ),
+                        ),
+                    );                  },
                   style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
                       shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
                   child:const Text('Get Started', style:TextStyle(color:Colors.white))),
