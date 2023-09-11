@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
 import 'dart:io';
+import 'dart:convert';
+import 'dart:html' as html;
+import 'dart:typed_data';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -11,6 +14,7 @@ OutlineInputBorder outlineInputBorder() {
     borderSide: const BorderSide(color: Color(0xFF003366), width: 3),
   );
 }
+
 
 
 //my account page widget
@@ -38,6 +42,10 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
+  // Convert image file to Uint8List
+  Future<Uint8List> _convertImageToBytes(File imageFile) async {
+    return await imageFile.readAsBytes();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,20 +62,46 @@ class _AccountPageState extends State<AccountPage> {
                 Row(children:[
                   Stack(children: [
                     if (_image == null)
-                      const CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        radius: 90,
+                      Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 2),
+                          shape: BoxShape.circle,
+                        ),
                         child: Icon(
                           Icons.person,
                           size: 100,
-                          color: Colors.white,
+                          color: Colors.grey,
                         ),
                       )
                     else
-                      CircleAvatar(
-                        radius: 90,
-                        backgroundImage: FileImage(_image!),
+                      FutureBuilder<Uint8List>(
+                        future: _convertImageToBytes(_image!),
+                        builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return const Icon(Icons.error);
+                          } else {
+                            return Container(
+                              width: 180,
+                              height: 180,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey, width: 2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: ClipOval(
+                                child: Image.memory(
+                                  snapshot.data!,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          }
+                        },
                       ),
+
 
                     Positioned(top: 130, left: 72,
                       child: PopupMenuButton(

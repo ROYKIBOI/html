@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'assets/splash_screen.dart'; // Import the splash screen
+import 'dart:async';
 
 // Import the pages
 import 'home.dart';
@@ -33,11 +34,14 @@ class _LoginPageState extends State<LoginPage> {
   final _logInPasswordController = TextEditingController();
 
   Future<bool> checkCredentials(String email, String password) async {
-    // TODO: Implement code to check email and password against database
+    // TODO: Implement the logic code to check email and password against database
     // Return true if email and password are valid, false otherwise
-    return false;
+    // For now, let's assume that the credentials are always valid
+    return true;
   }
-  bool _obscureText = true;
+
+  bool _obscureText = true; // this function is for revealing the password
+  bool _isLoading = false; // this function prevents multiple requests from being sent when the login button is clicked multiple times
 
   // Toggles the visibility of the password
   void _togglePasswordVisibility() {
@@ -76,9 +80,7 @@ class _LoginPageState extends State<LoginPage> {
             // Display the app's title using RichText
             Stack(
               children: [
-                RichText(
-                  text: const TextSpan(
-                    text: 'tuma',
+                RichText(text: const TextSpan(text: 'tuma',
                     style: TextStyle( fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
@@ -86,8 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                const Positioned(
-                  top: 70, left: 65,
+                const Positioned(top: 70, left: 65,
                   child: Text('swift. secure. seamless',
                       style: TextStyle( fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
                       )),
@@ -114,8 +115,7 @@ class _LoginPageState extends State<LoginPage> {
 
             // Password input field
             SizedBox(width: 300, height: 50,
-              child:
-              TextField(controller: _logInPasswordController,
+              child: TextField(controller: _logInPasswordController,
                   obscureText: _obscureText,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(border :
@@ -134,32 +134,41 @@ class _LoginPageState extends State<LoginPage> {
             ), const SizedBox(height: 20),
 
             ElevatedButton(
-                onPressed :() async {
-                  // Check if email and password fields are not empty
-                  if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
-                    // Show error message if either one or all fields are empty
-                    _showErrorMessage('Please enter your email and password');
-                    return;
-                  }
+              onPressed: _isLoading ? null : () async {
+                setState(() {
+                  _isLoading = true;
+                });
 
+                // Check if email and password fields are not empty
+                if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
+                  // Show error message if either one or all fields are empty
+                  _showErrorMessage('Please enter your email and password');
+                  return;
+                }
 
-                  // Check if email and password are correct and found in the database (this will be done in the backend)
-                  // TODO : bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
-                  // TODO : if (isValid) {
-                  // Redirect to home page if email and password are valid
-                  Navigator.push( context, MaterialPageRoute( builder: (context) => SplashScreen( nextPage: const HomePage(),
+                // Check if email and password are correct and found in the database
+                bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
+                if (isValid) {
+                  // Display the splash screen before navigating to the home page
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen(nextPage: HomePage(),
                       ),
                     ),
                   );
-                  // TODO : } else {
+                } else {
                   // Show error message if email or password is invalid
-                  // TODO : _showErrorMessage('Invalid email or password');
-                  // TODO : }
-                },
-                style:ElevatedButton.styleFrom(primary : const Color(0xFF003366),
-                    shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25))),
-                child : const Text('Log In', style : TextStyle(color : Colors.white))
+                  _showErrorMessage('Invalid email or password');
+                }
+
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                  primary: const Color(0xFF003366),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+              child: _isLoading ? const CircularProgressIndicator() : const Text('Log In', style: TextStyle(color: Colors.white)),
             ),
+
 
             //When the user clicks the Log In button, the email and password entered by the user will be checked against the database to see if they are valid.
             //If the email and password are found to be valid, the user will be redirected to the home page of the app.
@@ -195,10 +204,29 @@ class _SignUpPageState extends State<SignUpPage> {
   final _signUpEmailController = TextEditingController();
   final _signUpPasswordController = TextEditingController();
   final _signUpConfirmPasswordController = TextEditingController();
+  final FocusNode emailFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    emailFocusNode.addListener(() {
+      if (emailFocusNode.hasFocus) {
+        _showSuccessMessage('Please make sure that the email you enter is valid. It will be used to complete setting up your account and for communication purposes.');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    emailFocusNode.dispose();
+    super.dispose();
+  }
 
   // Variables to control the visibility of the password fields
   bool _obscureText1 = true;
   bool _obscureText2 = true;
+  bool _isLoading = false;
+
 
   // Toggles the visibility of the password field
   void _togglePasswordVisibility1() {
@@ -225,13 +253,29 @@ class _SignUpPageState extends State<SignUpPage> {
       backgroundColor: Colors.white.withOpacity(1.0),
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
-      margin: const EdgeInsets.only(bottom: 60, left: 2, right: 2),
+      margin: const EdgeInsets.only(bottom: 50, left: 2, right: 2),
       maxWidth: 350,
       borderRadius: BorderRadius.circular(25),
       duration: const Duration(seconds: 10),
     ).show(context);
   }
 
+  // Displays a success message as a popup with green, almost transparent background at the top center of the window for 10 seconds
+  void _showSuccessMessage(String message) {
+    Flushbar(
+      messageText: Text(message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.green.withOpacity(1.0),
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      margin: const EdgeInsets.only(top: 70, left: 8, right: 8),
+      maxWidth: 350,
+      borderRadius: BorderRadius.circular(25),
+      duration: const Duration(seconds: 10),
+    ).show(context);
+  }
   // Validates email using regex
   bool _isEmailValid(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -257,26 +301,17 @@ class _SignUpPageState extends State<SignUpPage> {
             Stack(
               children: [
                 RichText(
-                  text: const TextSpan(
-                    text: 'tuma',
-                    style: TextStyle(
-                        fontSize: 70,
-                        fontFamily: 'Nunito',
-                        color: Color(0xFF003366),
-                        fontWeight: FontWeight.bold),
+                  text: const TextSpan(text: 'tuma',
+                    style: TextStyle(fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
                       TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
                     ],
                   ),
                 ),
-                const Positioned(
-                  top: 70, left: 65,
+                const Positioned(top: 70, left: 65,
                   child: Text('swift. secure. seamless',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontFamily: 'Nunito',
-                        color: Color(0xFF00a896),
+                      style: TextStyle(fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
                       )),
                 ),
               ],
@@ -286,6 +321,7 @@ class _SignUpPageState extends State<SignUpPage> {
             SizedBox(width: 300, height: 50,
               child: TextField(
                 controller: _signUpEmailController, // Controls the text of the email field
+                focusNode: emailFocusNode,
                 textAlign : TextAlign.center,
                 decoration: InputDecoration(
                     border : outlineInputBorder(),
@@ -315,8 +351,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       suffixIcon :
                       IconButton(icon : Icon(_obscureText1 ?
                       Icons.visibility : Icons.visibility_off),
-                          onPressed :
-                          _togglePasswordVisibility1) // Toggles the visibility of the password field when pressed
+                          onPressed : _togglePasswordVisibility1) // Toggles the visibility of the password field when pressed
                   )),
             ),
             const SizedBox(height :20),
@@ -332,20 +367,23 @@ class _SignUpPageState extends State<SignUpPage> {
                       focusedBorder : outlineInputBorder(),
                       enabledBorder : outlineInputBorder(),
                       hintText :'Confirm Password',
-                      contentPadding :const EdgeInsets.symmetric(horizontal :70.0, vertical :10.0),
+                      contentPadding :const EdgeInsets.symmetric(horizontal :50.0, vertical :10.0),
                       alignLabelWithHint:true,
                       hintStyle :const TextStyle(color :Colors.grey, fontFamily :'Nunito'),
                       suffixIcon :
                       IconButton(icon : Icon(_obscureText2 ?
                       Icons.visibility_off :
                       Icons.visibility),
-                          onPressed :
-                          _togglePasswordVisibility2) // Toggles the visibility of the confirm password field when pressed
+                          onPressed : _togglePasswordVisibility2) // Toggles the visibility of the confirm password field when pressed
                   )),
             ), const SizedBox(height :20),
 
             // Confirmation button
-            ElevatedButton(onPressed :() async {
+            ElevatedButton( onPressed: _isLoading ? null : () async {
+              // Set _isLoading to true and rebuild the widget
+              setState(() {
+                _isLoading = true;
+              }); try {
               // Check if any of the fields are empty
               if (_signUpEmailController.text.isEmpty || _signUpPasswordController.text.isEmpty || _signUpConfirmPasswordController.text.isEmpty) {
                 // Show error message if either one or all fields are empty
@@ -370,12 +408,12 @@ class _SignUpPageState extends State<SignUpPage> {
               // Check if password is strong enough
               if (!_isPasswordStrong(_signUpPasswordController.text)) {
                 // Show error message if password is not strong enough
-                _showErrorMessage('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+                _showErrorMessage('Password must be 8 characters long, alphanumeric (0-9, a-z, A-Z) and special characters');
                 return;
               }
 
-              // Navigate to the BusinessDetailsPage
-              Navigator.push(context, MaterialPageRoute(builder :(context) =>const BusinessDetailsPage())); // Navigates to the BusinessDetailsPage when pressed
+              /// To remove:  Navigate to the BusinessDetailsPage (
+              Navigator.pushReplacement(context, MaterialPageRoute(builder :(context) =>const BusinessDetailsPage())); // Navigates to the BusinessDetailsPage when pressed
 
               // Send email with link to business details page
               //Perform your validation checks here...
@@ -390,10 +428,23 @@ class _SignUpPageState extends State<SignUpPage> {
               // TODO:     htmlContent: '<p>Please click this link to go to the business details page: <a href="https://yourdomain.com/business-details">https://yourdomain.com/business-details</a></p>',
               // TODO:   );
               // TODO:   await mailer.send(email);
+
+              // TODO: Send email...
+              // Show a message informing the user to check their email
+              _showSuccessMessage('Please check your email for the link to continue with the sign-up process.');
+              } catch (e) {
+              // TODO: Handle error...
+
+              } finally{
+                // Set _isLoading back to false after the request is completed
+                setState(() {
+                  _isLoading = false;
+                });
+              }
             },
                 style :ElevatedButton.styleFrom(primary :const Color(0xFF003366),
                     shape :RoundedRectangleBorder(borderRadius :BorderRadius.circular(25))),
-                child :const Text('Confirm', style :TextStyle(color :Colors.white))),
+                child: _isLoading ? const CircularProgressIndicator() :const Text('Confirm', style :TextStyle(color :Colors.white))),
           ],
         ),
       ),
@@ -403,12 +454,48 @@ class _SignUpPageState extends State<SignUpPage> {
 
 
 // The forgot password page widget
-class ForgotPasswordPage extends StatelessWidget {
-  // This controller will hold the value of the email input field
-  final TextEditingController emailController = TextEditingController();
-  ForgotPasswordPage({super.key});
+class ForgotPasswordPage extends StatefulWidget {
+  ForgotPasswordPage({Key? key}) : super(key: key);
 
-  /// Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  @override
+  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final TextEditingController emailController = TextEditingController();
+  final FocusNode emailFocusNode = FocusNode();
+  bool _isLoading = false;
+  bool _isSubmitted = false;
+  int _counter = 20;
+
+  Future<bool> checkIfEmailIsRegistered(String email) async {
+    // TODO: Replace this with actual call to the backend service
+    // make a GET request to the backend service's /users endpoint
+    // and check if the response contains the provided email
+
+    // This is just a placeholder return statement
+    return Future.value(true);
+  }
+  @override
+  void initState() {
+    super.initState();
+    emailFocusNode.addListener(() {
+      if (emailFocusNode.hasFocus) {
+        setState(() {
+          _isSubmitted = false;
+          _counter = 20;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    emailFocusNode.dispose();
+    super.dispose();
+  }
+
+  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
   void _showErrorMessage(BuildContext context, String message) {
     Flushbar(
       messageText: Text(
@@ -425,7 +512,6 @@ class ForgotPasswordPage extends StatelessWidget {
       duration: const Duration(seconds: 10),
     ).show(context);
   }
-
 
 // Displays a success message as a popup with green, almost transparent background at the top center of the window for 10 seconds
   void _showSuccessMessage(BuildContext context, String message) {
@@ -456,73 +542,88 @@ class ForgotPasswordPage extends StatelessWidget {
             Stack(
               children: [
                 RichText(
-                  text: const TextSpan(
-                    text: 'tuma',
-                    style: TextStyle(
-                        fontSize: 70,
-                        fontFamily: 'Nunito',
-                        color: Color(0xFF003366),
-                        fontWeight: FontWeight.bold),
+                  text: const TextSpan(text: 'tuma',
+                    style: TextStyle(fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
                       TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
                     ],
                   ),
                 ),
-                const Positioned(
-                  top: 70, left: 65,
+                const Positioned(top: 70, left: 65,
                   child: Text('swift. secure. seamless',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontFamily: 'Nunito',
-                        color: Color(0xFF00a896),
+                      style: TextStyle(fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
                       )),
                 ),
               ],
-            ),
-
-            const SizedBox(height: 30),
+            ), const SizedBox(height: 30),
 
             // Email input field
             SizedBox(width: 300, height: 50,
               child: TextField(
                 // The controller is attached to the TextField. It will hold the current value of the TextField.
                 controller: emailController,
+                focusNode: emailFocusNode,
+                enabled: !_isSubmitted || _counter == 0,
                 textAlign : TextAlign.center,
                 decoration: InputDecoration(
                     border : outlineInputBorder(),
                     focusedBorder : outlineInputBorder(),
                     enabledBorder : outlineInputBorder(),
-                    hintText: 'Enter Email',
+                    hintText: _isSubmitted ? emailController.text : 'Enter Email',
                     contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
                     alignLabelWithHint: true,
-                    hintStyle:
-                    const TextStyle(color:
-                    Colors.grey, fontFamily:'Nunito')),
+                    hintStyle: const TextStyle(color: Colors.grey, fontFamily:'Nunito')),
               ),
-            ),
-            const SizedBox(height: 20),
+            ), const SizedBox(height: 20),
 
             // Submit button
-            ElevatedButton(onPressed:
-                () {
+            ElevatedButton(
+                onPressed: _isLoading ? null : () async {
+                  setState(() {
+                    _isLoading = true;
+                    _isSubmitted = true;
+                  });
 
-              // When the button is pressed, it retrieves the current value of the email input field.
-              //String email = emailController.text;
-
-
+                  // Start the counter when the button is pressed
+                  Timer.periodic(const Duration(seconds: 1), (timer) {
+                    if (_counter > 0) {
+                      setState(() {
+                        _counter--;
+                      });
+                    } else {
+                      timer.cancel();
+                    }
+                  });
+                  // When the button is pressed, it retrieves the current value of the email input field.
+              String email = emailController.text;
               // TODO action to send an email with a link to reset password.
               // TODO function sendEmail() should be implemented to send an email with a reset password link.
               // TODO sendEmail(email, 'Reset Password', 'Please click this link to reset your password: <URL>');
               // Check if email field is not empty
-              if (emailController.text.isEmpty) {
+                  if (email.isEmpty) {
                 // Show error message if email field is empty
-                _showErrorMessage(context, 'Please enter your email');
-                return;
-              }
+                    _showErrorMessage(context, 'Please enter your email');
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    return;
+                  }
 
               // TODO Check if email is valid and registered with us during sign up
               // TODO Check if email matches the one stored in our database
+
+                  // TODO: Replace this with actual call to your backend service
+                  bool isEmailRegistered = await checkIfEmailIsRegistered(email);
+
+                  if (!isEmailRegistered) {
+                    // Show error message if email is not registered
+                    _showErrorMessage(context, 'This email is not registered');
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    return;
+                  }
 
               // If email is valid and matches the one stored in our database
               // TODO Send reset password link to valid registered email
@@ -532,15 +633,23 @@ class ForgotPasswordPage extends StatelessWidget {
               // TODO Implement a mechanism to verify that the user has clicked the link sent to their email
 
               // If user has clicked the link sent to their email
-              // Navigate to the ResetPasswordPage.
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
-            },
+              /// To remove: Navigate to the ResetPasswordPage.
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ResetPasswordPage()));
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
                 style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
                     shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
-                child:const Text('Submit', style:TextStyle(color:Colors.white))),
+                child: _isLoading ? CircularProgressIndicator() : Text(_isSubmitted ? 'Resend link' : 'Send link', style:TextStyle(color:Colors.white))),
+            const SizedBox(height: 10),
+
+            if (_isSubmitted && _counter > 0)
+              Text('$_counter', style: TextStyle(color: Color(0xFF00a896), fontFamily:'Nunito', fontSize: 16, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
           ],
         ),
       ),
+
     );
   }
 }
@@ -585,7 +694,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       backgroundColor: Colors.white.withOpacity(1.0),
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
-      margin: const EdgeInsets.only(bottom: 100, left: 2, right: 2),
+      margin: const EdgeInsets.only(bottom: 80, left: 2, right: 2),
       maxWidth: 350,
       borderRadius: BorderRadius.circular(25),
       duration: const Duration(seconds: 10),
@@ -604,53 +713,36 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             Stack(
               children: [
                 RichText(
-                  text: const TextSpan(
-                    text: 'tuma',
-                    style: TextStyle(
-                        fontSize: 70,
-                        fontFamily: 'Nunito',
-                        color: Color(0xFF003366),
-                        fontWeight: FontWeight.bold),
+                  text: const TextSpan(text: 'tuma',
+                    style: TextStyle(fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
                       TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
                     ],
                   ),
                 ),
-                const Positioned(
-                  top: 70, left: 65,
+                const Positioned(top: 70, left: 65,
                   child: Text('swift. secure. seamless',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontFamily: 'Nunito',
-                        color: Color(0xFF00a896),
+                      style: TextStyle(fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
                       )),
                 ),
               ],
             ), const SizedBox(height: 30),
 
             // New Password input field
-            SizedBox(width: 300, height: 50, child:
-            TextField(
+            SizedBox(width: 300, height: 50,
+              child: TextField(
                 controller:_resetPasswordController,
                 obscureText:_obscureText1,
-                textAlign:
-                TextAlign.center,
-                decoration:
-                InputDecoration(border :
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(border :
                 outlineInputBorder(),
                     focusedBorder : outlineInputBorder(),
                     enabledBorder : outlineInputBorder(),
                     hintText:'New Password',
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal:
-                    50.0, vertical:
-                    10.0),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
                     alignLabelWithHint:true,
-                    hintStyle:
-                    const TextStyle(color:
-                    Colors.grey, fontFamily:
-                    'Nunito'),
+                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                     suffixIcon:
                     IconButton(icon: Icon(_obscureText1 ?
                     Icons.visibility : Icons.visibility_off),
@@ -660,8 +752,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
             // Confirm password input field
             SizedBox(width: 300, height: 50,
-              child:
-              TextField(
+              child: TextField(
                   controller:_resetConfirmPasswordController,
                   obscureText:_obscureText2,
                   textAlign: TextAlign.center,
@@ -670,7 +761,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       focusedBorder : outlineInputBorder(),
                       enabledBorder : outlineInputBorder(),
                       hintText:'Confirm Password',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 70.0, vertical: 10.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
                       alignLabelWithHint:true,
                       hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                       suffixIcon:
@@ -709,13 +800,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
                 if (!hasUppercase || !hasDigits || !hasLowercase || !hasSpecialCharacters || !hasMinLength) {
                   // Show error message if the password is not strong enough
-                  _showErrorMessage('The password should be at least 8 characters long, contain uppercase and lowercase letters, digits, and special characters');
+                  _showErrorMessage('Password must be 8 characters long, alphanumeric (0-9, a-z, A-Z) and special characters');
                   return;
                 }
-
-
-
-                Navigator.push( context, MaterialPageRoute( builder: (context) => SplashScreen( nextPage: const HomePage(),
+                Navigator.pushReplacement( context, MaterialPageRoute( builder: (context) => const SplashScreen( nextPage: HomePage(),
                       ),
                     ),
                   );
@@ -725,7 +813,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
               child: const Text('Confirm', style: TextStyle(color: Colors.white)),
             )
-
           ],
         ),
       ),
@@ -904,14 +991,8 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               children: [
-                                ...<String>[
-                                  'Jewellery',
-                                  'Cosmetics',
-                                  'Home Decor',
-                                  'Perfume',
-                                  'Clothes',
-                                  'Fashion Accessories',
-                                ].map<Widget>((value) {
+                                ...<String>['Jewellery', 'Cosmetics', 'Home Decor', 'Perfume', 'Clothes', 'Fashion Accessories',]
+                                    .map<Widget>((value) {
                                   return CheckboxListTile(
                                     title: Text(value, style : const TextStyle(color : Color(0xFF003366))),
                                     value: _selectedCategories.contains(value),
@@ -931,11 +1012,8 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                                 }),
                                 // TextField for entering a custom category
                                 Padding(
-                                  padding:
-                                  const EdgeInsets.symmetric(horizontal:
-                                  16.0),
-                                  child:
-                                  TextField(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: TextField(
                                     controller: _customCategoryController,
                                     decoration: const InputDecoration(
                                         hintText: 'Other',
@@ -944,15 +1022,12 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                                     ),
                                     style: const TextStyle(color: Color(0xFF003366), fontFamily: 'Nunito'), // Set text color to #003366
                                   ),
-                                ),
-                                const SizedBox(height: 10),
+                                ), const SizedBox(height: 10),
                                 // Add a space of 10px
                                 Padding(
                                   padding:
-                                  const EdgeInsets.symmetric(horizontal:
-                                  16.0),
-                                  child:
-                                  TextButton(onPressed:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: TextButton(onPressed:
                                       () {
                                     // Add the custom category to the list of selected categories
                                     if (_customCategoryController.text.isNotEmpty) {
@@ -963,8 +1038,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                                     });
                                     Navigator.pop(context);
                                   },
-                                      child:
-                                      const Text('OK', style: TextStyle(fontSize: 14, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
+                                      child: const Text('OK', style: TextStyle(fontSize: 14, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
                                       )),
                                 ),
                               ],
@@ -1046,7 +1120,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
                     // Perform validation and submission logic here
                     // If they are accepted, it navigates to the HomePage.
-                    Navigator.push( context, MaterialPageRoute( builder: (context) => SplashScreen( nextPage: const HomePage(),
+                    Navigator.pushReplacement( context, MaterialPageRoute( builder: (context) => const SplashScreen( nextPage: HomePage(),
                           ),
                         ),
                     );                  },

@@ -100,8 +100,7 @@ class _HomePageState extends State<HomePage> {
                               padding: EdgeInsets.symmetric(vertical: 40,),
                             ),
                           ],
-                        ),
-                        const SizedBox(width: 300),
+                        ), const SizedBox(width: 300),
 
                         // Menu
                         Row(
@@ -122,9 +121,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                Container(
-                  width: 800,
-                  height: 400,
+                Container(width: 600, height: 300,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -132,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                     border: Border.all(color: const Color(0xFF00a896), width: 2),
                   ),
                   child: gif,
-                ), const SizedBox(height: 40),
+                ), const SizedBox(height: 10),
 
                     Expanded(
                       child: Column(
@@ -146,10 +143,7 @@ class _HomePageState extends State<HomePage> {
                                 onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => DeliveryRequestPage(deliveries: deliveries),
+                                    Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveryRequestPage(deliveries: deliveries),
                                       ),
                                     );
                                   },
@@ -163,34 +157,25 @@ class _HomePageState extends State<HomePage> {
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          'Delivery',
-                                          style:
-                                          TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                        Text('Delivery',
+                                          style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                                         ),
-                                        Text(
-                                          'Request',
-                                          style:
-                                          TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                        Text('Request',
+                                          style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
                               ),
-                              const Positioned(
-                                top: -50,
-                                left: -10,
-                                child:
-                                Icon(Icons.note_add_outlined, color: Color(0xFF003366), size: 120),
+                              const Positioned(top: -50, left: -10,
+                                child: Icon(Icons.note_add_outlined, color: Color(0xFF003366), size: 120),
                               ),
                             ],
                           )
                         ],
                       ),
                     )
-
-
                   ],
                         ),
 
@@ -250,7 +235,6 @@ class _HomePageState extends State<HomePage> {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
                           },
                         ), const SizedBox(height: 210),
-
 
                         // My account section
                         Padding(padding : const EdgeInsets.all(8.0),
