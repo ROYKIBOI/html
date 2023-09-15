@@ -256,20 +256,21 @@ class _SignUpPageState extends State<SignUpPage> {
   // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
   void _showErrorMessage(String message) {
     Flushbar(
-      messageText: Text(
-        message,
+      messageText: Text(message,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white.withOpacity(1.0),
+      backgroundColor: Colors.transparent,
+      barBlur: 0.0, // This removes the blur effect
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
-      margin: const EdgeInsets.only(bottom: 50, left: 2, right: 2),
+      margin: const EdgeInsets.only(bottom: 20, left: 2, right: 2),
       maxWidth: 350,
       borderRadius: BorderRadius.circular(25),
       duration: const Duration(seconds: 10),
     ).show(context);
   }
+
 
   // Displays a success message as a popup with green, almost transparent background at the top center of the window for 10 seconds
   void _showSuccessMessage(String message) {
@@ -304,30 +305,21 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
+        child: Stack(
+            children: <Widget>[
+
+        // Logo
+        Transform.translate(
+        offset: Offset(0, -10),
+        child: Image.asset('logo/img.png', width: 400, height: 400),
+      ),
+
+    // Container to move the following widgets up
+      Container(
+        margin: const EdgeInsets.only(top: 150.0, left: 50), // moves the widget up by 30 pixels
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-
-            // Display the app's title using RichText
-            Stack(
-              children: [
-                RichText(
-                  text: const TextSpan(text: 'tuma',
-                    style: TextStyle(fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
-                    children: <TextSpan>[
-                      TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
-                      TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
-                    ],
-                  ),
-                ),
-                const Positioned(top: 70, left: 65,
-                  child: Text('swift. secure. seamless',
-                      style: TextStyle(fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
-                      )),
-                ),
-              ],
-            ), const SizedBox(height: 30),
-
             // Email input field
             SizedBox(width: 300, height: 50,
               child: TextField(
@@ -459,6 +451,9 @@ class _SignUpPageState extends State<SignUpPage> {
           ],
         ),
       ),
+            ],
+        ),
+      ),
     );
   }
 }
@@ -546,28 +541,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: <Widget>[
-            // Display the app's title using RichText
-            Stack(
-              children: [
-                RichText(
-                  text: const TextSpan(text: 'tuma',
-                    style: TextStyle(fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
-                    children: <TextSpan>[
-                      TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
-                      TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
-                    ],
-                  ),
-                ),
-                const Positioned(top: 70, left: 65,
-                  child: Text('swift. secure. seamless',
-                      style: TextStyle(fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
-                      )),
-                ),
-              ],
-            ), const SizedBox(height: 30),
+
+            // Logo
+            Transform.translate(
+              offset: Offset(0, -20),
+              child: Image.asset('logo/img.png', width: 400, height: 400),
+            ),
+
+            // Container to move the following widgets up
+            Container(
+              margin: const EdgeInsets.only(top: 100.0, left: 50), // moves the widget up by 30 pixels
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
 
             // Email input field
             SizedBox(width: 300, height: 50,
@@ -661,6 +649,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         ),
       ),
 
+            ],
+        ),
+      ),
     );
   }
 }
@@ -717,28 +708,21 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
+        child: Stack(
+            children: <Widget>[
+
+        // Logo
+        Transform.translate(
+        offset: Offset(0, -10),
+        child: Image.asset('logo/img.png', width: 400, height: 400),
+      ),
+
+      // Container to move the following widgets up
+      Container(
+        margin: const EdgeInsets.only(top: 100.0, left: 50), // moves the widget up by 30 pixels
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // Display the app's title using RichText
-            Stack(
-              children: [
-                RichText(
-                  text: const TextSpan(text: 'tuma',
-                    style: TextStyle(fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
-                    children: <TextSpan>[
-                      TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
-                      TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
-                    ],
-                  ),
-                ),
-                const Positioned(top: 70, left: 65,
-                  child: Text('swift. secure. seamless',
-                      style: TextStyle(fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
-                      )),
-                ),
-              ],
-            ), const SizedBox(height: 30),
 
             // New Password input field
             SizedBox(width: 300, height: 50,
@@ -827,6 +811,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           ],
         ),
       ),
+            ],
+        ),
+      ),
     );
   }
 }
@@ -857,46 +844,40 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white.withOpacity(1.0),
+      backgroundColor: Colors.transparent,
+      barBlur: 0.0, // This removes the blur effect
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
-      margin: const EdgeInsets.only(bottom: 20, left: 2, right: 2),
+      margin: const EdgeInsets.only(bottom: 10, left: 2, right: 2),
       maxWidth: 350,
       borderRadius: BorderRadius.circular(25),
       duration: const Duration(seconds: 10),
     ).show(context);
   }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+        child: Stack(
+          children: <Widget>[
 
-              // Display the app's title using RichText
-              Stack(
-                children: [
-                  RichText(
-                    text: const TextSpan(
-                      text: 'tuma',
-                      style: TextStyle( fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366),
-                          fontWeight: FontWeight.bold),
-                      children: <TextSpan>[
-                        TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
-                        TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
-                      ],
-                    ),
-                  ),
-                  const Positioned( top: 70, left: 65,
-                    child: Text('swift. secure. seamless',
-                        style: TextStyle( fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
-                        )),
-                  ),
-                ],
-              ), const SizedBox(height: 30),
+            // Logo
+            Transform.translate(
+              offset: Offset(480, -10),
+              child: Image.asset('logo/img.png', width: 400, height: 400),
+
+            ),
+
+// Container to move the following widgets up
+            Container(
+              margin: const EdgeInsets.only(top: 210.0), // moves the widget up by 30 pixels
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
 
               // Business name input field
               SizedBox( width: 300, height: 50,
@@ -931,44 +912,19 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
               const SizedBox(height: 20),
 
               // Location input field
-              SizedBox(width: 300, height: 50,
-                child: TypeAheadField(
-                  textFieldConfiguration: TextFieldConfiguration(
-                    controller: _businessLocationController,
-                    textAlign : TextAlign.center,
-                    decoration: InputDecoration(
-                      border: outlineInputBorder(),
-                      focusedBorder: outlineInputBorder(),
-                      enabledBorder: outlineInputBorder(),
+              SizedBox(width: 300, height: 50, child:
+              TextField(
+                  controller: _businessLocationController,
+                  textAlign : TextAlign.center,
+                  decoration: InputDecoration(
+                      border : outlineInputBorder(),
+                      focusedBorder : outlineInputBorder(),
+                      enabledBorder : outlineInputBorder(),
                       hintText: 'Location',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
-                    ),
-                  ),
-                  suggestionsCallback: (pattern) async {
-                    // Get place predictions from Google Maps API
-                    final response = await http.get(
-                      Uri.parse(
-                        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$pattern'
-                            '&key=AIzaSyCFpsDz1unugy3fOZPjIN1qjHrUB-jFnXE',
-                      ),
-                    );
-                    final data = jsonDecode(response.body);
-                    final predictions = data['predictions'] as List<dynamic>;
-                    return predictions.map((prediction) => prediction['description'] as String).toList();
-                  },
-                  itemBuilder: (context, suggestion) {
-                    return ListTile(
-                      title: Text(suggestion),
-                    );
-                  },
-                  onSuggestionSelected: (suggestion) {
-                    // Set the selected place's description as the text of the TextField
-                    _businessLocationController.text = suggestion;
-                  },
-                ),
-              ), const SizedBox(height: 20),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')))),
+              const SizedBox(height: 20),
 
               // Business category selection
               SizedBox( width: 300, height: 50,
@@ -1060,7 +1016,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                     );
                   },
                 ),
-              ), const SizedBox(height: 30),
+              ), const SizedBox(height: 5),
 
               // Terms and conditions checkbox and text
               Row(
@@ -1110,7 +1066,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
                     )),
                   ),
                 ],
-              ), const SizedBox(height: 20),
+              ), const SizedBox(height: 10),
 
               // Get started button
               ElevatedButton(
@@ -1141,6 +1097,8 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
             ],
           ),
+        ),
+            ],
         ),
       ),
     );
