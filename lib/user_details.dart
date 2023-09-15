@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'assets/splash_screen.dart'; // Import the splash screen
 import 'dart:async';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:ui' as ui;
 
 // Import the pages
 import 'home.dart';
@@ -40,6 +42,8 @@ class _LoginPageState extends State<LoginPage> {
     return true;
   }
 
+
+
   bool _obscureText = true; // this function is for revealing the password
   bool _isLoading = false; // this function prevents multiple requests from being sent when the login button is clicked multiple times
 
@@ -68,34 +72,27 @@ class _LoginPageState extends State<LoginPage> {
     ).show(context);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
+        child: Stack(
+          children: <Widget>[
+
+            // Logo
+            Transform.translate(
+              offset: Offset(480, -10), // moves the logo up by 10 pixels
+                child: Image.asset('logo/img.png', width: 400, height: 400),
+
+            ),
+
+// Container to move the following widgets up
+      Container(
+        margin: const EdgeInsets.only(top: 150.0), // moves the widget up by 30 pixels
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // Display the app's title using RichText
-            Stack(
-              children: [
-                RichText(text: const TextSpan(text: 'tuma',
-                    style: TextStyle( fontSize: 70, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold),
-                    children: <TextSpan>[
-                      TextSpan(text: '.', style: TextStyle(color: Color(0xFF00a896))),
-                      TextSpan(text: 'today', style: TextStyle(color: Color(0xFF003366))),
-                    ],
-                  ),
-                ),
-                const Positioned(top: 70, left: 65,
-                  child: Text('swift. secure. seamless',
-                      style: TextStyle( fontSize: 22, fontFamily: 'Nunito', color: Color(0xFF00a896),
-                      )),
-                ),
-              ],
-            ), const SizedBox(height: 30),
-
             // Email input field
             SizedBox(width: 300, height: 50,
               child: TextField(
@@ -111,79 +108,93 @@ class _LoginPageState extends State<LoginPage> {
                   hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                 ),
               ),
-            ), const SizedBox(height: 20),
+            ),
+                 const SizedBox(height: 20),
 
             // Password input field
-            SizedBox(width: 300, height: 50,
+      SizedBox(width: 300, height: 50,
               child: TextField(controller: _logInPasswordController,
                   obscureText: _obscureText,
                   textAlign: TextAlign.center,
-                  decoration: InputDecoration(border :
-                  outlineInputBorder(),
+                  decoration: InputDecoration(
+                      border : outlineInputBorder(),
                       focusedBorder : outlineInputBorder(),
                       enabledBorder : outlineInputBorder(),
                       hintText: 'Password',
                       contentPadding: const EdgeInsets.symmetric(horizontal: 45.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
+                      hintStyle: const TextStyle(color:
+                      Colors.grey, fontFamily:
+                      'Nunito'),
                       suffixIcon:
                       IconButton(icon: Icon(_obscureText ?
                       Icons.visibility : Icons.visibility_off),
                           onPressed: _togglePasswordVisibility)
                   )),
-            ), const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 20),
 
             ElevatedButton(
-              onPressed: _isLoading ? null : () async {
-                setState(() {
-                  _isLoading = true;
-                });
+                onPressed: _isLoading ? null : () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
 
-                // Check if email and password fields are not empty
-                if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
-                  // Show error message if either one or all fields are empty
-                  _showErrorMessage('Please enter your email and password');
-                  return;
-                }
+                  // Check if email and password fields are not empty
+                  if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
+                    // Show error message if either one or all fields are empty
+                    _showErrorMessage('Please enter your email and password');
+                    return;
+                  }
 
-                // Check if email and password are correct and found in the database
-                bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
-                if (isValid) {
-                  // Display the splash screen before navigating to the home page
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen(nextPage: HomePage(),
-                      ),
+                  // Check if email and password are correct and found in the database
+                  bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
+                  if (isValid) {
+                    // Display the splash screen before navigating to the home page
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen(nextPage:
+                    HomePage(),
                     ),
-                  );
-                } else {
-                  // Show error message if email or password is invalid
-                  _showErrorMessage('Invalid email or password');
-                }
+                    ),
+                    );
+                  } else {
+                    // Show error message if email or password is invalid
+                    _showErrorMessage('Invalid email or password');
+                  }
 
-                setState(() {
-                  _isLoading = false;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                  primary: const Color(0xFF003366),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
-              child: _isLoading ? const CircularProgressIndicator() : const Text('Log In', style: TextStyle(color: Colors.white)),
-            ),
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                    primary: const Color(0xFF003366),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+                child: _isLoading ? const CircularProgressIndicator() : const Text('Log In', style: TextStyle(color: Colors.white)),
+              ),
 
 
-            //When the user clicks the Log In button, the email and password entered by the user will be checked against the database to see if they are valid.
-            //If the email and password are found to be valid, the user will be redirected to the home page of the app.
-            //If the email and password are not valid, an error message will be displayed
-            const SizedBox(height : 30),
+              //When the user clicks the Log In button, the email and password entered by the user will be checked against the database to see if they are valid.
+              //If the email and password are found to be valid, the user will be redirected to the home page of the app.
+              //If the email and password are not valid, an error message will be displayed
+              const SizedBox(height : 30),
 
-            // Sign Up and Forgot Password buttons
+              // Sign Up and Forgot Password buttons
             Row(mainAxisAlignment : MainAxisAlignment.center, children:<Widget>[
-              // Forgot Password button - redirects to ForgotPasswordPage when pressed
-              TextButton(onPressed : () { Navigator.push(context, MaterialPageRoute(builder:(context) => ForgotPasswordPage())); }, child : const Text('Forgot Password?', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
-              const SizedBox(width : 50),
+                // Forgot Password button - redirects to ForgotPasswordPage when pressed
+                TextButton(onPressed : () {
+                  Navigator.push(context, MaterialPageRoute(builder:(context) => ForgotPasswordPage()));
+                  },
+                    child : const Text('Forgot Password?', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
+                const SizedBox(width : 50),
 
-              // Sign Up button - redirects to SignUpPage when pressed
-              TextButton(onPressed : () { Navigator.push(context, MaterialPageRoute(builder:(context) => const SignUpPage())); }, child : const Text('Sign Up', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
-            ]),
+                // Sign Up button - redirects to SignUpPage when pressed
+                TextButton(onPressed : () {
+                  Navigator.push(context, MaterialPageRoute(builder:(context) => const SignUpPage()));
+                  },
+                    child : const Text('Sign Up', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
+              ]),
+          ],
+        ),
+      ),
           ],
         ),
       ),
@@ -641,11 +652,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 },
                 style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
                     shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
-                child: _isLoading ? CircularProgressIndicator() : Text(_isSubmitted ? 'Resend link' : 'Send link', style:TextStyle(color:Colors.white))),
+                child: _isLoading ? const CircularProgressIndicator() : Text(_isSubmitted ? 'Resend link' : 'Send link', style:const TextStyle(color:Colors.white))),
             const SizedBox(height: 10),
 
             if (_isSubmitted && _counter > 0)
-              Text('$_counter', style: TextStyle(color: Color(0xFF00a896), fontFamily:'Nunito', fontSize: 16, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
+              Text('$_counter', style: const TextStyle(color: Color(0xFF00a896), fontFamily:'Nunito', fontSize: 16, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
           ],
         ),
       ),

@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
-import 'dart:io';
-import 'dart:convert';
 import 'dart:html' as html;
-import 'dart:typed_data';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:path/path.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -14,7 +14,6 @@ OutlineInputBorder outlineInputBorder() {
     borderSide: const BorderSide(color: Color(0xFF003366), width: 3),
   );
 }
-
 
 
 //my account page widget
@@ -28,300 +27,323 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final TextEditingController _businessLocationController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  File? _image;
 
-  Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  String? _imageUrl;
+  String userId = '';
+  String imagePath = '';
 
-    if (image != null) {
-      print(image.path);
+  //Define a method to pick an image from the gallery
+  void _pickImage() async {
+    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      imagePath = pickedFile.path;
+      // Display the picked image immediately
       setState(() {
-        _image = File(image.path);
+        _imageUrl = pickedFile.path;
       });
+
+      // Upload the image to the server
+      final url = Uri.parse('http://localhost:8000/upload_image');
+
+      var request = http.MultipartRequest('POST', url);
+      request.fields['user_id'] = userId;
+      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        // Update _imageUrl with the server URL
+        setState(() {
+          _imageUrl = 'http://localhost:8000/images/${basename(pickedFile.path)}';
+        });
+      } else {
+        // Handle error
+      }
     }
   }
 
-  // Convert image file to Uint8List
-  Future<Uint8List> _convertImageToBytes(File imageFile) async {
-    return await imageFile.readAsBytes();
+// Delete the image from the server
+  void _removeImage() async {
+    final url = Uri.parse('http://localhost:8000/delete_image?user_id=$userId');
+    var response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _imageUrl = null;
+      });
+    } else {
+      // Handle error
+    }
   }
+
+  // Fetch/get the image from the server
+  @override
+  void initState() {
+    super.initState();
+    userId = '';
+    _fetchImage();
+  }
+
+  void _fetchImage() async {
+    final url = Uri.parse('http://localhost:8000/get_image?user_id=$userId');
+    var response = await http.get(url);
+    var imageUrl = jsonDecode(response.body)['image_url'];
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _imageUrl = jsonDecode(response.body)['image_url'];
+      });
+    } else {
+      // Handle error
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child:
-        SingleChildScrollView(child:
-        Column(crossAxisAlignment: CrossAxisAlignment.start,
-            children:[
-              Padding( padding:
-              const EdgeInsets.symmetric(horizontal: 100.0, vertical :40.0),
-                child:
-                Row(children:[
-                  Stack(children: [
-                    if (_image == null)
-                      Container(
-                        width: 180,
-                        height: 180,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey, width: 2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.person,
-                          size: 100,
-                          color: Colors.grey,
-                        ),
-                      )
-                    else
-                      FutureBuilder<Uint8List>(
-                        future: _convertImageToBytes(_image!),
-                        builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          } else if (snapshot.hasError) {
-                            return const Icon(Icons.error);
-                          } else {
-                            return Container(
-                              width: 180,
-                              height: 180,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey, width: 2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: ClipOval(
-                                child: Image.memory(
-                                  snapshot.data!,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-
-
-                    Positioned(top: 130, left: 72,
-                      child: PopupMenuButton(
-                        onSelected: (value) async {
-                          if (value == 'upload') {
-                            await _pickImage();
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                          const PopupMenuItem(
-                            value: 'upload',
-                            child: ListTile(
-                              leading: Icon(Icons.photo_library),
-                              title: Text('Upload Photo'),
-                            ),
-                          ),
-                        ],
-                        child: const Icon(Icons.camera_alt, color: Color(0xFF003366), size: 40,),
-                      ),
-
-                    ),
-
-                  ],
-                  ),
-
-                  Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Container(
-                          margin: const EdgeInsets.only(top: 150), // Add this Container widget with top margin of 80
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(
-                                    children: [
-                                      Icon(Icons.business,
-                                          color: Color(0xFF003366), size: 30),
-                                      Padding(padding : EdgeInsets.only(left :10),
-                                          child : Text('Business Name',
-                                              style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+        backgroundColor: Colors.white,
+        body: SafeArea(
+            child: SingleChildScrollView(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 80.0),
+                        child: Column(
+                            children: [
+                              Stack(
+                                children: [
+                                  Container(width: 240, height: 240,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.grey, width: 2,
+                                      ),
+                                      image: _imageUrl != null
+                                          ? DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(_imageUrl!) as ImageProvider<Object>,
                                       )
-                                    ]), const SizedBox(height: 30),
+                                          : null,
+                                    ),
+                                    child: _imageUrl == null ? const Icon(Icons.person, size: 100, color: Colors.grey) : null,
+                                  ),
 
-                                const Row(children:[
-                                  Icon(Icons.location_on,color :
-                                  Color(0xFF003366),size :30),
-                                  Padding(padding : EdgeInsets.only(left :10),
-                                      child : Text('Business Location',
-                                          style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
-                                  )
-                                ]), const SizedBox(height: 30),
 
-                                const Row(children:[
-                                  Icon(Icons.email,color : Color(0xFF003366),size :30),
-                                  Padding(padding : EdgeInsets.only(left :10),
-                                      child : Text('Business Email',
-                                          style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
-                                  )
-                                ]), const SizedBox(height: 30),
-
-                                Padding(padding :
-                                const EdgeInsets.only(top :20),
-                                    child : ElevatedButton(onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title:
-                                            const Text('Edit details',
-                                              textAlign : TextAlign.center,
-                                              style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
-                                            ),
+                                    Positioned(bottom: 5, right: 40,
+                                      child: Theme(
+                                        data: Theme.of(context).copyWith(
+                                          cardColor: Colors.white, // This changes the background color of the menu
+                                          popupMenuTheme: PopupMenuThemeData(
                                             shape: RoundedRectangleBorder(
-                                              side: const BorderSide(color: Color(0xFF00a896), width: 3),
+                                              side: BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
                                               borderRadius: BorderRadius.circular(25),
                                             ),
-                                            content:
-                                            SingleChildScrollView(child:
-                                            ListBody(children:<Widget>[
-                                              const Text('Name: Business Name',
-                                                  style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
-                                              const SizedBox(height: 10),
+                                          ),
+                                        ),
+                                        child: PopupMenuButton<ImageSource>(
+                                          icon: const Icon(Icons.camera_alt, size: 40, color: Color(0xFF003366)),
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(
+                                              child: Text('Upload Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: ImageSource.gallery,
+                                            ),
+                                            PopupMenuItem(
+                                              child: Text('Remove Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: ImageSource.camera,
+                                            ),
+                                          ],
+                                          onSelected: (value) {
+                                            if (value == ImageSource.camera) {
+                                              _removeImage();
+                                            } else {
+                                              _pickImage();
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    ],
+                                  ),
 
-                                              TextField(
-                                                controller: _businessLocationController,
-                                                textAlign : TextAlign.center,
-                                                decoration:
-                                                InputDecoration(
-                                                    border : outlineInputBorder(),
-                                                    focusedBorder : outlineInputBorder(),
-                                                    enabledBorder : outlineInputBorder(),
-                                                    hintText: 'Location',
-                                                    contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
-                                                    alignLabelWithHint: true,
-                                                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
-                                              ), const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 150),
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 20),
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const ListTile(
+                                        leading: Icon(Icons.business, color: Color(0xFF003366), size: 30),
+                                        title: Text('Business Name',
+                                            style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      ),
+                                      const SizedBox(height: 10),
 
-                                              TextField(
-                                                controller: _phoneNumberController,
-                                                textAlign : TextAlign.center,
-                                                decoration: InputDecoration(
-                                                    border : outlineInputBorder(),
-                                                    focusedBorder : outlineInputBorder(),
-                                                    enabledBorder : outlineInputBorder(),
-                                                    hintText: 'Phone Number',
-                                                    contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
-                                                    alignLabelWithHint: true,
-                                                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
-                                              ),
-                                            ])),
-                                            actions: <Widget>[
-                                              Center(
-                                                child: Container(
-                                                  child: ElevatedButton(
-                                                    onPressed: () async {
+                                      const ListTile(
+                                        leading: Icon(Icons.location_on,color : Color(0xFF003366),size :30),
+                                        title: Text('Business Location',
+                                            style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      ),
+                                      const SizedBox(height: 10),
 
-                                                      // TODO:
-                                                      // Implement save logic
-                                                      // Show loading animation
-                                                      showDialog(
-                                                        context: context,
-                                                        barrierDismissible: false,
-                                                        barrierColor: Colors.transparent, // Set barrierColor to transparent
-                                                        builder: (BuildContext context) {
-                                                          return const Dialog(
-                                                            backgroundColor: Colors.transparent,
-                                                            elevation: 0,
-                                                            child: LoadingAnimation(),
-                                                          );
-                                                        },
-                                                      );
+                                      const ListTile(
+                                        leading: Icon(Icons.email,color : Color(0xFF003366),size :30),
+                                        title: Text('Business Email',
+                                            style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      ),
+                                      const SizedBox(height: 20),
 
-                                                      // Wait for 5 seconds to simulate checking email and password against database
-                                                      await Future.delayed(const Duration(seconds : 5));
-                                                      // Dismiss loading animation
-                                                      Navigator.pop(context);
-                                                      Navigator.pop(context);
-
-                                                    },
-                                                    child: const Text('Save',
-                                                      style: TextStyle( fontSize: 16, fontFamily: 'Nunito',
-                                                        color: Colors.white, fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    style: ElevatedButton.styleFrom(primary: const Color(0xFF003366),
-                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-
-                                          );
-                                        },
-                                      );
-                                    },
-                                        style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
-                                            shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(20))),
-                                        child:const Text('Edit Profile', style:TextStyle(color:Colors.white))
-
-                                    )
-                                ),
-                              ])
-                      )
-                  )
-                ]),
-              ),
-
-              Padding(padding : const EdgeInsets.only(left :80,top :50),
-                  child :
-                  Column(crossAxisAlignment : CrossAxisAlignment.start,
-                      children:[
-                        const Row(children:[
-                          Icon(Icons.headset_mic,
-                              color : Color(0xFF003366),size :30),
-                          Padding(padding : EdgeInsets.only(left :10),
-                              child :
-                              Text('Support',
-                                  style : TextStyle(color : Color(0xFF003366),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
-                          )
-                        ]),
-                        const Padding(padding :
-                        EdgeInsets.only(left :50,top :20),
-                            child :
-                            Column(crossAxisAlignment :
-                            CrossAxisAlignment.start,
-                                children:[
-                                  Text('+254 704 134 095',
-                                      style :TextStyle(color :
-                                      Color(0xFF00a896),fontSize :14, fontFamily : 'Nunito')),
-                                  SizedBox(height: 20),
-
-                                  Text('hello@try.ke',
-                                      style :TextStyle(color :
-                                      Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito')),
-                                ])
-                        ),
-                        Padding(padding :
-                        const EdgeInsets.only(top :50,left :150),
-                            child :
-
-                            GestureDetector(onTap:
-                                () {
-                              // Show terms and conditions dialog
+                        Padding(padding : const EdgeInsets.only(top :20, left: 70),
+                            child : ElevatedButton(onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
+                                    title: const Text('Edit details',
+                                      textAlign : TextAlign.center,
+                                      style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(color: Color(0xFF00a896), width: 3),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
                                     content:
-                                    const SingleChildScrollView(child:
-                                    ListBody(
-                                        children: <Widget>[
-                                          Text(
-                                            'Terms and Conditions',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                    SingleChildScrollView(child:
+                                    ListBody(children:<Widget>[
+                                      const Text('Name: Business Name',
+                                          style : TextStyle(color : Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      const SizedBox(height: 10),
+
+                                      TextField(
+                                        controller: _businessLocationController,
+                                        textAlign : TextAlign.center,
+                                        decoration: InputDecoration(
+                                            border : outlineInputBorder(),
+                                            focusedBorder : outlineInputBorder(),
+                                            enabledBorder : outlineInputBorder(),
+                                            hintText: 'Location',
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
+                                            alignLabelWithHint: true,
+                                            hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                                      ), const SizedBox(height: 20),
+
+                                      TextField(
+                                        controller: _phoneNumberController,
+                                        textAlign : TextAlign.center,
+                                        decoration: InputDecoration(
+                                            border : outlineInputBorder(),
+                                            focusedBorder : outlineInputBorder(),
+                                            enabledBorder : outlineInputBorder(),
+                                            hintText: 'Phone Number',
+                                            contentPadding:
+                                            const EdgeInsets.symmetric(horizontal: 80.0, vertical: 10.0),
+                                            alignLabelWithHint: true,
+                                            hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                                      ),
+                                    ])),
+
+                                    actions:<Widget>[
+                                      Center(
+                                        child: Container(
+                                          child: ElevatedButton(onPressed:
+                                              () async {
+
+                                            // TODO:
+                                            // Implement save logic
+                                            // Show loading animation
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              barrierColor: Colors.transparent, // Set barrierColor to transparent
+                                              builder: (BuildContext context) {
+                                                return const Dialog(
+                                                    backgroundColor: Colors.transparent,
+                                                    elevation: 0,
+                                                    child: LoadingAnimation(),
+                                                  );
+                                              },
+                                            );
+
+                                            // Wait for 5 seconds to simulate checking email and password against database
+                                            await Future.delayed(const Duration(seconds : 5));
+
+                                            // Dismiss loading animation
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+
+                                          },
+                                            child: const Text('Save',
+                                              style: TextStyle( fontSize: 16, fontFamily: 'Nunito', color: Colors.white, fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            style: ElevatedButton.styleFrom(primary: const Color(0xFF003366),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25),
+                                              ),
                                             ),
                                           ),
-                                          SizedBox(height: 10),
-                                          Text(
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                                style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
+                                    shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(20))),
+                                child:const Text('Edit Profile', style:TextStyle(color:Colors.white))
+
+                            )
+                        ),
+                      ]),
+                ),
+              ),
+            ),
+            Expanded(
+                flex: 1,
+                child: Padding(padding : const EdgeInsets.only(right :80,bottom :100),
+                    child :
+                    Column(crossAxisAlignment : CrossAxisAlignment.start,
+                        children:[
+                          const ListTile(
+                            leading: Icon(Icons.headset_mic,
+                                color : Color(0xFF003366),size :30),
+                            title:
+                            Text('Support',
+                                style : TextStyle(color : Color(0xFF003366),fontSize :16, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                          ),
+                          const Padding(
+                              padding : EdgeInsets.only(left :80,top :20),
+                              child : Column(crossAxisAlignment : CrossAxisAlignment.start,
+                                  children:[
+                                    Text('+254 704 134 095',
+                                        style :TextStyle(color :
+                                        Color(0xFF00a896),fontSize :14, fontFamily : 'Nunito')),
+                                    SizedBox(height: 20),
+
+                                    Text('hello@try.ke',
+                                        style :TextStyle(color :
+                                        Color(0xFF00a896),fontSize :16, fontFamily : 'Nunito')),
+                                  ])
+                          ),
+                          Padding(padding : const EdgeInsets.only(top :50,left :50),
+                              child : GestureDetector(onTap:
+                                  () {
+                                // Show terms and conditions dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: const SingleChildScrollView(child:
+                                      ListBody(
+                                          children: <Widget>[
+                                            Text(
                                             '1. Definitions\n\n'
                                                 '- "Company" refers to [Your Company Name], a logistics service provider.\n'
                                                 '- "Client" refers to the individual, business, or organization engaging the services of the Company.\n'
@@ -357,10 +379,9 @@ class _AccountPageState extends State<AccountPage> {
                                           ),
                                         ])),
                                     actions:<Widget>[
-                                      TextButton(child:
-                                      const Text('Accept',
-                                        style:
-                                        TextStyle(fontSize: 16, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
+                                      TextButton(
+                                          child: const Text('Accept',
+                                        style: TextStyle(fontSize: 16, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
                                       ),
                                           onPressed:
                                               () {
@@ -372,16 +393,19 @@ class _AccountPageState extends State<AccountPage> {
                               );
                             },
                                 child : const Text('Terms & Conditions',
-                                    style :
-                                    TextStyle(color :
-                                    Color(0xFF003366),fontSize :14, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
+                                    style : TextStyle(color : Color(0xFF003366),fontSize :14, fontFamily : 'Nunito',fontWeight : FontWeight.bold))
                             )
                         )
                       ])
               )
+
+            )
             ])
-        ),
+        ]),
       ),
+    ])
+    )
+      )
     );
   }
 }
