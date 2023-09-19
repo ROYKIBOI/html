@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -25,14 +23,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Initialize the animation controller
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 3));
     // Define the animations
-    _animationTuma = Tween<Offset>(begin: Offset(-1.0, 0.0), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    _animationToday = Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    _animationDot = Tween<double>(begin: -50.0, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: Curves.bounceOut));
+    _animationTuma = Tween<Offset>(begin: const Offset(-2, 0.0), end: const Offset(-0.25, 0.0)).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _animationToday = Tween<Offset>(begin: const Offset(2, 0.0), end: const Offset(0.24, 0.0)).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _animationDot = Tween<double>(begin: -300.0, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: Curves.bounceOut));
     _animationTagline = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    // Start the animation
+      // Start the animation
     _controller.forward();
     // Navigate to the next page after a delay of 3 seconds
-    Timer(const Duration(seconds: 3), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => widget.nextPage)));
+    Timer(const Duration(seconds: 5), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => widget.nextPage)));
   }
 
   @override
@@ -45,22 +43,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF003366),
-      body: Center(
-        child: Column(
+      backgroundColor: const Color(0xFFFFFFFF),
+    body: SingleChildScrollView( // Add this
+    child: Center(
+    child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children:<Widget>[
             // Animate the app's name and tagline
-            Row(
-              mainAxisAlignment:
-              MainAxisAlignment.center,
+            Stack(
               children:<Widget>[
-                SlideTransition(
-                  position:_animationTuma,
-                  child: RichText(
-                    text: const TextSpan(text:'tuma',
-                      style: TextStyle(fontSize: 100, fontFamily:'Nunito', color: Colors.white, fontWeight : FontWeight.bold),
-                    ),
+                Transform.translate(
+                  offset: const Offset(20,-30),
+                  child: SlideTransition(
+                    position:_animationTuma,
+                    child: Image.asset('logo/tuma.png', width:600, height:600),
                   ),
                 ),
                 AnimatedBuilder(
@@ -68,31 +64,30 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   builder:(BuildContext context, Widget? child) {
                     return Transform.translate(
                       offset: Offset(0.0,_animationDot.value),
-                      child: const Text('.',
-                          style: TextStyle(fontSize: 100, fontFamily:'Nunito', color: Color(0xFF00a896), fontWeight : FontWeight.bold)),
+                      child: Image.asset('logo/dot.png', width:600, height:600),
                     );
                   },
                 ),
-                SlideTransition(
-                  position:_animationToday,
-                  child: RichText(text:
-                    const TextSpan( text:'today',
-                      style: TextStyle(fontSize: 100, fontFamily:'Nunito', color: Colors.white, fontWeight : FontWeight.bold),
-                    ),
+                Transform.translate(
+                  offset: const Offset(0,-22),
+                  child: SlideTransition(
+                    position:_animationToday,
+                    child: Image.asset('logo/today.png', width:600, height:600),
                   ),
                 ),
               ],
             ),
-
-            FadeTransition(
-              opacity:_animationTagline,
-              child: const Text('swift.secure.seamless',
-                  style: TextStyle(fontSize: 24, fontFamily:'Nunito', color: Color(0xFF00a896))),
+            Transform.translate(
+              offset: Offset(0.0, -470.0),
+              child: FadeTransition(
+                opacity:_animationTagline,
+                child: Image.asset('logo/tagline.png', width:450, height:430),
+              ),
             ),
           ],
-        ),
-      ),
+    ),
+    ),
+    ),
     );
   }
 }
-

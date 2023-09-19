@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                             clipBehavior: Clip.none,
                             children: [
                               MouseRegion(
-                                onEnter: (event) => setState(() => _buttonColor = const Color(0xFF00a4cd)),
+                                onEnter: (event) => setState(() => _buttonColor = const Color(0xFF02C39A)),
                                 onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
                                 child: ElevatedButton(
                                   onPressed: () {

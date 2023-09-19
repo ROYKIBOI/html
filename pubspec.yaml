@@ -70,6 +70,10 @@ flutter:
   assets:
     - images/gif.gif
     - logo/img.png
+    - logo/dot.png
+    - logo/tagline.png
+    - logo/today.png
+    - logo/tuma.png
 
 
   uses-material-design: true

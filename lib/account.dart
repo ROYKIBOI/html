@@ -43,40 +43,19 @@ class _AccountPageState extends State<AccountPage> {
         _imageUrl = pickedFile.path;
       });
 
-      // Upload the image to the server
-      final url = Uri.parse('http://localhost:8000/upload_image');
-
-      var request = http.MultipartRequest('POST', url);
-      request.fields['user_id'] = userId;
-      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        // Update _imageUrl with the server URL
-        setState(() {
-          _imageUrl = 'http://localhost:8000/images/${basename(pickedFile.path)}';
-        });
       } else {
         // Handle error
       }
     }
-  }
+
 
 // Delete the image from the server
-  void _removeImage() async {
-    final url = Uri.parse('http://localhost:8000/delete_image?user_id=$userId');
-    var response = await http.delete(url);
-
-    if (response.statusCode == 200) {
-      setState(() {
-        _imageUrl = null;
-      });
-    } else {
-      // Handle error
-    }
+  void _removeImage() {
+    setState(() {
+      _imageUrl = null;
+    });
   }
-
+  
   // Fetch/get the image from the server
   @override
   void initState() {
