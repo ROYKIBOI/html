@@ -29,7 +29,6 @@ class _AccountPageState extends State<AccountPage> {
   final TextEditingController _phoneNumberController = TextEditingController();
 
   String? _imageUrl;
-  String userId = '';
   String imagePath = '';
 
   //Define a method to pick an image from the gallery
@@ -54,28 +53,6 @@ class _AccountPageState extends State<AccountPage> {
     setState(() {
       _imageUrl = null;
     });
-  }
-  
-  // Fetch/get the image from the server
-  @override
-  void initState() {
-    super.initState();
-    userId = '';
-    _fetchImage();
-  }
-
-  void _fetchImage() async {
-    final url = Uri.parse('http://localhost:8000/get_image?user_id=$userId');
-    var response = await http.get(url);
-    var imageUrl = jsonDecode(response.body)['image_url'];
-
-    if (response.statusCode == 200) {
-      setState(() {
-        _imageUrl = jsonDecode(response.body)['image_url'];
-      });
-    } else {
-      // Handle error
-    }
   }
 
 
