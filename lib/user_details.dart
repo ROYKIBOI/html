@@ -45,7 +45,6 @@ class _LoginPageState extends State<LoginPage> {
 
 
   bool _obscureText = true; // this function is for revealing the password
-  bool _isLoading = false; // this function prevents multiple requests from being sent when the login button is clicked multiple times
 
   // Toggles the visibility of the password
   void _togglePasswordVisibility() {
@@ -135,41 +134,29 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
 
             ElevatedButton(
-                onPressed: _isLoading ? null : () async {
-                  setState(() {
-                    _isLoading = true;
-                  });
+              onPressed: () async {
+                // Check if email and password fields are not empty
+                if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
+                  // Show error message if either one or all fields are empty
+                  _showErrorMessage('Please enter your email and password');
+                  return;
+                }
 
-                  // Check if email and password fields are not empty
-                  if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
-                    // Show error message if either one or all fields are empty
-                    _showErrorMessage('Please enter your email and password');
-                    return;
-                  }
-
-                  // Check if email and password are correct and found in the database
-                  bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
-                  if (isValid) {
-                    // Display the splash screen before navigating to the home page
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen(nextPage:
-                    HomePage(),
-                    ),
-                    ),
-                    );
-                  } else {
-                    // Show error message if email or password is invalid
-                    _showErrorMessage('Invalid email or password');
-                  }
-
-                  setState(() {
-                    _isLoading = false;
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                    primary: const Color(0xFF003366),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
-                child: _isLoading ? const CircularProgressIndicator() : const Text('Log In', style: TextStyle(color: Colors.white)),
-              ),
+                // Check if email and password are correct and found in the database
+                bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
+                if (isValid) {
+                  // Display the splash screen before navigating to the home page
+                  Navigator.pushReplacementNamed(context, '/home');
+                } else {
+                  // Show error message if email or password is invalid
+                  _showErrorMessage('Invalid email or password');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                  primary: const Color(0xFF003366),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+              child: const Text('Log In', style: TextStyle(color: Colors.white)),
+            ),
 
 
               //When the user clicks the Log In button, the email and password entered by the user will be checked against the database to see if they are valid.

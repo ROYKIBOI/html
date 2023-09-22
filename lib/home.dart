@@ -208,8 +208,7 @@ class _HomePageState extends State<HomePage> {
                               style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
                           onTap : () {
                             // Navigate to the home page
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                          },
+                            Navigator.pushReplacementNamed(context, '/home');                          },
                         ), const SizedBox(height: 40),
 
                         // Deliveries button
@@ -218,8 +217,7 @@ class _HomePageState extends State<HomePage> {
                           const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
                           title:  const Text('Deliveries',
                               style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
-                          onTap : () { Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => const DeliveriesPage(deliveries: [])));
+                          onTap : () { Navigator.pushReplacementNamed(context, '/deliveries');
                           },
                         ),const SizedBox(height: 40),
 
@@ -232,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                           onTap : () {
 
                             // Log out and navigate to the login page
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                            Navigator.pushReplacementNamed(context, '/login');
                           },
                         ), const SizedBox(height: 210),
 
@@ -241,8 +239,7 @@ class _HomePageState extends State<HomePage> {
                             child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                 children:[
                                   ElevatedButton(onPressed : () {
-                                    Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
-                                  }, child : const Text('My Account',
+                                    Navigator.pushReplacementNamed(context, '/myAccount');                                  }, child : const Text('My Account',
                                       style : TextStyle(color : Colors.white)),
                                       style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
                                           shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),

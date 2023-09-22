@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
-import 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:path/path.dart';
+
+
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -27,7 +27,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final TextEditingController _businessLocationController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-
+  String id = '';
   String? _imageUrl;
   String imagePath = '';
 
@@ -37,32 +37,82 @@ class _AccountPageState extends State<AccountPage> {
 
     if (pickedFile != null) {
       imagePath = pickedFile.path;
-      // Display the picked image immediately
-      setState(() {
-        _imageUrl = pickedFile.path;
-      });
 
+      // Upload the image to the server
+      final request = http.MultipartRequest('POST', Uri.parse('http://localhost:8000/upload/'));
+      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+      final response = await request.send();
+
+      final respStr = await response.stream.bytesToString();
+      print('Upload response: $respStr');
+
+      if (response.statusCode == 200) {
+        print('Image uploaded successfully.');
+        // Get the response from the server
+        final responseData = await response.stream.bytesToString();
+        // Parse the response data
+        final data = jsonDecode(responseData);
+        // Display the uploaded image
+        setState(() {
+          _imageUrl = data['image_url'];
+        });
       } else {
-        // Handle error
+        print('Failed to upload image.');
       }
+    } else {
+      // Handle error
     }
-
+  }
 
 // Delete the image from the server
-  void _removeImage() {
-    setState(() {
-      _imageUrl = null;
-    });
+  void _removeImage() async {
+    // Delete the image from the server
+    final response = await http.delete(Uri.parse('http://localhost:8000/delete/$id/'));
+
+    if (response.statusCode == 200) {
+      print('Image deleted successfully.');
+      // Remove the image from the UI
+      setState(() {
+        _imageUrl = null;
+      });
+    } else {
+      print('Failed to delete image.');
+    }
   }
 
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
             child: SingleChildScrollView(
-                child: Column(
+                child: Stack(
+                    children: [
+                      Positioned(top: 100.0, left: 250.0,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/home'); // Navigate to home page
+                          },
+                    style: ElevatedButton.styleFrom(
+                      primary: const Color(0xFF003366), // Background color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25), // Border radius
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(Icons.arrow_back, color: Colors.white), // Arrow icon
+                        SizedBox(width: 10), // Spacing between the icon and text
+                        Text('Back', style: TextStyle(color: Colors.white, fontFamily: 'Nunito')), // Text
+                      ],
+                    ),
+                  ),
+                ),
+                
+                Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
@@ -76,16 +126,13 @@ class _AccountPageState extends State<AccountPage> {
                                       shape: BoxShape.circle,
                                       border: Border.all(color: Colors.grey, width: 2,
                                       ),
-                                      image: _imageUrl != null
-                                          ? DecorationImage(
+                                      image: _imageUrl != null ? DecorationImage(
                                         fit: BoxFit.cover,
-                                        image: NetworkImage(_imageUrl!) as ImageProvider<Object>,
-                                      )
-                                          : null,
+                                        image: NetworkImage(_imageUrl!),
+                                      ) : null,
                                     ),
                                     child: _imageUrl == null ? const Icon(Icons.person, size: 100, color: Colors.grey) : null,
                                   ),
-
 
                                     Positioned(bottom: 5, right: 40,
                                       child: Theme(
@@ -93,7 +140,7 @@ class _AccountPageState extends State<AccountPage> {
                                           cardColor: Colors.white, // This changes the background color of the menu
                                           popupMenuTheme: PopupMenuThemeData(
                                             shape: RoundedRectangleBorder(
-                                              side: BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
+                                              side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
                                               borderRadius: BorderRadius.circular(25),
                                             ),
                                           ),
@@ -101,11 +148,11 @@ class _AccountPageState extends State<AccountPage> {
                                         child: PopupMenuButton<ImageSource>(
                                           icon: const Icon(Icons.camera_alt, size: 40, color: Color(0xFF003366)),
                                           itemBuilder: (context) => [
-                                            PopupMenuItem(
+                                            const PopupMenuItem(
                                               child: Text('Upload Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
                                               value: ImageSource.gallery,
                                             ),
-                                            PopupMenuItem(
+                                            const PopupMenuItem(
                                               child: Text('Remove Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
                                               value: ImageSource.camera,
                                             ),
@@ -360,8 +407,9 @@ class _AccountPageState extends State<AccountPage> {
         ]),
       ),
     ])
-    )
+    ])
       )
+        )
     );
   }
 }

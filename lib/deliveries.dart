@@ -86,43 +86,76 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 // Menu
                             Row(children: [
                               Padding(
-                                padding:
-                                const EdgeInsets.only(top: 20), // Add this line
-                                child: Container(width: 180, height: 40,
+                                padding: const EdgeInsets.only(top: 20),
+                                child: Container(
+                                  width: 180,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius: BorderRadius.circular(30),
-                                      border: Border.all(color: const Color(0xFF003366), width: 2)),
-                                  child:
-                                  DropdownButtonHideUnderline(child:
-                                  DropdownButton<String>(
-                                    value: _filter,
-                                    iconSize: 30,
-                                    iconEnabledColor: const Color(0xFF00a896),
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        _filter = newValue!;
-                                      });
-                                    },
-                                    items: <String>[
-                                      'All',
-                                      'Today',
-                                      'Last 7 days',
-                                      'Last month',
-                                      'Older'
-                                    ].map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Padding(padding: const EdgeInsets.only(left: 20),
-                                                  child: Text(value)));
-                                        }).toList(),
+                                      borderRadius: BorderRadius.circular(25),
+                                      border: Border.all(color: const Color(0xFF00a896), width: 2)
                                   ),
+                                  child: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      cardColor: Colors.white, // This changes the background color of the menu
+                                      popupMenuTheme: PopupMenuThemeData(
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
+                                          borderRadius: BorderRadius.circular(25),
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 10),
+                                          child: Text(
+                                            _filter == null ? "Filter by:" : _filter,
+                                            style: const TextStyle(color: Color(0xFF003366)),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10), // This is to give some space at the start
+                                        PopupMenuButton<String>(
+                                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF003366)),
+                                          itemBuilder: (context) => [
+                                            const PopupMenuItem(
+                                              child: Text('All', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: 'All',
+                                            ),
+                                            const PopupMenuItem(
+                                              child: Text('Today', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: 'Today',
+                                            ),
+                                            const PopupMenuItem(
+                                              child: Text('Last 7 days', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: 'Last 7 days',
+                                            ),
+                                            const PopupMenuItem(
+                                              child: Text('Last month', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: 'Last month',
+                                            ),
+                                            const PopupMenuItem(
+                                              child: Text('Older', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                              value: 'Older',
+                                            ),
+                                          ],
+                                          onSelected: (String? newValue) {
+                                            setState(() {
+                                              _filter = newValue!;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ), const SizedBox(width: 10),
+                              ),
+                              const SizedBox(width: 10),
 
-                                  // Nav bar icon
+
+
+                            // Nav bar icon
                               IconButton(icon:
                               const Icon(Icons.menu, color: Color(0xFF003366),
                                   size: 50), onPressed:
@@ -200,80 +233,78 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                   ]))
                   ),
                 ]),
-                // Menu popup
-                if (_showPopup)
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 100, right: 35,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          bottomLeft: Radius.circular(25),
-                          bottomRight: Radius.circular(25),
+                      // Popup menu
+                      if (_showPopup)
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + 100,
+                          right: 35,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                            height: MediaQuery.of(context).size.height * 0.8,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(25),
+                                bottomLeft: Radius.circular(25),
+                                bottomRight: Radius.circular(25),
+                              ),
+                              border: Border.all(color: const Color(0xFF00a896), width: 2),
+                            ),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children:[
+                                  const SizedBox(height: 20),
+                                  // Home button
+                                  ListTile(
+                                    leading:
+                                    const Icon(Icons.home, color:  Color(0xFF003366), size: 44),
+                                    title: const Text('Home',
+                                        style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                                    onTap : () {
+                                      // Navigate to the home page
+                                      Navigator.pushReplacementNamed(context, '/home');                          },
+                                  ), const SizedBox(height: 40),
+
+                                  // Deliveries button
+                                  ListTile(
+                                    leading:
+                                    const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
+                                    title:  const Text('Deliveries',
+                                        style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                                    onTap : () { Navigator.pushReplacementNamed(context, '/deliveries');
+                                    },
+                                  ),const SizedBox(height: 40),
+
+                                  // Log out button
+                                  ListTile(
+                                    leading:
+                                    const Icon(Icons.logout, color:  Color(0xFF003366), size: 44),
+                                    title: const Text('Log Out',
+                                        style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                                    onTap : () {
+
+                                      // Log out and navigate to the login page
+                                      Navigator.pushReplacementNamed(context, '/login');
+                                    },
+                                  ), const SizedBox(height: 210),
+
+                                  // My account section
+                                  Padding(padding : const EdgeInsets.all(8.0),
+                                      child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                                          children:[
+                                            ElevatedButton(onPressed : () {
+                                              Navigator.pushReplacementNamed(context, '/myAccount');                                  }, child : const Text('My Account',
+                                                style : TextStyle(color : Colors.white)),
+                                                style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
+                                                    shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),
+                                            const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
+                                                // TODO:
+                                                // Replace with the actual profile picture of the rider
+                                                child : Icon(Icons.person, size : 40, color : Colors.white))
+                                          ])),
+                                ]),
+                          ),
                         ),
-                        border: Border.all(color: const Color(0xFF00a896), width: 2),
-                      ),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 20),
-                            // Home button
-                            ListTile(
-                              leading: const Icon(Icons.home, color: Color(0xFF003366), size: 44),
-                              title: const Text('Home',
-                                  style: TextStyle(fontSize: 20, fontFamily: 'Nunito', fontWeight: FontWeight.bold, color: Color(0xFF00a896))),
-                              onTap: () {
-                                // Navigate to the home page
-                                Navigator.push( context, MaterialPageRoute(builder: (context) =>  HomePage()));
-                              },
-                            ), const SizedBox(height: 40),
-
-                            // Deliveries button
-                            ListTile(
-                              leading: const Icon(Icons.motorcycle, color: Color(0xFF003366), size: 44),
-                              title: const Text('Deliveries',
-                                  style: TextStyle(fontSize: 20, fontFamily: 'Nunito', fontWeight: FontWeight.bold, color: Color(0xFF00a896))),
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(deliveries: _deliveries),
-                                  ),
-                                );
-                              },
-                            ), const SizedBox(height: 40),
-
-                            // Log out button
-                            ListTile(
-                              leading: const Icon(Icons.logout, color: Color(0xFF003366), size: 44),
-                              title: const Text('Log Out',
-                                  style: TextStyle(fontSize: 20, fontFamily: 'Nunito', fontWeight: FontWeight.bold, color: Color(0xFF00a896))),
-                              onTap: () {
-                                // Log out and navigate to the login page
-                                Navigator.push(context, MaterialPageRoute(builder:(context) => const LoginPage()));
-                              },
-                            ), const SizedBox(height: 210),
-
-                            // My account section
-                            Padding(padding: const EdgeInsets.all(8.0),
-                                child: Row(mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      ElevatedButton(onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: ( context) => const AccountPage()));
-                                      }, child: const Text('My Account',
-                                          style: TextStyle( color: Colors.white)),
-                                          style: ElevatedButton.styleFrom(primary: const Color(0xFF00a896),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(25)))),
-                                      const CircleAvatar(radius: 20, backgroundColor: Colors.grey,
-                                          // TODO:
-                                          // Replace with the actual profile picture of the rider
-                                          child: Icon(Icons.person, size: 40, color: Colors.white))
-                                    ])),
-                          ]),
-                    ),
-                  ),
               ])
           )));
     }
