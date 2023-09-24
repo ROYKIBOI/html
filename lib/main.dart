@@ -14,49 +14,27 @@ import 'package:client_app/delivery_request.dart';
 import 'package:client_app/home.dart';
 
 // The main function that runs the app
-void main() {
-  final router = FluroRouter();
-  Routes.configureRoutes(router);
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => DeliveryModel(),
-      child: MyApp(router),
-    ),
-  );
-}
+void main() => runApp(
+  ChangeNotifierProvider(
+    create: (context) => DeliveryModel(),
+    child: MyApp(),
+  ),
+);
 
 class MyApp extends StatelessWidget {
-  final FluroRouter router;
-
-  MyApp(this.router, {Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveDesign(
       child: MaterialApp(
-      title: 'tuma.today',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+        title: 'tuma.today',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const SplashScreen(nextPage: LoginPage()), // Use the imported splash screen
       ),
-      onGenerateRoute: router.generator,
-      //home: const SplashScreen(nextPage: LoginPage()), // Use the imported splash screen
-
-      initialRoute: '/',
-      routes: {
-     '/': (context) => const SplashScreen(nextPage: LoginPage()),
-        '/login': (context) => const LoginPage(),
-        '/signUp': (context) => const SignUpPage(),
-        '/forgotPassword': (context) => ForgotPasswordPage(),
-        '/resetPassword': (context) => const ResetPasswordPage(),
-        '/businessDetails': (context) => const BusinessDetailsPage(),
-        '/myAccount': (context) => const AccountPage(),
-        '/deliveries': (context) => const DeliveriesPage(deliveries: [],),
-        '/deliveryRequest': (context) => DeliveryRequestPage(deliveries: const [],),
-        '/home': (context) => const HomePage(),
-      },
-    )
-      );
-
+    );
   }
 }
 
@@ -70,20 +48,3 @@ class DeliveryModel extends ChangeNotifier {
     notifyListeners();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

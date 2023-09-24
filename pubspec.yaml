@@ -75,12 +75,12 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - images/gif.gif
-    - logo/img.png
+    - images/bike.png
     - logo/dot.png
     - logo/tagline.png
     - logo/today.png
     - logo/tuma.png
+    - images/logo.png
 
 
   uses-material-design: true

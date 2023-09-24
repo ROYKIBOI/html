@@ -1,14 +1,8 @@
 // user_details.dart
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
-import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'assets/splash_screen.dart'; // Import the splash screen
 import 'dart:async';
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:ui' as ui;
 
 // Import the pages
 import 'home.dart';
@@ -53,15 +47,15 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  // Displays an error message as a popup
   void _showErrorMessage(String message) {
     Flushbar(
-      messageText: Text(
-        message,
+      messageText: Text(message,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white.withOpacity(1.0),
+      backgroundColor: Colors.transparent,
+      barBlur: 0.0,
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
       margin: const EdgeInsets.only(bottom: 80, left: 2, right: 2),
@@ -73,46 +67,54 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen size
+    var screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(  // This makes the page scrollable
+        child: Center(
         child: Stack(
-          children: <Widget>[
+        children: <Widget>[
 
             // Logo
-            Transform.translate(
-              offset: Offset(480, -10), // moves the logo up by 10 pixels
-                child: Image.asset('logo/img.png', width: 400, height: 400),
-
+            Positioned(
+              top: screenSize.height * 0.02,
+              left: screenSize.width * 0.35,
+              child: Image.asset('images/logo.png', width: screenSize.width * 0.3, height: screenSize.height * 0.5),
             ),
 
-// Container to move the following widgets up
-      Container(
-        margin: const EdgeInsets.only(top: 150.0), // moves the widget up by 30 pixels
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // Email input field
-            SizedBox(width: 300, height: 50,
-              child: TextField(
-                controller: _logInEmailController,
-                textAlign : TextAlign.center,
-                decoration: InputDecoration(
-                  border : outlineInputBorder(),
-                  focusedBorder : outlineInputBorder(),
-                  enabledBorder : outlineInputBorder(),
-                  hintText: 'Email',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
-                  alignLabelWithHint: true,
-                  hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
-                ),
-              ),
-            ),
-                 const SizedBox(height: 20),
+            // Container to move the following widgets up
+            Container(
+              margin: EdgeInsets.only(top: screenSize.height * 0.4),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Email input field
+                  SizedBox(width: 300, height: 50,
+                    child: Center(
+                      child: TextField(
+                        controller: _logInEmailController,
+                        textAlign : TextAlign.center,
+                        decoration: InputDecoration(
+                          border : outlineInputBorder(),
+                          focusedBorder : outlineInputBorder(),
+                          enabledBorder : outlineInputBorder(),
+                          hintText: 'Email',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
+                          alignLabelWithHint: true,
+                          hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
             // Password input field
-      SizedBox(width: 300, height: 50,
-              child: TextField(controller: _logInPasswordController,
+                  SizedBox(width: 300, height: 50,
+                    child: Center( // This will center the TextField within the SizedBox
+                      child: TextField(
+                          controller: _logInPasswordController,
                   obscureText: _obscureText,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -122,15 +124,14 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: 'Password',
                       contentPadding: const EdgeInsets.symmetric(horizontal: 45.0, vertical: 10.0),
                       alignLabelWithHint: true,
-                      hintStyle: const TextStyle(color:
-                      Colors.grey, fontFamily:
-                      'Nunito'),
+                      hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito'),
                       suffixIcon:
                       IconButton(icon: Icon(_obscureText ?
                       Icons.visibility : Icons.visibility_off),
                           onPressed: _togglePasswordVisibility)
                   )),
             ),
+              ),
             const SizedBox(height: 20),
 
             ElevatedButton(
@@ -146,7 +147,11 @@ class _LoginPageState extends State<LoginPage> {
                 bool isValid = await checkCredentials(_logInEmailController.text, _logInPasswordController.text);
                 if (isValid) {
                   // Display the splash screen before navigating to the home page
-                  Navigator.pushReplacementNamed(context, '/home');
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashScreen(nextPage:
+                  HomePage(),
+                  ),
+                  ),
+                  );
                 } else {
                   // Show error message if email or password is invalid
                   _showErrorMessage('Invalid email or password');
@@ -185,6 +190,7 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
+        ),
     );
   }
 }
@@ -240,7 +246,7 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  // Displays an error message as a popup
   void _showErrorMessage(String message) {
     Flushbar(
       messageText: Text(message,
@@ -248,7 +254,7 @@ class _SignUpPageState extends State<SignUpPage> {
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
       backgroundColor: Colors.transparent,
-      barBlur: 0.0, // This removes the blur effect
+      barBlur: 0.0,
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
       margin: const EdgeInsets.only(bottom: 20, left: 2, right: 2),
@@ -289,42 +295,50 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size
+    var screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView( // This makes the page scrollable
+        child: Center(
         child: Stack(
-            children: <Widget>[
-
-        // Logo
-        Transform.translate(
-        offset: Offset(0, -10),
-        child: Image.asset('logo/img.png', width: 400, height: 400),
-      ),
-
-    // Container to move the following widgets up
-      Container(
-        margin: const EdgeInsets.only(top: 150.0, left: 50), // moves the widget up by 30 pixels
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          alignment: Alignment.center, // This will center the children
           children: <Widget>[
-            // Email input field
-            SizedBox(width: 300, height: 50,
-              child: TextField(
-                controller: _signUpEmailController, // Controls the text of the email field
-                focusNode: emailFocusNode,
-                textAlign : TextAlign.center,
-                decoration: InputDecoration(
-                    border : outlineInputBorder(),
-                    focusedBorder : outlineInputBorder(),
-                    enabledBorder : outlineInputBorder(),
-                    hintText: 'Email',
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
-                    alignLabelWithHint: true,
-                    hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+            // Logo
+            Transform.translate(
+              offset: const Offset(0, -100),
+              child: Image.asset('images/logo.png',
+                width: screenSize.width * 0.3, // 50% of screen width
+                height: screenSize.height * 0.5, // 50% of screen height
               ),
-            ), const SizedBox(height: 20),
+            ),
 
-            // Password input field
+            // Container to move the following widgets up
+            Container(
+              margin: EdgeInsets.only(top: screenSize.height * 0.4, left: screenSize.width * 0.0), // moves the widget up by 30% of screen height and left by 10% of screen width
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Email input field
+                  SizedBox(width: 300, height: 50,
+                    child: TextField(
+                      controller: _signUpEmailController, // Controls the text of the email field
+                      focusNode: emailFocusNode,
+                      textAlign : TextAlign.center,
+                      decoration: InputDecoration(
+                          border : outlineInputBorder(),
+                          focusedBorder : outlineInputBorder(),
+                          enabledBorder : outlineInputBorder(),
+                          hintText: 'Email',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10.0),
+                          alignLabelWithHint: true,
+                          hintStyle: const TextStyle(color: Colors.grey, fontFamily: 'Nunito')),
+                    ),
+                  ), const SizedBox(height: 20),// Space is 2% of screen height
+
+
+                  // Password input field
             SizedBox(width: 300, height: 50,
               child: TextField(
                   controller: _signUpPasswordController, // Controls the text of the password field
@@ -441,6 +455,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
         ),
       ),
+        ),
     );
   }
 }
@@ -488,15 +503,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     super.dispose();
   }
 
-  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  // Displays an error message as a popup
   void _showErrorMessage(BuildContext context, String message) {
     Flushbar(
-      messageText: Text(
-        message,
+      messageText: Text(message,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white.withOpacity(1.0),
+      backgroundColor: Colors.transparent,
+      barBlur: 0.0,
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
       margin: const EdgeInsets.only(bottom: 100, left: 2, right: 2),
@@ -525,24 +540,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size
+    var screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView( // This makes the page scrollable
+        child: Center(
         child: Stack(
-          children: <Widget>[
+        alignment: Alignment.center, // This will center the children
+        children: <Widget>[
+        // Logo
+        Transform.translate(
+        offset: const Offset(0, -40),
+    child: Image.asset('images/logo.png',
+    width: screenSize.width * 0.3, // 50% of screen width
+    height: screenSize.height * 0.5, // 50% of screen height
+    ),
+    ),
 
-            // Logo
-            Transform.translate(
-              offset: Offset(0, -20),
-              child: Image.asset('logo/img.png', width: 400, height: 400),
-            ),
-
-            // Container to move the following widgets up
-            Container(
-              margin: const EdgeInsets.only(top: 100.0, left: 50), // moves the widget up by 30 pixels
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
+    // Container to move the following widgets up
+    Container(
+    margin: EdgeInsets.only(top: screenSize.height * 0.4, left: screenSize.width * 0.0), // moves the widget up by 30% of screen height and left by 10% of screen width
+    child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
 
             // Email input field
             SizedBox(width: 300, height: 50,
@@ -614,7 +636,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               // If email is valid and matches the one stored in our database
               // TODO Send reset password link to valid registered email
               // Show success message telling user to check their email for reset password link
-              _showSuccessMessage(context, 'Please check your email for a link to reset your password');
+              _showSuccessMessage(context, 'Please check your phone');
               // TODO Wait for user to click the link sent to their email before proceeding
               // TODO Implement a mechanism to verify that the user has clicked the link sent to their email
 
@@ -627,7 +649,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 },
                 style:ElevatedButton.styleFrom(primary:const Color(0xFF003366),
                     shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(25))),
-                child: _isLoading ? const CircularProgressIndicator() : Text(_isSubmitted ? 'Resend link' : 'Send link', style:const TextStyle(color:Colors.white))),
+                child: _isLoading ? const CircularProgressIndicator() : Text(_isSubmitted ? 'Resend' : 'Submit', style:const TextStyle(color:Colors.white))),
             const SizedBox(height: 10),
 
             if (_isSubmitted && _counter > 0)
@@ -639,6 +661,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ],
         ),
       ),
+        ),
     );
   }
 }
@@ -672,15 +695,15 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     });
   }
 
-  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  // Displays an error message as a popup
   void _showErrorMessage(String message) {
     Flushbar(
-      messageText: Text(
-        message,
+      messageText: Text(message,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white.withOpacity(1.0),
+      backgroundColor: Colors.transparent,
+      barBlur: 0.0,
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
       margin: const EdgeInsets.only(bottom: 80, left: 2, right: 2),
@@ -692,24 +715,31 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Stack(
-            children: <Widget>[
+    // Get the screen size
+    var screenSize = MediaQuery.of(context).size;
 
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView( // This makes the page scrollable
+        child: Center(
+        child: Stack(
+        alignment: Alignment.center, // This will center the children
+        children: <Widget>[
         // Logo
         Transform.translate(
-        offset: Offset(0, -10),
-        child: Image.asset('logo/img.png', width: 400, height: 400),
-      ),
+        offset: const Offset(0, -40),
+    child: Image.asset('images/logo.png',
+    width: screenSize.width * 0.3, // 50% of screen width
+    height: screenSize.height * 0.5, // 50% of screen height
+    ),
+    ),
 
-      // Container to move the following widgets up
-      Container(
-        margin: const EdgeInsets.only(top: 100.0, left: 50), // moves the widget up by 30 pixels
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+    // Container to move the following widgets up
+    Container(
+    margin: EdgeInsets.only(top: screenSize.height * 0.5, left: screenSize.width * 0.0), // moves the widget up by 30% of screen height and left by 10% of screen width
+    child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
 
             // New Password input field
             SizedBox(width: 300, height: 50,
@@ -801,6 +831,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             ],
         ),
       ),
+        ),
     );
   }
 }
@@ -824,7 +855,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   // Boolean to check if terms and conditions are accepted
   bool _termsAndConditionsAccepted = false;
 
-  // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
+  // Displays an error message as a popup
   void _showErrorMessage(String message) {
     Flushbar(
       messageText: Text(message,
@@ -832,7 +863,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
         style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
       backgroundColor: Colors.transparent,
-      barBlur: 0.0, // This removes the blur effect
+      barBlur: 0.0,
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
       margin: const EdgeInsets.only(bottom: 10, left: 2, right: 2),
@@ -846,25 +877,31 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size
+    var screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView( // This makes the page scrollable
+        child: Center(
         child: Stack(
-          children: <Widget>[
+        alignment: Alignment.center, // This will center the children
+        children: <Widget>[
+        // Logo
+        Transform.translate(
+        offset: const Offset(0, -140),
+    child: Image.asset('images/logo.png',
+    width: screenSize.width * 0.3, // 50% of screen width
+    height: screenSize.height * 0.5, // 50% of screen height
+    ),
+    ),
 
-            // Logo
-            Transform.translate(
-              offset: Offset(480, -10),
-              child: Image.asset('logo/img.png', width: 400, height: 400),
-
-            ),
-
-// Container to move the following widgets up
-            Container(
-              margin: const EdgeInsets.only(top: 210.0), // moves the widget up by 30 pixels
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
+    // Container to move the following widgets up
+    Container(
+    margin: EdgeInsets.only(top: screenSize.height * 0.4, left: screenSize.width * 0.0), // moves the widget up by 30% of screen height and left by 10% of screen width
+    child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
 
               // Business name input field
               SizedBox( width: 300, height: 50,
@@ -1088,6 +1125,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
             ],
         ),
       ),
+        ),
     );
   }
 }

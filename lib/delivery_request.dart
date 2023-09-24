@@ -372,7 +372,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                   style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
                               onTap : () {
                                 // Navigate to the home page
-                                Navigator.pushReplacementNamed(context, '/home');                          },
+                                Navigator.push(context, MaterialPageRoute( builder: (context) => const HomePage()));
+                              },
                             ), const SizedBox(height: 40),
 
                             // Deliveries button
@@ -381,7 +382,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                               const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
                               title:  const Text('Deliveries',
                                   style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
-                              onTap : () { Navigator.pushReplacementNamed(context, '/deliveries');
+                              onTap : () {
+                                Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveriesPage(deliveries: _deliveries)));
                               },
                             ),const SizedBox(height: 40),
 
@@ -394,7 +396,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                               onTap : () {
 
                                 // Log out and navigate to the login page
-                                Navigator.pushReplacementNamed(context, '/login');
+                                Navigator.push(context, MaterialPageRoute( builder: (context) => const LoginPage()));
                               },
                             ), const SizedBox(height: 210),
 
@@ -403,7 +405,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                 child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                     children:[
                                       ElevatedButton(onPressed : () {
-                                        Navigator.pushReplacementNamed(context, '/myAccount');                                  }, child : const Text('My Account',
+                                        Navigator.push(context, MaterialPageRoute( builder: (context) => const AccountPage()));
+                                      }, child : const Text('My Account',
                                           style : TextStyle(color : Colors.white)),
                                           style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
                                               shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),

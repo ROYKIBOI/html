@@ -1,4 +1,5 @@
 // account.dart
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
@@ -30,6 +31,7 @@ class _AccountPageState extends State<AccountPage> {
   String id = '';
   String? _imageUrl;
   String imagePath = '';
+
 
   //Define a method to pick an image from the gallery
   void _pickImage() async {
@@ -80,6 +82,23 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
+// Displays an error message as a popup
+  void _showErrorMessage(String message) {
+    Flushbar(
+      messageText: Text(message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: Colors.transparent,
+      barBlur: 0.0, // This removes the blur effect
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      margin: const EdgeInsets.only(top: 170, left: 2, right: 2),
+      maxWidth: 350,
+      borderRadius: BorderRadius.circular(25),
+      duration: const Duration(seconds: 10),
+    ).show(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -255,42 +274,50 @@ class _AccountPageState extends State<AccountPage> {
                                     actions:<Widget>[
                                       Center(
                                         child: Container(
-                                          child: ElevatedButton(onPressed:
-                                              () async {
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              // Check if all fields are filled
+                                              if (_businessLocationController.text.isEmpty || _phoneNumberController.text.isEmpty) {
+                                                // If not, show an error message
+                                                _showErrorMessage('All fields must be filled before saving.');
+                                              } else {
+                                                // TODO: Implement save logic
 
-                                            // TODO:
-                                            // Implement save logic
-                                            // Show loading animation
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              barrierColor: Colors.transparent, // Set barrierColor to transparent
-                                              builder: (BuildContext context) {
-                                                return const Dialog(
-                                                    backgroundColor: Colors.transparent,
-                                                    elevation: 0,
-                                                    child: LoadingAnimation(),
-                                                  );
-                                              },
-                                            );
+                                                // Show loading animation
+                                                showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  barrierColor: Colors.transparent, // Set barrierColor to transparent
+                                                  builder: (BuildContext context) {
+                                                    return const Dialog(
+                                                      backgroundColor: Colors.transparent,
+                                                      elevation: 0,
+                                                      child: LoadingAnimation(),
+                                                    );
+                                                  },
+                                                );
 
-                                            // Wait for 5 seconds to simulate checking email and password against database
-                                            await Future.delayed(const Duration(seconds : 5));
+                                                // Wait for 5 seconds to simulate checking email and password against database
+                                                await Future.delayed(const Duration(seconds : 5));
 
-                                            // Dismiss loading animation
-                                            Navigator.pop(context);
-                                            Navigator.pop(context);
+                                                // Dismiss loading animation
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
 
-                                          },
+                                                // Clear the fields after saving
+                                                _businessLocationController.clear();
+                                                _phoneNumberController.clear();
+                                              }
+                                            },
                                             child: const Text('Save',
-                                              style: TextStyle( fontSize: 16, fontFamily: 'Nunito', color: Colors.white, fontWeight: FontWeight.bold,
-                                              ),
+                                              style: TextStyle( fontSize: 16, fontFamily: 'Nunito', color: Colors.white, fontWeight : FontWeight.bold),
                                             ),
                                             style: ElevatedButton.styleFrom(primary: const Color(0xFF003366),
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25),
                                               ),
                                             ),
                                           ),
+
                                         ),
                                       ),
                                     ],
