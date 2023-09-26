@@ -58,6 +58,7 @@ class _LoadingAnimationState extends State<LoadingAnimation> with SingleTickerPr
             ),
           ),
 
+
           // The app's title
           Opacity(
             opacity: (_animation.value - 1).abs(),

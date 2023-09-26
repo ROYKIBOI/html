@@ -122,6 +122,7 @@ class _AccountPageState extends State<AccountPage> {
                         borderRadius: BorderRadius.circular(25), // Border radius
                       ),
                     ),
+
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[

@@ -60,6 +60,7 @@ class CustomTextFormFieldState extends State<CustomTextFormField> {
         style: const TextStyle(
           color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.bold,
         ),
+
         textAlign: TextAlign.center,
         decoration: InputDecoration(
           hintText: _isValid ? widget.hintText : widget.errorMessage,
