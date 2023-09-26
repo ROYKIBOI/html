@@ -6,6 +6,8 @@ import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'home.dart';
+
 
 
 // Function that returns an OutlineInputBorder with the desired properties
@@ -112,7 +114,7 @@ class _AccountPageState extends State<AccountPage> {
                       Positioned(top: 100.0, left: 250.0,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/home'); // Navigate to home page
+                            Navigator.push(context, MaterialPageRoute( builder : (context) => const HomePage()));
                           },
                     style: ElevatedButton.styleFrom(
                       primary: const Color(0xFF003366), // Background color

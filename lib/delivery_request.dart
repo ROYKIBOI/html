@@ -1,17 +1,16 @@
 // delivery_request.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // Import the pages
 import '../user_details.dart';
 import 'home.dart';
-import 'assets/custom_text_form_field_page.dart';
 import 'deliveries.dart';
 import '../account.dart';
-//import '../environment_variables.dart';
+import 'assets/environment_variables.dart';
 
 
 // Function that returns an OutlineInputBorder with the desired properties
@@ -22,24 +21,25 @@ OutlineInputBorder outlineInputBorder() {
   );
 }
 
-// delivery request page widget
+// DELIVERY REQUEST WIDGET
 class DeliveryRequestPage extends StatefulWidget {
   final List<Map<String, dynamic>> deliveries;
+  final String userEmail; //  line to accept the userEmail
 
-  // Get email from home dart
-  //final String userEmail;
-
-
-  // const DeliveryRequestPage({Key? key, required this.deliveries}) : super(key: key);
-
-  DeliveryRequestPage({Key? key, required this.deliveries}) : super(key: key); // Modify the constructor
-//, required this.userEmail
+  DeliveryRequestPage({
+    required this.deliveries,
+    required this.userEmail,
+  });
 
   @override
   _DeliveryRequestPageState createState() => _DeliveryRequestPageState();
 }
 
+
 class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
+  // Assuming you have a reference to your UserSession
+  final UserSession userSession = UserSession();
+
   late List<Map<String, dynamic>> _deliveries;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -50,13 +50,14 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
 
   bool _showPopup = false;
 
-  final _nameKey = GlobalKey<CustomTextFormFieldState>();
-  final _contactKey = GlobalKey<CustomTextFormFieldState>();
-  final _locationKey = GlobalKey<CustomTextFormFieldState>();
+  // final _nameKey = GlobalKey<CustomTextFormFieldState>();
+  // final _contactKey = GlobalKey<CustomTextFormFieldState>();
+  // final _locationKey = GlobalKey<CustomTextFormFieldState>();
 
-  //final _nameFocusNode = FocusNode();
-  //final _contactFocusNode = FocusNode();
-  //final _locationFocusNode = FocusNode();
+  final _nameFocusNode = FocusNode();
+  final _contactFocusNode = FocusNode();
+  final _locationFocusNode = FocusNode();
+  final _instructionsFocusNode = FocusNode();
 
   // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
   void _showErrorMessage(String message) {
@@ -105,6 +106,71 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     Future.delayed(const Duration(seconds: 10), () {
       overlayEntry.remove();
     });
+  }
+
+  Future<void> _sendDeliveryRequest() async {
+    final apiUrl = 'http://localhost:8000/save_delivery_request/';
+
+    try {
+
+      final userSession = Provider.of<UserSession>(context, listen: false);
+      final userEmail = userSession.getUserEmail() ?? '';
+
+      final requestBody = {
+        'customerName': _nameController.text,
+        'customerContact': _contactController.text,
+        'deliveryLocation': _locationController.text,
+        'instructions': _instructionsController.text,
+        'cost': _costController.text,
+        'userEmail': userEmail,
+      };
+
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        // Clear input fields
+        _nameController.clear();
+        _contactController.clear();
+        _locationController.clear();
+        _instructionsController.clear();
+        _costController.clear();
+
+        // Handle the response as needed (e.g., display a success message)
+        final responseData = jsonDecode(response.body);
+        // Do something with the response data (e.g., showing an order number)
+
+        // Navigate to pop up page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewDonePopup(
+              handleNew: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
+                  ),
+                );
+                Navigator.pop(context); // Close the NewDonePopup
+              },
+              handleDone: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+              },
+            ),
+          ),
+        );
+
+      } else {
+        _showErrorMessage('Failed to send delivery request: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showErrorMessage('Error sending delivery request: $e');
+    }
   }
 
   @override
@@ -208,6 +274,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                             SizedBox(width: 300, height: 40,
                                               child: TextFormField(
                                                 controller: _nameController,
+                                                focusNode: _nameFocusNode,
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
                                                 decoration: InputDecoration(
@@ -222,6 +289,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                             SizedBox(width: 300, height: 40,
                                               child: TextFormField(
                                                 controller: _contactController,
+                                                focusNode: _contactFocusNode,
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
                                                 decoration: InputDecoration(
@@ -236,6 +304,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                             SizedBox(width: 300, height: 40,
                                               child: TextFormField(
                                                 controller: _locationController,
+                                                focusNode: _locationFocusNode,
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
                                                 decoration: InputDecoration(
@@ -251,6 +320,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                               width: 300, height: 40, child:
                                             TextFormField(
                                               controller: _instructionsController,
+                                              focusNode: _instructionsFocusNode,
                                               textAlign: TextAlign.center,
                                               style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
                                               decoration: InputDecoration(
@@ -383,13 +453,15 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                             // Deliveries button
                             ListTile(
                               leading:
-                              const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
-                              title:  const Text('Deliveries',
-                                  style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
-                              onTap : () {
-                                Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveriesPage(deliveries: _deliveries)));
+                              const Icon(Icons.motorcycle, color: Color(0xFF003366), size: 44),
+                              title: const Text('Deliveries',
+                                  style: TextStyle(fontSize: 20, fontFamily: 'Nunito', fontWeight: FontWeight.bold, color: Color(0xFF00a896))),
+                              onTap: () {
+                                final userSession = Provider.of<UserSession>(context, listen: false);
+                                final userEmail = userSession.getUserEmail() ?? '';
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));
                               },
-                            ),const SizedBox(height: 40),
+                            ), const SizedBox(height: 40),
 
                             // Log out button
                             ListTile(
@@ -399,8 +471,11 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                   style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
                               onTap : () {
 
+                                // Clear the user session
+                                userSession.clearSession();
+
                                 // Log out and navigate to the login page
-                                Navigator.push(context, MaterialPageRoute( builder: (context) => const LoginPage()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
                               },
                             ), const SizedBox(height: 210),
 
@@ -446,9 +521,12 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     // Append new delivery to list of deliveries
     _deliveries.add(delivery);
 
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
     // Navigate to DeliveriesPage and wait for it to return a result
-    Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(deliveries: _deliveries),
-      ),
+    Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail),
+    ),
     );
 
     // Clear the input fields
@@ -470,17 +548,21 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
           _instructionsController.clear();
           _costController.clear();
 
+          final userSession = Provider.of<UserSession>(context, listen: false);
+          final userEmail = userSession.getUserEmail() ?? '';
+
           // Pop this page and pass back the updated list of deliveries
           Navigator.pop(context, _deliveries);
 
           // Navigate to the delivery request page
-          Navigator.push( context, MaterialPageRoute( builder: (context) => DeliveryRequestPage( deliveries: _deliveries),
-              //, userEmail: '$userEmail'
-            ),
+          Navigator.push( context, MaterialPageRoute( builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
+          ),
           );
         },
         handleDone: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(deliveries: _deliveries)));
+          final userSession = Provider.of<UserSession>(context, listen: false);
+          final userEmail = userSession.getUserEmail() ?? '';
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));
         },
       );
     },
@@ -498,7 +580,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   }
 }
 
-// Confirm Details Popup Widget
+// CONFIRM DETAILS POP UP WIDGET
 class ConfirmDetailsPopup extends StatelessWidget {
   final String name;
   final String contact;
@@ -569,7 +651,7 @@ class ConfirmDetailsPopup extends StatelessWidget {
   }
 }
 
-// New/Done Popup Widget
+// New/Done // NEW REQUEST POP UP WIDGET
 class NewDonePopup extends StatelessWidget {
   final Function handleNew;
   final Function handleDone;

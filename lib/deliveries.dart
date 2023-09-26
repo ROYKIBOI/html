@@ -1,11 +1,15 @@
 // deliveries.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http; // Import the http package
+
 // Import the pages
 import '../user_details.dart';
 import 'delivery_request.dart';
 import 'home.dart';
 import '../account.dart';
+import 'assets/environment_variables.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -18,28 +22,69 @@ OutlineInputBorder outlineInputBorder() {
 
 // deliveries page widget
 class DeliveriesPage extends StatefulWidget {
-  final List<Map<String, dynamic>> deliveries;
+  final String userEmail;
 
-  const DeliveriesPage({Key? key, required this.deliveries}) : super(key: key);
+
+  // const DeliveriesPage({Key? key}) : super(key: key);
+
+  DeliveriesPage({required this.userEmail, Key? key,}) : super(key: key);
 
   @override
   _DeliveriesPageState createState() => _DeliveriesPageState();
 }
 
-
 class _DeliveriesPageState extends State<DeliveriesPage> {
+  // Assuming you have a reference to your UserSession
+  final UserSession userSession = UserSession();
+
   bool _showPopup = false;
   String _filter = 'All';
 
-// TODO Replace with actual data from backend
-  final List<Map<String, dynamic>> _deliveries = [];
+// Store the fetched deliveries
+  List<Map<String, dynamic>> _deliveries = [];
 
 
-    @override
-    void initState() {
-      super.initState();
-      _deliveries.addAll(widget.deliveries);
+  @override
+  void initState() {
+    super.initState();
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+    print('User Email: $userEmail');
+    fetchDeliveriesAndSendEmail(userEmail, 'All'); // Fetch with "All" filter initially
+  }
+
+  Future<void> fetchDeliveriesAndSendEmail(String userEmail, String dateFilter) async {
+    print('Fetching deliveries with filter: $dateFilter');
+    final apiUrl = 'http://127.0.0.1:8000/fetch_deliveries/?userEmail=$userEmail&dateFilter=$dateFilter';
+
+    try {
+      final emailResponse = await http.get(Uri.parse(apiUrl));
+
+      if (emailResponse.statusCode == 200) {
+        print('Email sent to backend successfully');
+
+        final deliveriesUrl = Uri.parse(apiUrl);
+        final deliveriesResponse = await http.get(deliveriesUrl);
+
+        if (deliveriesResponse.statusCode == 200) {
+          final Map<String, dynamic> jsonData = json.decode(deliveriesResponse.body);
+          final List<dynamic> deliveries = jsonData['deliveries'];
+
+          setState(() {
+            _deliveries = deliveries.cast<Map<String, dynamic>>();
+          });
+        } else {
+          print('Failed to fetch deliveries: ${deliveriesResponse.statusCode}');
+        }
+      } else {
+        final errorResponse = json.decode(emailResponse.body);
+        final errorMessage = errorResponse['error'];
+        print('Failed to send email to backend: $errorMessage');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +141,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                   ),
                                   child: Theme(
                                     data: Theme.of(context).copyWith(
-                                      cardColor: Colors.white, // This changes the background color of the menu
+                                      cardColor: Colors.white,
                                       popupMenuTheme: PopupMenuThemeData(
                                         shape: RoundedRectangleBorder(
                                           side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
@@ -147,6 +192,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                               onSelected: (String? newValue) {
                                                 setState(() {
                                                   _filter = newValue!;
+                                                  fetchDeliveriesAndSendEmail(widget.userEmail, _filter); // Call the function with the selected date filter
                                                 });
                                               },
                                             ),
@@ -173,40 +219,51 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                   ),
                                 ),
                               )
-
                             ])
                           ])),
-                  Expanded(child:
-                  SingleChildScrollView(child:
-                  Column(
-                      mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Stack(clipBehavior: Clip.none, children: [
-                      Form(child:
-                      Column(children: [
-                        const Padding(padding:
-                        EdgeInsets.symmetric(horizontal: 150.0, vertical: 2),
-                            child:
-                            Row(mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween, children: [
-                              Text('All Deliveries', style:
-                              TextStyle(fontSize: 20,
-                                  fontFamily: 'Nunito', color:
-                                  Color(0xFF003366), fontWeight:
-                                  FontWeight.bold)),
 
-                            ])),
 
-                        ..._deliveries.map((delivery) {
-                          return Card(shape:
-                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                              child: Container(width: 1080, height: 100, decoration:
-                          BoxDecoration(borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: const Color(0xFF003366), width: 2)),
-                                  child: Padding(padding: const EdgeInsets.all(10),
-                                      child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                            Expanded(child:
+                            SingleChildScrollView(child:
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.center, children: [
+                              Stack(clipBehavior: Clip.none, children: [
+                                Form(child:
+                                Column(children: [
+                                  const Padding(padding:
+                                  EdgeInsets.symmetric(horizontal: 150.0, vertical: 2),
+                                      child:
+                                      Row(mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                           children: [
+                                        Text('All Deliveries',
+                                            style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                      ])),
+
+                                  // Use ListView.builder to display deliveries
+                                  ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: _deliveries.length,
+                                      itemBuilder: (context, index) {
+                                        final delivery = _deliveries[index];
+                                        return Card(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(15),
+                                            ),
+                                            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                                            child: Container(
+                                                width: 1080,
+                                                height: 115,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  border: Border.all(color: const Color(0xFF003366), width: 2),
+                                                ),
+                                                child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
@@ -220,30 +277,49 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                     style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
                                 Text('Rider: ${delivery['rider']}',
                                     style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                              ]),
-                              const Spacer(),
-                              Align(alignment: Alignment.bottomRight,
-                                  child:
-                              Container(width: 100, height: 30,
-                                  decoration: BoxDecoration(borderRadius:
-                              BorderRadius.circular(15), color: const Color(0xFF00a896)),
-                                  child:
-                              Center(child:
-                              Text(delivery['status'],
-                                  style: TextStyle(color:
-                              delivery['status'] == 'To Assign' ? Colors.red
-                                  : delivery['status'] == 'To Pick Up' ? Colors.yellow
-                                  : delivery['status'] == 'En-Route' ? const Color(0xFF1B5E20)
-                                  : const Color(0xFF003366)))))),
-                            ])
-                          ]))));
-                        }).toList()
+                                Text('Delivery Instructions: ${delivery['extraInstructions'] == "NULL" ? 'None' : delivery['extraInstructions']}',
+                                    style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                      ]),
 
-                      ]))
-                    ])
-                  ]))
-                  ),
-                ]),
+                                  const Spacer(),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(width: 100, height: 30,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: const Color(0xFF00a896),
+                                      ),
+                                      child: Center(
+                                        child: Text(delivery['status'],
+                                          style: TextStyle(
+                                            color: delivery['status'] == 'To Assign' ? Colors.red
+                                                : delivery['status'] == 'To Pick Up' ? Colors.yellow
+                                                : delivery['status'] == 'En-Route' ? const Color(0xFF1B5E20)
+                                                : const Color(0xFF003366),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                            ),
+                                                        ],
+                                                    ),
+                                                ),
+                                            ),
+                                        );
+                                      },
+                                  ),
+                                ],
+                                ),
+                                ),
+                              ],
+                              ),
+                            ],
+                            ),
+                            )
+                            ),
+                          ]),
 
                       // Popup menu
                       if (_showPopup)
@@ -285,9 +361,13 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                     title:  const Text('Deliveries',
                                         style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
                                     onTap : () {
-                                      Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveriesPage(deliveries: _deliveries)));
+                                      final userSession = Provider.of<UserSession>(context, listen: false);
+                                      final userEmail = userSession.getUserEmail() ?? '';
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail),
+                                      ),
+                                      );
                                     },
-                                  ),const SizedBox(height: 40),
+                                  ), const SizedBox(height: 40),
 
                                   // Log out button
                                   ListTile(
@@ -297,8 +377,11 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                         style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
                                     onTap : () {
 
+                                      // Clear the user session
+                                      userSession.clearSession();
+
                                       // Log out and navigate to the login page
-                                      Navigator.push(context, MaterialPageRoute( builder: (context) => const LoginPage()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
                                     },
                                   ), const SizedBox(height: 210),
 

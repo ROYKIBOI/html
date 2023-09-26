@@ -2,12 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 // Import the pages
 import '../user_details.dart';
 import 'delivery_request.dart';
 import 'deliveries.dart';
 import '../account.dart';
+import 'assets/environment_variables.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -26,6 +28,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Assuming you have a reference to your UserSession
+  final UserSession userSession = UserSession();
+
   List<Map<String, dynamic>> deliveries = <Map<String, dynamic>>[];
   Color _buttonColor = const Color(0xFF00a896);
 
@@ -49,8 +54,45 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // for the delivery request
+  void _handleDeliveryRequestNavigation() {
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DeliveryRequestPage(deliveries: deliveries, userEmail: userEmail),
+      ),
+    );
+  }
+
+
+  // for the delivery page
+  void _handleDeliveriesNavigation() {
+
+    // Fetch deliveries and send email to backend when the widget is initialized
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DeliveriesPage(userEmail: userEmail),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // get userEmail
+
+    // Get the UserSession instance within the build method
+    final userSession = Provider.of<UserSession>(context);
+
+    // Get the user's email
+    final userEmail = userSession.getUserEmail();
+
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -116,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                                 onTap: () {
                                   setState(() => _showPopup = !_showPopup);
                                 },
-                                child: Icon(Icons.menu, color: Color(0xFF003366), size: 15.sp,
+                                child: Icon(Icons.menu, color: const Color(0xFF003366), size: 15.sp,
                                 ),
                               ),
                             )
@@ -146,9 +188,7 @@ class _HomePageState extends State<HomePage> {
                                 onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveryRequestPage(deliveries: deliveries),
-                                      ),
-                                    );
+                                    _handleDeliveryRequestNavigation; // Call the method when the button is pressed
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary: _buttonColor,
@@ -189,10 +229,10 @@ class _HomePageState extends State<HomePage> {
                       height: MediaQuery.of(context).size.height * 0.8,  // Adjust height based on screen height
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          bottomLeft: Radius.circular(25),
-                          bottomRight: Radius.circular(25),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(6.sp),
+                          bottomLeft: Radius.circular(6.sp),
+                          bottomRight: Radius.circular(6.sp),
                         ),
                         border: Border.all(color: const Color(0xFF00a896), width: 0.5.w),  // Use .w for width
                       ),
@@ -204,9 +244,9 @@ class _HomePageState extends State<HomePage> {
 
                               ListTile(
                                 leading :
-                              Icon(Icons.home, color :  Color(0xFF003366), size : 10.sp),
+                              Icon(Icons.home, color :  const Color(0xFF003366), size : 10.sp),
                                 title : Text('Home',
-                                    style : TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : Color(0xFF00a896))),  // Use .sp for font size
+                                    style : TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),  // Use .sp for font size
                                 onTap : () {
                                   Navigator.push(context, MaterialPageRoute( builder : (context) => const HomePage()));
                                 },
@@ -215,24 +255,27 @@ class _HomePageState extends State<HomePage> {
                               // Deliveries button
                         ListTile(
                           leading:
-                          Icon(Icons.motorcycle, color :  Color(0xFF003366), size : 10.sp),
+                          Icon(Icons.motorcycle, color :  const Color(0xFF003366), size : 10.sp),
                           title:  Text('Deliveries',
-                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : Color(0xFF00a896))),
+                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),
                           onTap : () {
-                            Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveriesPage(deliveries: deliveries)));
-                          },
+                            _handleDeliveriesNavigation();
+                            },
                         ),SizedBox(height :40.h),
 
                         // Log out button
                         ListTile(
                           leading:
-                          Icon(Icons.logout, color :  Color(0xFF003366), size : 10.sp),
+                          Icon(Icons.logout, color :  const Color(0xFF003366), size : 10.sp),
                           title: Text('Log Out',
-                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : Color(0xFF00a896))),
+                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),
                           onTap : () {
 
+                            // Clear the user session
+                            userSession.clearSession();
+
                             // Log out and navigate to the login page
-                            Navigator.push(context, MaterialPageRoute( builder: (context) => const LoginPage()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
                           },
                         ), SizedBox(height :190.h),
 
