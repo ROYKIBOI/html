@@ -1,6 +1,7 @@
 // home.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Import the pages
 import '../user_details.dart';
@@ -50,6 +51,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
         backgroundColor: Colors.white,
         body: GestureDetector(
@@ -65,7 +69,7 @@ class _HomePageState extends State<HomePage> {
 
                 // Nav bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10,),
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h,),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -73,61 +77,62 @@ class _HomePageState extends State<HomePage> {
                         // Profile pic and salutation
                         Row(
                           children: [
+
                             // Profile picture
                             Positioned(
-                              top: MediaQuery.of(context).padding.top + 30, left: 30,
+                              top: MediaQuery.of(context).padding.top + 80.h, left: 10.w,
                               child: GestureDetector(
                                 onTap: () {
                                   setState(() {
                                     // view profile pic
                                   });
                                 },
-                                child: const CircleAvatar( radius: 40,
-                                  backgroundColor: Colors.grey,
+                                child: CircleAvatar(radius: 15.sp, backgroundColor: Colors.grey,
                                   // TODO:
                                   // Replace with the actual profile picture of the rider
-                                  child: Icon(Icons.person, size: 60, color: Colors.white),
+                                  child: Icon(Icons.person, size: 15.sp, color: Colors.white),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 20, height: 30,),
+                            SizedBox(width: 5.w, height: 50.h,),
 
                             // Salutation
-                            Text(_salutation, style: const TextStyle(color: Color(0xFF003366), fontSize: 16, fontFamily: 'Nunito', fontWeight: FontWeight.bold)),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40,),
+                            Text(_salutation, style: TextStyle(color: const Color(0xFF003366), fontSize: 5.sp, fontFamily: 'Nunito', fontWeight: FontWeight.bold)),
+                             Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40.h,),
                             ),
                           ],
-                        ), const SizedBox(width: 300),
+                        ),  SizedBox(width: 160.w),
 
                         // Menu
                         Row(
                           children: [
-                            const SizedBox(width: 50),
+                            SizedBox(width: 15.w),
 
                             // Nav bar icon
-                            IconButton(
-                              icon: const Icon(Icons.menu,
-                                  color: Color(0xFF003366), size: 50),
-                              onPressed: () {
-                                setState(() => _showPopup = !_showPopup);
-                              },
-                            ),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() => _showPopup = !_showPopup);
+                                },
+                                child: Icon(Icons.menu, color: Color(0xFF003366), size: 15.sp,
+                                ),
+                              ),
+                            )
+
                           ],
                         )
                       ]
                   ),
                 ),
 
-                    Image.asset(
-                          'images/bike.png',
-                          width: 400, height: 400,
-                        ),
+                    Image.asset('images/bike.png',
+                      width: screenWidth * 0.5,  // Adjust size based on screen width
+                      height: screenHeight * 0.5,  // Adjust size based on screen height
+                    ),
 
-                    const SizedBox(height: 10),
-
-
-
+                    SizedBox(height: 10.h),
 
                     Expanded(
                       child: Column(
@@ -141,33 +146,30 @@ class _HomePageState extends State<HomePage> {
                                 onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveryRequestPage(deliveries: deliveries),
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveryRequestPage(deliveries: deliveries),
                                       ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary: _buttonColor,
-                                    fixedSize: const Size(200, 70),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    fixedSize: Size(55.w, 80.h),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.sp)),
                                   ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(left: 70),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 10.w),
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text('Delivery',
-                                          style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-                                        ),
-                                        Text('Request',
-                                          style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                        Text('Delivery\nRequest',
+                                          style: TextStyle(fontFamily: 'Nunito', fontSize: 6.sp, color: Colors.white, fontWeight: FontWeight.bold),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
                               ),
-                              const Positioned(top: -50, left: -10,
-                                child: Icon(Icons.note_add_outlined, color: Color(0xFF003366), size: 120),
+                              Positioned(top: -55.h, left: -10.w,
+                                child: Icon(Icons.note_add_outlined, color: Color(0xFF003366), size: 30.sp),
                               ),
                             ],
                           )
@@ -178,80 +180,80 @@ class _HomePageState extends State<HomePage> {
                         ),
 
             // Popup menu
-            if (_showPopup)
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 100,
-                right: 35,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.2,
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                    border: Border.all(color: const Color(0xFF00a896), width: 2),
-                  ),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children:[
-                        const SizedBox(height: 20),
-                        // Home button
-                        ListTile(
-                          leading:
-                          const Icon(Icons.home, color:  Color(0xFF003366), size: 44),
-                          title: const Text('Home',
-                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
-                          onTap : () {
-                            // Navigate to the home page
-                            Navigator.push(context, MaterialPageRoute( builder: (context) => const HomePage()));
-                            },
-                        ), const SizedBox(height: 40),
+                if (_showPopup)
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 20.w,  // Use .w for width
+                    right: 15.w,  // Use .w for width
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.2,  // Adjust width based on screen width
+                      height: MediaQuery.of(context).size.height * 0.8,  // Adjust height based on screen height
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(25),
+                          bottomLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
+                        ),
+                        border: Border.all(color: const Color(0xFF00a896), width: 0.5.w),  // Use .w for width
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children:[
+                              SizedBox(height : 40.h),  // Use .h for height
 
-                        // Deliveries button
+                              ListTile(
+                                leading :
+                              Icon(Icons.home, color :  Color(0xFF003366), size : 10.sp),
+                                title : Text('Home',
+                                    style : TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : Color(0xFF00a896))),  // Use .sp for font size
+                                onTap : () {
+                                  Navigator.push(context, MaterialPageRoute( builder : (context) => const HomePage()));
+                                },
+                              ), SizedBox(height :40.h),
+
+                              // Deliveries button
                         ListTile(
                           leading:
-                          const Icon(Icons.motorcycle, color:  Color(0xFF003366), size: 44),
-                          title:  const Text('Deliveries',
-                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          Icon(Icons.motorcycle, color :  Color(0xFF003366), size : 10.sp),
+                          title:  Text('Deliveries',
+                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : Color(0xFF00a896))),
                           onTap : () {
                             Navigator.push(context, MaterialPageRoute( builder: (context) => DeliveriesPage(deliveries: deliveries)));
                           },
-                        ),const SizedBox(height: 40),
+                        ),SizedBox(height :40.h),
 
                         // Log out button
                         ListTile(
                           leading:
-                          const Icon(Icons.logout, color:  Color(0xFF003366), size: 44),
-                          title: const Text('Log Out',
-                              style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
+                          Icon(Icons.logout, color :  Color(0xFF003366), size : 10.sp),
+                          title: Text('Log Out',
+                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : Color(0xFF00a896))),
                           onTap : () {
 
                             // Log out and navigate to the login page
                             Navigator.push(context, MaterialPageRoute( builder: (context) => const LoginPage()));
                           },
-                        ), const SizedBox(height: 210),
+                        ), SizedBox(height :190.h),
 
                         // My account section
-                        Padding(padding : const EdgeInsets.all(8.0),
+                        Padding(padding : EdgeInsets.all(10.h),
                             child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                 children:[
                                   ElevatedButton(onPressed : () {
                                     Navigator.push(context, MaterialPageRoute( builder: (context) => const AccountPage()));
-                                    }, child : const Text('My Account',
-                                      style : TextStyle(color : Colors.white)),
+                                    },
+                                      child : Text('My Account',
+                                      style : TextStyle(color : Colors.white, fontSize :3.5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, )),
                                       style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
-                                          shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),
-                                  const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
-                                      // TODO:
-                                      // Replace with the actual profile picture of the rider
-                                      child : Icon(Icons.person, size : 40, color : Colors.white))
+                                          shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(10.sp)))),
+                                  CircleAvatar(radius : 8.sp, backgroundColor : Colors.grey,
+                                      child : Icon(Icons.person, size : 7.sp, color : Colors.white))
                                 ])),
                       ]),
                 ),
               ),
+              )
           ],
         ),
       ),

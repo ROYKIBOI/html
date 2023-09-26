@@ -167,12 +167,16 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                 const SizedBox(width: 50),
 
                                 // Nav bar icon
-                                IconButton(
-                                  icon: const Icon(Icons.menu, color: Color(0xFF003366), size: 50),
-                                  onPressed: () {
-                                    setState(() => _showPopup = !_showPopup);
-                                  },
-                                ),
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() => _showPopup = !_showPopup);
+                                    },
+                                    child: Icon(Icons.menu, color: Color(0xFF003366), size: 50,
+                                    ),
+                                  ),
+                                )
                               ],
                             )
                           ]

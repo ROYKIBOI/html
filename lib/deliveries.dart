@@ -88,9 +88,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                             Row(children: [
                               Padding(
                                 padding: const EdgeInsets.only(top: 20),
-                                child: Container(
-                                  width: 180,
-                                  height: 40,
+                                child: Container(width: 180, height: 40,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(25),
@@ -116,37 +114,45 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                             style: const TextStyle(color: Color(0xFF003366)),
                                           ),
                                         ),
-                                        const SizedBox(width: 10), // This is to give some space at the start
-                                        PopupMenuButton<String>(
-                                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF003366)),
-                                          itemBuilder: (context) => [
-                                            const PopupMenuItem(
-                                              child: Text('All', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: 'All',
+                                        const SizedBox(width: 10),
+                                        // This is to give some space at the start
+                                        MouseRegion(
+                                          cursor: SystemMouseCursors.click,
+                                          child: InkWell(
+                                            onTap: () {},
+                                            child: PopupMenuButton<String>(
+                                              icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF003366)),
+                                              itemBuilder: (context) => [
+                                                const PopupMenuItem(
+                                                  child: Text('All', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                                  value: 'All',
+                                                ),
+                                                const PopupMenuItem(
+                                                  child: Text('Today', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                                  value: 'Today',
+                                                ),
+                                                const PopupMenuItem(
+                                                  child: Text('Last 7 days', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                                  value: 'Last 7 days',
+                                                ),
+                                                const PopupMenuItem(
+                                                  child: Text('Last month', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                                  value: 'Last month',
+                                                ),
+                                                const PopupMenuItem(
+                                                  child: Text('Older', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                                                  value: 'Older',
+                                                ),
+                                              ],
+                                              onSelected: (String? newValue) {
+                                                setState(() {
+                                                  _filter = newValue!;
+                                                });
+                                              },
                                             ),
-                                            const PopupMenuItem(
-                                              child: Text('Today', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: 'Today',
-                                            ),
-                                            const PopupMenuItem(
-                                              child: Text('Last 7 days', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: 'Last 7 days',
-                                            ),
-                                            const PopupMenuItem(
-                                              child: Text('Last month', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: 'Last month',
-                                            ),
-                                            const PopupMenuItem(
-                                              child: Text('Older', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: 'Older',
-                                            ),
-                                          ],
-                                          onSelected: (String? newValue) {
-                                            setState(() {
-                                              _filter = newValue!;
-                                            });
-                                          },
-                                        ),
+                                          ),
+                                        )
+
                                       ],
                                     ),
                                   ),
@@ -157,12 +163,16 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
 
                             // Nav bar icon
-                              IconButton(icon:
-                              const Icon(Icons.menu, color: Color(0xFF003366),
-                                  size: 50), onPressed:
-                                  () {
-                                setState(() => _showPopup = !_showPopup);
-                              },),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() => _showPopup = !_showPopup);
+                                  },
+                                  child: Icon(Icons.menu, color: Color(0xFF003366), size: 50,
+                                  ),
+                                ),
+                              )
 
                             ])
                           ])),
@@ -234,6 +244,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                   ]))
                   ),
                 ]),
+
                       // Popup menu
                       if (_showPopup)
                         Positioned(

@@ -1,5 +1,6 @@
 // main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'assets/splash_screen.dart'; // Import the splash screen
 import 'assets/responsive_design.dart'; // Import the responsive design widget
 import 'package:provider/provider.dart';
@@ -26,15 +27,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveDesign(
-      child: MaterialApp(
+    return ScreenUtilInit(
+        designSize: Size(360, 690),
+    builder: (BuildContext context, Widget? child) {
+    return MaterialApp(
         title: 'tuma.today',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const SplashScreen(nextPage: LoginPage()), // Use the imported splash screen
-      ),
-    );
+    home: const LoginPage(),
+      );
+  });
   }
 }
 

@@ -1,36 +1,37 @@
-// responsive_design.dart
+// responsive_ui.dart
 import 'package:flutter/material.dart';
 
-class ResponsiveDesign extends StatelessWidget {
+class Responsive extends StatelessWidget {
   final Widget child;
 
-  const ResponsiveDesign({required this.child});
+  const Responsive({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  /// mobile < 650
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < 650;
+
+  /// tablet >= 650
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 600 &&
+          MediaQuery.of(context).size.width < 1100;
+
+  ///desktop >= 1100
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 1100;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return OrientationBuilder(
-          builder: (context, orientation) {
-            // Use the constraints and orientation to determine the screen size and aspect ratio
-            double deviceWidth = constraints.maxWidth;
-            double deviceHeight = constraints.maxHeight;
-            double aspectRatio = deviceWidth / deviceHeight;
-            // Set a base height to scale the text and other elements of the app
-            double baseHeight = 650.0;
-            // Adjust the base height for different aspect ratios
-            if (aspectRatio > 0.8) {
-              baseHeight = 600.0;
-            }
-            // Set the text scale factor based on the screen size and base height
-            double textScaleFactor = deviceHeight / baseHeight;
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: textScaleFactor),
-              child: child,
-            );
-          },
-        );
-      },
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth >= 1100) {
+        return const SingleChildScrollView();
+      } else if (constraints.maxWidth >= 650) {
+        return const SingleChildScrollView();
+      } else {
+        return const SingleChildScrollView();
+      }
+    });
   }
 }
