@@ -5,19 +5,16 @@ import 'package:image_picker/image_picker.dart';
 import 'assets/loading_animation.dart'; // Import the LoadingAnimation widget
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
+
+
+// Import the pages
+import 'assets/environment_variables.dart';
 import 'home.dart';
-
-
-
-// Function that returns an OutlineInputBorder with the desired properties
-OutlineInputBorder outlineInputBorder() {
-  return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(25),
-    borderSide: const BorderSide(color: Color(0xFF003366), width: 3),
-  );
-}
-
 
 //my account page widget
 class AccountPage extends StatefulWidget {
@@ -27,48 +24,121 @@ class AccountPage extends StatefulWidget {
   _AccountPageState createState() => _AccountPageState();
 }
 
+
 class _AccountPageState extends State<AccountPage> {
   final TextEditingController _businessLocationController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   String id = '';
   String? _imageUrl;
   String imagePath = '';
+  String _editedLocation = '';
+  String _editedPhoneNumber = '';
+  Uint8List? _imageBytes; // To store the image bytes
+  bool _showDefaultImage = true;
 
 
-  //Define a method to pick an image from the gallery
-  void _pickImage() async {
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      imagePath = pickedFile.path;
+  // To upload the image and have it in the database.
+  Future<void> _uploadImage() async {
+    final image = await ImagePicker().getImage(source: ImageSource.gallery);
+    if (image != null) {
 
-      // Upload the image to the server
-      final request = http.MultipartRequest('POST', Uri.parse('http://localhost:8000/upload/'));
-      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-      final response = await request.send();
+      final userSession = Provider.of<UserSession>(context, listen: false);
+      final userEmail = userSession.getUserEmail() ?? '';
 
-      final respStr = await response.stream.bytesToString();
-      print('Upload response: $respStr');
+      List<int> imageBytes = await image.readAsBytes();
+      String email = userEmail;
 
-      if (response.statusCode == 200) {
-        print('Image uploaded successfully.');
-        // Get the response from the server
-        final responseData = await response.stream.bytesToString();
-        // Parse the response data
-        final data = jsonDecode(responseData);
-        // Display the uploaded image
-        setState(() {
-          _imageUrl = data['image_url'];
-        });
-      } else {
-        print('Failed to upload image.');
-      }
-    } else {
-      // Handle error
+      await _pickImage(imageBytes, email);
     }
   }
 
-// Delete the image from the server
+  Future<void> _pickImage(List<int> imageBytes, String email) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://127.0.0.1:8000/upload_image/'),
+    );
+
+    // Use the user's email as the filename
+    final filename = '$email.jpg';
+
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'image',
+        imageBytes,
+        filename:filename,
+      ),
+    );
+    request.fields['email'] = email;
+
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      print('Image uploaded successfully');
+
+      // setState(() {
+      //   _imageUrl = 'http://127.0.0.1:8000/uploads/$filename'; // Replace with your actual image URL
+      // });
+
+      // Fetch and display the user's image immediately
+      _getImage();
+
+    } else {
+      print('Image upload failed');
+    }
+  }
+
+
+  // To display the image
+  Future<void> _getImage() async {
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    final imageBytes = await _fetchImageBytes(userEmail);
+
+    if (imageBytes != null) {
+      // Update the _imageBytes with the fetched image bytes
+      setState(() {
+        _imageBytes = imageBytes;
+        _showDefaultImage = false; // Hide the default image
+      });
+    } else {
+      // No user image available, keep showing the default image
+      setState(() {
+        _imageBytes = null; // Clear the _imageBytes
+        _showDefaultImage = true; // Show the default image
+      });
+    }
+  }
+
+  Future<Uint8List?> _fetchImageBytes(String email) async {
+    try {
+      // Make an HTTP GET request to your Django backend to retrieve the image data
+      final apiUrl = 'http://127.0.0.1:8000/get_image/?email=$email';
+      final response = await http.get(Uri.parse(apiUrl)); // Replace with your backend URL and endpoint
+      if (response.statusCode == 200) {
+        // Parse the response JSON to extract the base64-encoded image data
+        final imageBase64 = json.decode(response.body)['image_data']; // Adjust the JSON structure as per your backend response
+
+        // Decode the base64 image data into bytes
+        final imageBytes = base64.decode(imageBase64);
+
+        return imageBytes;
+      } else {
+        // Handle the case where the image data cannot be retrieved
+        return null;
+      }
+    } catch (e) {
+      // Handle any network or other errors
+      return null;
+    }
+  }
+
+
+
+
+
+
   void _removeImage() async {
     // Delete the image from the server
     final response = await http.delete(Uri.parse('http://localhost:8000/delete/$id/'));
@@ -105,12 +175,91 @@ class _AccountPageState extends State<AccountPage> {
     ).show(context);
   }
 
+// Function to fetch business details
+  Future<Map<String, dynamic>> fetchBusinessDetails(String userEmail) async {
+    final apiUrl = 'http://127.0.0.1:8000/get_client_details/?userEmail=$userEmail';
+
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to fetch business details');
+    }
+  }
+
+  // In your _AccountPageState class
+  Map<String, dynamic> _clientDetails = {};
+
+  // Function for updating business details
+  Future<void> updateBusinessDetails() async {
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    // Print the values being sent to the backend
+    // print('Updating business details:');
+    // print('User Email: $userEmail');
+    // print('New Location: $_editedLocation');
+    // print('New Phone Number: $_editedPhoneNumber');
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/update_client_details/'),
+        body: {
+          'Email': userEmail,
+          'Location': _editedLocation,
+          'Contact': _editedPhoneNumber,
+        },
+      );
+
+
+
+      if (response.statusCode == 200) {
+        // Business details updated successfully
+        Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
+      } else {
+        // // Handle error by logging the response
+        // print('Failed to update business details. Response: ${response.body}');
+      }
+
+    } catch (error) {
+      // Handle network or other errors
+      print('Error: $error');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    fetchBusinessDetails(userEmail).then((details) {
+      setState(() {
+        _clientDetails = details;
+      });
+
+      // print('Fetched Business Details: $_clientDetails');
+
+    }).catchError((error) {
+      print('Error fetching business details: $error');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // Get the screen size
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+    // Fetched business details
+    final String businessName = _clientDetails['businessName']?.toLowerCase() ?? '';
+    final String businessLocation = _clientDetails['businessLocation']?.toLowerCase() ?? '';
+    final String businessEmail = _clientDetails['userEmail'] ?? '';
+
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? ''; // Replace with your provider method
+
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -148,57 +297,64 @@ class _AccountPageState extends State<AccountPage> {
                         padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1, horizontal: screenWidth * 0.05),
                         child: Column(
                             children: [
-                              Stack(
-                                children: [
-                                  Container(width: screenWidth * 0.4, height: screenHeight * 0.4,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.grey, width: 2,
-                                      ),
-                                      image: _imageUrl != null ? DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(_imageUrl!),
-                                      ) : null,
-                                    ),
-                                    child: _imageUrl == null ? Icon(Icons.person, size: screenWidth * 0.1, color: Colors.grey) : null,
-                                  ),
+                              // Stack(
+                              //   children: [
+                              //     Container(width: screenWidth * 0.4, height: screenHeight * 0.4,
+                              //       decoration: BoxDecoration(
+                              //         shape: BoxShape.circle,
+                              //         border: Border.all(color: Colors.grey, width: 2,
+                              //         ),
+                              //         image: _imageUrl != null ? DecorationImage(
+                              //           fit: BoxFit.cover,
+                              //           image: NetworkImage(_imageUrl!),
+                              //         ) : null,
+                              //       ),
+                              //       child: _imageUrl == null ? Icon(Icons.person, size: screenWidth * 0.1, color: Colors.grey) : null,
+                              //     ),
+                              //
+                              //       Positioned(top: screenHeight * 0.28, left: screenWidth * 0.25,
+                              //         child: Theme(
+                              //           data: Theme.of(context).copyWith(
+                              //             cardColor: Colors.white, // This changes the background color of the menu
+                              //             popupMenuTheme: PopupMenuThemeData(
+                              //               shape: RoundedRectangleBorder(
+                              //                 side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
+                              //                 borderRadius: BorderRadius.circular(25),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //           child: PopupMenuButton<ImageSource>(
+                              //             icon: Icon(Icons.camera_alt, size: screenWidth * 0.04, color: Color(0xFF003366)),
+                              //             itemBuilder: (context) => [
+                              //               const PopupMenuItem(
+                              //                 child: Text('Upload Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                              //                 value: ImageSource.gallery,
+                              //               ),
+                              //               const PopupMenuItem(
+                              //                 child: Text('Remove Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
+                              //                 value: ImageSource.camera,
+                              //               ),
+                              //             ],
+                              //             onSelected: (value) {
+                              //               if (value == ImageSource.camera) {
+                              //                 _removeImage();
+                              //               } else {
+                              //                 _pickImage();
+                              //               }
+                              //             },
+                              //           ),
+                              //         ),
+                              //       ),
+                              //       ],
+                              //     ),
 
-                                    Positioned(top: screenHeight * 0.28, left: screenWidth * 0.25,
-                                      child: Theme(
-                                        data: Theme.of(context).copyWith(
-                                          cardColor: Colors.white, // This changes the background color of the menu
-                                          popupMenuTheme: PopupMenuThemeData(
-                                            shape: RoundedRectangleBorder(
-                                              side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
-                                              borderRadius: BorderRadius.circular(25),
-                                            ),
-                                          ),
-                                        ),
-                                        child: PopupMenuButton<ImageSource>(
-                                          icon: Icon(Icons.camera_alt, size: screenWidth * 0.04, color: Color(0xFF003366)),
-                                          itemBuilder: (context) => [
-                                            const PopupMenuItem(
-                                              child: Text('Upload Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: ImageSource.gallery,
-                                            ),
-                                            const PopupMenuItem(
-                                              child: Text('Remove Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                              value: ImageSource.camera,
-                                            ),
-                                          ],
-                                          onSelected: (value) {
-                                            if (value == ImageSource.camera) {
-                                              _removeImage();
-                                            } else {
-                                              _pickImage();
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    ],
-                                  ),
-
+                              Transform.translate(
+                                offset: const Offset(0, -10),
+                                child: Image.asset('images/logo.png',
+                                  width: screenWidth * 0.5, // 50% of screen width
+                                  height: screenHeight * 0.5, // 50% of screen height
+                                ),
+                              ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,21 +369,20 @@ class _AccountPageState extends State<AccountPage> {
                                     children: [
                                       ListTile(
                                         leading: Icon(Icons.business, color: const Color(0xFF003366), size: screenWidth * 0.025),
-                                        title: Text('Business Name',
-                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                        title: Text('Business Name: $businessName',                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
 
                                       ListTile(
                                         leading: Icon(Icons.location_on,color : const Color(0xFF003366),size :screenWidth * 0.025),
-                                        title: Text('Business Location',
+                                        title: Text('Business Location: $businessLocation',
                                             style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
 
                                       ListTile(
                                         leading: Icon(Icons.email,color : const Color(0xFF003366),size :screenWidth * 0.025),
-                                        title: Text('Business Email',
+                                        title: Text('Business Email: $businessEmail',
                                             style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
@@ -249,11 +404,16 @@ class _AccountPageState extends State<AccountPage> {
                                     content:
                                     SingleChildScrollView(child:
                                     ListBody(children:<Widget>[
-                                      Text('Name: Business Name',
+                                      Text('Business Name: $businessName',
                                           style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
                                       SizedBox(height: screenHeight * 0.02),
 
                                       TextField(
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _editedLocation = value;
+                                          });
+                                        },
                                         controller: _businessLocationController,
                                         textAlign : TextAlign.center,
                                         decoration: InputDecoration(
@@ -267,6 +427,11 @@ class _AccountPageState extends State<AccountPage> {
                                       ), SizedBox(height: screenHeight * 0.03),
 
                                       TextField(
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _editedPhoneNumber = value;
+                                          });
+                                        },
                                         controller: _phoneNumberController,
                                         textAlign : TextAlign.center,
                                         decoration: InputDecoration(
@@ -290,7 +455,6 @@ class _AccountPageState extends State<AccountPage> {
                                               // If not, show an error message
                                               _showErrorMessage('All fields must be filled before saving.');
                                             } else {
-                                              // TODO: Implement save logic
 
                                               // Show loading animation
                                               showDialog(
@@ -305,11 +469,13 @@ class _AccountPageState extends State<AccountPage> {
                                                   );
                                                 },
                                               );
+                                              // // Wait for 3 seconds to simulate checking email and password against database
                                               await Future.delayed(const Duration(seconds : 3));
+                                              await updateBusinessDetails();
 
                                               // Dismiss loading animation
                                               Navigator.pop(context);
-                                              Navigator.pop(context);
+
 
                                               // Clear the fields after saving
                                               _businessLocationController.clear();
