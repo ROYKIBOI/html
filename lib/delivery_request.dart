@@ -35,7 +35,6 @@ class DeliveryRequestPage extends StatefulWidget {
   _DeliveryRequestPageState createState() => _DeliveryRequestPageState();
 }
 
-
 class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   // Assuming you have a reference to your UserSession
   final UserSession userSession = UserSession();

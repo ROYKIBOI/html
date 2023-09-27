@@ -260,7 +260,6 @@ class _AccountPageState extends State<AccountPage> {
     final userSession = Provider.of<UserSession>(context, listen: false);
     final userEmail = userSession.getUserEmail() ?? ''; // Replace with your provider method
 
-
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(

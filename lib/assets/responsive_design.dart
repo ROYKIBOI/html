@@ -35,4 +35,3 @@ class Responsive extends StatelessWidget {
     });
   }
 }
-

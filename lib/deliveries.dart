@@ -224,7 +224,6 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                       ])
                                     ])),
 
-
                             Expanded(child:
                             SingleChildScrollView(child:
                             Column(

@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'home.dart';
 import 'assets/environment_variables.dart';
 
-
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
