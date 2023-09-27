@@ -89,6 +89,11 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Get the screen size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
         backgroundColor: Colors.white,
         body: GestureDetector(
@@ -104,212 +109,208 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                       Column(
                           children: [
 // Nav bar
-                  Padding(
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                            Padding(
+                                padding:
+                                EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
 // Profile picture
-                            Positioned(
-                              top: MediaQuery.of(context).padding.top + 30, left: 30,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
+                                      Positioned(
+                                        top: MediaQuery.of(context).padding.top + 30, left: screenWidth * 0.05,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
 
-                                    // view profile pic
-                                  });
-                                },
-                                child: const CircleAvatar(radius: 40,
-                                  backgroundColor: Colors.grey,
-                                  // TODO:
-                                  // Replace with the actual profile picture of the rider
-                                  child:
-                                  Icon(Icons.person, size: 60, color: Colors.white),
-                                ),
-                              ),
-                            ), const SizedBox(width: 300),
-
-// Menu
-                            Row(children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child: Container(width: 180, height: 40,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(25),
-                                      border: Border.all(color: const Color(0xFF00a896), width: 2)
-                                  ),
-                                  child: Theme(
-                                    data: Theme.of(context).copyWith(
-                                      cardColor: Colors.white,
-                                      popupMenuTheme: PopupMenuThemeData(
-                                        shape: RoundedRectangleBorder(
-                                          side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
-                                          borderRadius: BorderRadius.circular(25),
-                                        ),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child: Text(
-                                            _filter == null ? "Filter by:" : _filter,
-                                            style: const TextStyle(color: Color(0xFF003366)),
+                                              // view profile pic
+                                            });
+                                          },
+                                          child: CircleAvatar(
+                                            radius: screenWidth * 0.04, backgroundColor: Colors.grey,
+                                            child:
+                                            Icon(Icons.person, size: screenWidth * 0.04, color: Colors.white),
                                           ),
                                         ),
-                                        const SizedBox(width: 10),
-                                        // This is to give some space at the start
+                                      ),
+
+// Menu
+                                      Row(children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(top: screenHeight * 0.02),
+                                          child: Container(width: screenWidth * 0.15, height: screenHeight * 0.07,
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(screenWidth * 0.05),
+                                                border: Border.all(color: const Color(0xFF003366), width: 2)
+                                            ),
+                                            child: Theme(
+                                              data: Theme.of(context).copyWith(
+                                                cardColor: Colors.white,
+                                                popupMenuTheme: PopupMenuThemeData(
+                                                  shape: RoundedRectangleBorder(
+                                                    side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
+                                                    borderRadius: BorderRadius.circular(screenWidth * 0.02),
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: screenWidth * 0.01),
+                                                    child: Text(
+                                                      _filter,
+                                                      style: TextStyle(fontSize: screenWidth * 0.012, color: Color(0xFF003366)),
+                                                    ),
+                                                  ),
+
+                                                  // This is to give some space at the start
+                                                  MouseRegion(
+                                                    cursor: SystemMouseCursors.click,
+                                                    child: InkWell(
+                                                      onTap: () {},
+                                                      child: PopupMenuButton<String>(
+                                                        icon: Icon(Icons.arrow_drop_down, size: screenHeight  * 0.04, color: const Color(0xFF003366)),
+                                                        itemBuilder: (context) => [
+                                                          PopupMenuItem(
+                                                            child: Text('All', style: TextStyle(fontSize: screenWidth * 0.013, color: Color(0xFF003366))), // This changes the text color
+                                                            value: 'All',
+                                                          ),
+                                                          PopupMenuItem(
+                                                            child: Text('Today', style: TextStyle(fontSize: screenWidth * 0.013, color: Color(0xFF003366))), // This changes the text color
+                                                            value: 'Today',
+                                                          ),
+                                                          PopupMenuItem(
+                                                            child: Text('Last 7 days', style: TextStyle(fontSize: screenWidth * 0.013, color: Color(0xFF003366))), // This changes the text color
+                                                            value: 'Last 7 days',
+                                                          ),
+                                                          PopupMenuItem(
+                                                            child: Text('Last month', style: TextStyle(fontSize: screenWidth * 0.013, color: Color(0xFF003366))), // This changes the text color
+                                                            value: 'Last month',
+                                                          ),
+                                                          PopupMenuItem(
+                                                            child: Text('Older', style: TextStyle(fontSize: screenWidth * 0.013, color: Color(0xFF003366))), // This changes the text color
+                                                            value: 'Older',
+                                                          ),
+                                                        ],
+                                                        onSelected: (String? newValue) {
+                                                          setState(() {
+                                                            _filter = newValue!;
+                                                            fetchDeliveriesAndSendEmail(widget.userEmail, _filter); // Call the function with the selected date filter
+                                                          });
+                                                        },
+                                                      ),
+                                                    ),
+                                                  )
+
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: screenWidth * 0.015),
+
+                                        // Nav bar icon
                                         MouseRegion(
                                           cursor: SystemMouseCursors.click,
-                                          child: InkWell(
-                                            onTap: () {},
-                                            child: PopupMenuButton<String>(
-                                              icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF003366)),
-                                              itemBuilder: (context) => [
-                                                const PopupMenuItem(
-                                                  child: Text('All', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                                  value: 'All',
-                                                ),
-                                                const PopupMenuItem(
-                                                  child: Text('Today', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                                  value: 'Today',
-                                                ),
-                                                const PopupMenuItem(
-                                                  child: Text('Last 7 days', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                                  value: 'Last 7 days',
-                                                ),
-                                                const PopupMenuItem(
-                                                  child: Text('Last month', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                                  value: 'Last month',
-                                                ),
-                                                const PopupMenuItem(
-                                                  child: Text('Older', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                                                  value: 'Older',
-                                                ),
-                                              ],
-                                              onSelected: (String? newValue) {
-                                                setState(() {
-                                                  _filter = newValue!;
-                                                  fetchDeliveriesAndSendEmail(widget.userEmail, _filter); // Call the function with the selected date filter
-                                                });
-                                              },
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setState(() => _showPopup = !_showPopup);
+                                            },
+                                            child: Icon(Icons.menu, color: const Color(0xFF003366), size: screenWidth * 0.04,
                                             ),
                                           ),
                                         )
-
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-
-
-
-                            // Nav bar icon
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() => _showPopup = !_showPopup);
-                                  },
-                                  child: Icon(Icons.menu, color: Color(0xFF003366), size: 50,
-                                  ),
-                                ),
-                              )
-                            ])
-                          ])),
+                                      ])
+                                    ])),
 
 
                             Expanded(child:
                             SingleChildScrollView(child:
                             Column(
-                                mainAxisAlignment: MainAxisAlignment.center, children: [
+                              mainAxisAlignment: MainAxisAlignment.center, children: [
                               Stack(clipBehavior: Clip.none, children: [
                                 Form(child:
                                 Column(children: [
-                                  const Padding(padding:
-                                  EdgeInsets.symmetric(horizontal: 150.0, vertical: 2),
+                                   Padding(padding:
+                                  EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
                                       child:
-                                      Row(mainAxisAlignment:
+                                      const Row(mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                           children: [
-                                        Text('All Deliveries',
-                                            style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                      ])),
+                                            Text('All Deliveries',
+                                                style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                          ])),
 
                                   // Use ListView.builder to display deliveries
                                   ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: _deliveries.length,
-                                      itemBuilder: (context, index) {
-                                        final delivery = _deliveries[index];
-                                        return Card(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(15),
-                                            ),
-                                            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                                            child: Container(
-                                                width: 1080,
-                                                height: 115,
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(20),
-                                                  border: Border.all(color: const Color(0xFF003366), width: 2),
-                                                ),
-                                                child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: Column(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: _deliveries.length,
+                                    itemBuilder: (context, index) {
+                                      final delivery = _deliveries[index];
+                                      return Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                                        child: Container(
+                                          width: 1080,
+                                          height: 115,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(color: const Color(0xFF003366), width: 2),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Column(
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                Text('Order number:${delivery['orderNumber']}',
-                                    style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                Text('Customer name: ${delivery['customerName']}',
-                                    style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                Text('Customer location: ${delivery['customerLocation']}',
-                                    style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                Text('Rider: ${delivery['rider']}',
-                                    style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                Text('Delivery Instructions: ${delivery['extraInstructions'] == "NULL" ? 'None' : delivery['extraInstructions']}',
-                                    style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                      ]),
+                                                          Text('Order number:${delivery['orderNumber']}',
+                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                          Text('Customer name: ${delivery['customerName']}',
+                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                          Text('Customer location: ${delivery['customerLocation']}',
+                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                          Text('Rider: ${delivery['rider']}',
+                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                          Text('Delivery Instructions: ${delivery['extraInstructions'] == "NULL" ? 'None' : delivery['extraInstructions']}',
+                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                        ]),
 
-                                  const Spacer(),
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Container(width: 100, height: 30,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: const Color(0xFF00a896),
-                                      ),
-                                      child: Center(
-                                        child: Text(delivery['status'],
-                                          style: TextStyle(
-                                            color: delivery['status'] == 'To Assign' ? Colors.red
-                                                : delivery['status'] == 'To Pick Up' ? Colors.yellow
-                                                : delivery['status'] == 'En-Route' ? const Color(0xFF1B5E20)
-                                                : const Color(0xFF003366),
+                                                    const Spacer(),
+                                                    Align(
+                                                      alignment: Alignment.bottomRight,
+                                                      child: Container(width: 100, height: 30,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(15),
+                                                          color: const Color(0xFF00a896),
+                                                        ),
+                                                        child: Center(
+                                                          child: Text(delivery['status'],
+                                                            style: TextStyle(
+                                                              color: delivery['status'] == 'To Assign' ? Colors.red
+                                                                  : delivery['status'] == 'To Pick Up' ? Colors.yellow
+                                                                  : delivery['status'] == 'En-Route' ? const Color(0xFF1B5E20)
+                                                                  : const Color(0xFF003366),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                            ),
-                                                        ],
-                                                    ),
-                                                ),
-                                            ),
-                                        );
-                                      },
+                                      );
+                                    },
                                   ),
                                 ],
                                 ),
@@ -342,7 +343,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children:[
-                                  const SizedBox(height: 20),
+                                  SizedBox(height: screenHeight * 0.01),
                                   // Home button
                                   ListTile(
                                     leading:
@@ -404,7 +405,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                 ]),
                           ),
                         ),
-              ])
-          )));
-    }
+                    ])
+            )));
   }
+}

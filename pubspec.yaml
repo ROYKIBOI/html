@@ -82,6 +82,7 @@ flutter:
     - logo/today.png
     - logo/tuma.png
     - images/logo.png
+    - images/add.png
 
 
   uses-material-design: true

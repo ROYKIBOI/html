@@ -169,54 +169,71 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                    Image.asset('images/bike.png',
-                      width: screenWidth * 0.5,  // Adjust size based on screen width
-                      height: screenHeight * 0.5,  // Adjust size based on screen height
-                    ),
-
-
-                    SizedBox(height: 10.h),
-
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              MouseRegion(
-                                onEnter: (event) => setState(() => _buttonColor = const Color(0xFF02C39A)),
-                                onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _handleDeliveryRequestNavigation; // Call the method when the button is pressed
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: _buttonColor,
-                                    fixedSize: Size(55.w, 80.h),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.sp)),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 10.w),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text('Delivery\nRequest',
-                                          style: TextStyle(fontFamily: 'Nunito', fontSize: 6.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                          Transform.translate(
+                            offset: Offset(0, -100.h),
+                            child: Container(
+                              width: 200.w,
+                              height: 350.h,
+                              padding: EdgeInsets.all(5.sp),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(6.sp),
+                                border: Border.all(color: const Color(0xFF00a896), width: 2),
+                              ),
+                              child: Image.asset('images/bike.png',
+                                width: screenWidth * 0.5,  // Adjust size based on screen width
+                                height: screenHeight * 0.5,  // Adjust size based on screen height
+                              ),
+                            ),
+                          ),
+                          Transform.translate(
+                            offset: Offset(screenWidth * 0.0, screenHeight * 0.01), // Adjust vertical position here
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                MouseRegion(
+                                  onEnter: (event) => setState(() => _buttonColor = const Color(0xFF02C39A)),
+                                  onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
+                                  child: SizedBox(
+                                    width: screenWidth * 0.2,  // Adjust size based on screen width
+                                    height: screenHeight * 0.13,  // Adjust size based on screen height
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _handleDeliveryRequestNavigation; // Call the method when the button is pressed
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: _buttonColor,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.sp)),
+                                      ),
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left:15.w),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Delivery\nRequest',
+                                              style: TextStyle(fontFamily: 'Nunito', fontSize: 6.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Positioned(top: -55.h, left: -10.w,
-                                child: Icon(Icons.note_add_outlined, color: Color(0xFF003366), size: 30.sp),
-                              ),
-                            ],
+                                Positioned(top:-100.h, left:-40.w,
+                                  child : Image.asset('images/add.png', width: screenWidth * 0.3, height: screenHeight * 0.3),
+                                )
+                              ],
+                            ),
                           )
                         ],
                       ),
                     )
+
+
                   ],
                         ),
 
