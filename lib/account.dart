@@ -13,7 +13,7 @@ import 'dart:typed_data';
 
 
 // Import the pages
-import 'assets/environment_variables.dart';
+import 'user_session.dart';
 import 'home.dart';
 
 //my account page widget
@@ -216,6 +216,8 @@ class _AccountPageState extends State<AccountPage> {
 
       if (response.statusCode == 200) {
         // Business details updated successfully
+        // Dismiss loading animation
+        Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
       } else {
         // // Handle error by logging the response
@@ -253,8 +255,8 @@ class _AccountPageState extends State<AccountPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     // Fetched business details
-    final String businessName = _clientDetails['businessName']?.toLowerCase() ?? '';
-    final String businessLocation = _clientDetails['businessLocation']?.toLowerCase() ?? '';
+    final String businessName = _clientDetails['businessName']?.toUpperCase() ?? '';
+    final String businessLocation = _clientDetails['businessLocation']?.toUpperCase() ?? '';
     final String businessEmail = _clientDetails['userEmail'] ?? '';
 
     final userSession = Provider.of<UserSession>(context, listen: false);
@@ -368,21 +370,22 @@ class _AccountPageState extends State<AccountPage> {
                                     children: [
                                       ListTile(
                                         leading: Icon(Icons.business, color: const Color(0xFF003366), size: screenWidth * 0.025),
-                                        title: Text('Business Name: $businessName',                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                        title: Text('$businessName',
+                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito')),
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
 
                                       ListTile(
                                         leading: Icon(Icons.location_on,color : const Color(0xFF003366),size :screenWidth * 0.025),
-                                        title: Text('Business Location: $businessLocation',
-                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                        title: Text('$businessLocation',
+                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito')),
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
 
                                       ListTile(
                                         leading: Icon(Icons.email,color : const Color(0xFF003366),size :screenWidth * 0.025),
-                                        title: Text('Business Email: $businessEmail',
-                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                        title: Text('$businessEmail',
+                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',)),
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
 
@@ -392,7 +395,7 @@ class _AccountPageState extends State<AccountPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: Text('Edit details',
+                                    title: Text('Edit details for:',
                                       textAlign : TextAlign.center,
                                       style: TextStyle(fontSize: screenWidth * 0.02, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight : FontWeight.bold),
                                     ),
@@ -403,8 +406,8 @@ class _AccountPageState extends State<AccountPage> {
                                     content:
                                     SingleChildScrollView(child:
                                     ListBody(children:<Widget>[
-                                      Text('Business Name: $businessName',
-                                          style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',fontWeight : FontWeight.bold)),
+                                      Text(' $businessName',
+                                          style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito')),
                                       SizedBox(height: screenHeight * 0.02),
 
                                       TextField(
@@ -468,12 +471,10 @@ class _AccountPageState extends State<AccountPage> {
                                                   );
                                                 },
                                               );
-                                              // // Wait for 3 seconds to simulate checking email and password against database
-                                              await Future.delayed(const Duration(seconds : 3));
+
                                               await updateBusinessDetails();
 
-                                              // Dismiss loading animation
-                                              Navigator.pop(context);
+
 
 
                                               // Clear the fields after saving

@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 // Import the pages
 import 'home.dart';
-import 'assets/environment_variables.dart';
+import 'user_session.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -85,7 +85,8 @@ class _LoginPageState extends State<LoginPage> {
       Provider.of<UserSession>(context, listen: false).setUserEmail(email);
 
       // Credentials are correct, navigate to the home page
-      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+      Navigator.pushReplacement( context, MaterialPageRoute( builder: (context) => const SplashScreen( nextPage: HomePage(),),),);
+
     } else {
       // Credentials are incorrect, show an error message
       Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));

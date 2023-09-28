@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 // Import the pages
 import 'user_details.dart';
-import 'assets/environment_variables.dart';
+import 'user_session.dart';
 
 // The main function that runs the app
 void main() => runApp(

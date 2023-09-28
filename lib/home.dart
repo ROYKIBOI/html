@@ -9,7 +9,7 @@ import '../user_details.dart';
 import 'delivery_request.dart';
 import 'deliveries.dart';
 import '../account.dart';
-import 'assets/environment_variables.dart';
+import 'user_session.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -202,9 +202,7 @@ class _HomePageState extends State<HomePage> {
                                     width: screenWidth * 0.2,  // Adjust size based on screen width
                                     height: screenHeight * 0.13,  // Adjust size based on screen height
                                     child: ElevatedButton(
-                                      onPressed: () {
-                                        _handleDeliveryRequestNavigation; // Call the method when the button is pressed
-                                      },
+                                      onPressed: _handleDeliveryRequestNavigation,
                                       style: ElevatedButton.styleFrom(
                                         primary: _buttonColor,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.sp)),

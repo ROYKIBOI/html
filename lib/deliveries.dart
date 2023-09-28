@@ -9,7 +9,7 @@ import '../user_details.dart';
 import 'delivery_request.dart';
 import 'home.dart';
 import '../account.dart';
-import 'assets/environment_variables.dart';
+import 'user_session.dart';
 
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
@@ -231,7 +231,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                               Stack(clipBehavior: Clip.none, children: [
                                 Form(child:
                                 Column(children: [
-                                   Padding(padding:
+                                  Padding(padding:
                                   EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
                                       child:
                                       const Row(mainAxisAlignment:

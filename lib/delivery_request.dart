@@ -10,7 +10,7 @@ import '../user_details.dart';
 import 'home.dart';
 import 'deliveries.dart';
 import '../account.dart';
-import 'assets/environment_variables.dart';
+import 'user_session.dart';
 
 
 // Function that returns an OutlineInputBorder with the desired properties
@@ -395,6 +395,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                               );
                                                             },
                                                           );
+                                                          _sendDeliveryRequest();
                                                         },
                                                         style: ElevatedButton.styleFrom(
                                                           primary: const Color(0xFF003366),
