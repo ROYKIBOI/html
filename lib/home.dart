@@ -198,22 +198,28 @@ class _HomePageState extends State<HomePage> {
                                 MouseRegion(
                                   onEnter: (event) => setState(() => _buttonColor = const Color(0xFF02C39A)),
                                   onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
+                                  cursor: SystemMouseCursors.click, // Set the cursor to an arm pointer
+
                                   child: SizedBox(
                                     width: screenWidth * 0.2,  // Adjust size based on screen width
                                     height: screenHeight * 0.13,  // Adjust size based on screen height
                                     child: ElevatedButton(
-                                      onPressed: _handleDeliveryRequestNavigation,
+                                      onPressed: _handleDeliveryRequestNavigation, // Button onPressed handler
                                       style: ElevatedButton.styleFrom(
                                         primary: _buttonColor,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.sp)),
                                       ),
                                       child: Padding(
-                                        padding: EdgeInsets.only(left:15.w),
+                                        padding: EdgeInsets.only(left: 15.w),
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text('Delivery\nRequest',
-                                              style: TextStyle(fontFamily: 'Nunito', fontSize: 6.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                                            GestureDetector(
+                                              onTap: _handleDeliveryRequestNavigation, // Handle tap event for the text
+                                              child: Text(
+                                                'Delivery\nRequest',
+                                                style: TextStyle(fontFamily: 'Nunito', fontSize: 6.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                                              ),
                                             ),
                                           ],
                                         ),

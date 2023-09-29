@@ -981,7 +981,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
             children: <Widget>[
               // Logo
               Transform.translate(
-                offset: const Offset(0, -140),
+                offset: const Offset(0, -200),
                 child: Image.asset('images/logo.png',
                   width: screenSize.width * 0.3, // 50% of screen width
                   height: screenSize.height * 0.5, // 50% of screen height
@@ -990,7 +990,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
               // Container to move the following widgets up
               Container(
-                margin: EdgeInsets.only(top: screenSize.height * 0.4, left: screenSize.width * 0.0), // moves the widget up by 30% of screen height and left by 10% of screen width
+                margin: EdgeInsets.only(top: screenSize.height * 0.3, left: screenSize.width * 0.0), // moves the widget up by 30% of screen height and left by 10% of screen width
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[

@@ -108,6 +108,68 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     });
   }
 
+
+  void _handleConfirmation() {
+    Navigator.pop(context); // Close the confirmation dialog
+
+
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    // Navigate to DeliveriesPage and wait for it to return a result
+    Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
+    ),
+    );
+
+    // Clear the input fields
+    _nameController.clear();
+    _contactController.clear();
+    _locationController.clear();
+    _instructionsController.clear();
+    _costController.clear();
+
+    // Show Done/New dialog
+    showDialog(
+      context: context, builder: (context) {
+      return NewDonePopup(
+        handleNew: () {
+          Navigator.pop(context); // Close the new/done dialog
+          _nameController.clear();
+          _contactController.clear();
+          _locationController.clear();
+          _instructionsController.clear();
+          _costController.clear();
+
+          final userSession = Provider.of<UserSession>(context, listen: false);
+          final userEmail = userSession.getUserEmail() ?? '';
+
+          // Pop this page and pass back the updated list of deliveries
+          Navigator.pop(context, _deliveries);
+
+          // Navigate to the delivery request page
+          Navigator.push( context, MaterialPageRoute( builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
+          ),
+          );
+        },
+        handleDone: () {
+          final userSession = Provider.of<UserSession>(context, listen: false);
+          final userEmail = userSession.getUserEmail() ?? '';
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));
+        },
+      );
+    },
+    );
+
+    // Clear the input fields
+    _nameController.clear();
+    _contactController.clear();
+    _locationController.clear();
+    _instructionsController.clear();
+    _costController.clear();
+
+
+  }
+
   Future<void> _sendDeliveryRequest() async {
     final apiUrl = 'http://localhost:8000/save_delivery_request/';
 
@@ -133,37 +195,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
       );
 
       if (response.statusCode == 200) {
-        // Clear input fields
-        _nameController.clear();
-        _contactController.clear();
-        _locationController.clear();
-        _instructionsController.clear();
-        _costController.clear();
-
-        // Handle the response as needed (e.g., display a success message)
-        final responseData = jsonDecode(response.body);
-        // Do something with the response data (e.g., showing an order number)
-
-        // Navigate to pop up page
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => NewDonePopup(
-              handleNew: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
-                  ),
-                );
-                Navigator.pop(context); // Close the NewDonePopup
-              },
-              handleDone: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
-              },
-            ),
-          ),
-        );
+        // Show notification message
+        showNotification(context, 'Order successfully placed!', Colors.green);
 
       } else {
         _showErrorMessage('Failed to send delivery request: ${response.statusCode}');
@@ -380,6 +413,12 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                             return;
                                                           }
 
+                                                          // Check and set default value for instructions
+                                                          String instructions = _instructionsController.text.trim();
+                                                          if (instructions.isEmpty) {
+                                                            instructions = 'No instruction';
+                                                          }
+
                                                           // Show confirmation dialog
                                                           showDialog(
                                                             barrierDismissible: false,
@@ -390,7 +429,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                                 contact: _contactController.text,
                                                                 location: _locationController.text,
                                                                 cost: _costController.text,
-                                                                instructions: _instructionsController.text,
+                                                                instructions: instructions,
                                                                 handleConfirmation: _handleConfirmation,
                                                               );
                                                             },
@@ -491,8 +530,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                           style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
                                               shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),
                                       const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
-                                          // TODO:
-                                          // Replace with the actual profile picture of the rider
+
                                           child : Icon(Icons.person, size : 40, color : Colors.white))
                                     ])),
                           ]),
@@ -505,80 +543,6 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     );
   }
 
-  void _handleConfirmation() {
-    Navigator.pop(context); // Close the confirmation dialog
-
-    // Save the delivery request information
-    Map<String, dynamic> delivery = {
-      'orderNumber': '12345',
-      // TODO Replace with actual order number from backend
-      'customerName': _nameController.text,
-      'customerLocation': _locationController.text,
-      'rider': 'Jane Doe',
-      // TODO Replace with actual rider from admin app (backend)
-      'status': 'To Assign',
-    };
-
-    // Append new delivery to list of deliveries
-    _deliveries.add(delivery);
-
-    final userSession = Provider.of<UserSession>(context, listen: false);
-    final userEmail = userSession.getUserEmail() ?? '';
-
-    // Navigate to DeliveriesPage and wait for it to return a result
-    Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail),
-    ),
-    );
-
-    // Clear the input fields
-    _nameController.clear();
-    _contactController.clear();
-    _locationController.clear();
-    _instructionsController.clear();
-    _costController.clear();
-
-    // Show Done/New dialog
-    showDialog(
-      context: context, builder: (context) {
-      return NewDonePopup(
-        handleNew: () {
-          Navigator.pop(context); // Close the new/done dialog
-          _nameController.clear();
-          _contactController.clear();
-          _locationController.clear();
-          _instructionsController.clear();
-          _costController.clear();
-
-          final userSession = Provider.of<UserSession>(context, listen: false);
-          final userEmail = userSession.getUserEmail() ?? '';
-
-          // Pop this page and pass back the updated list of deliveries
-          Navigator.pop(context, _deliveries);
-
-          // Navigate to the delivery request page
-          Navigator.push( context, MaterialPageRoute( builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
-          ),
-          );
-        },
-        handleDone: () {
-          final userSession = Provider.of<UserSession>(context, listen: false);
-          final userEmail = userSession.getUserEmail() ?? '';
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));
-        },
-      );
-    },
-    );
-
-    // Clear the input fields
-    _nameController.clear();
-    _contactController.clear();
-    _locationController.clear();
-    _instructionsController.clear();
-    _costController.clear();
-
-    // Show notification message
-    showNotification(context, 'Order successfully placed!', Colors.green);
-  }
 }
 
 // CONFIRM DETAILS POP UP WIDGET
