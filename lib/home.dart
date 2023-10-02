@@ -202,10 +202,11 @@ class _HomePageState extends State<HomePage> {
                               clipBehavior: Clip.none,
                               children: [
                                 Positioned(
-                                  top:-115.h,
-                                  left:-47.w,
+                                  top:-100.h,
+                                  left:-61.w,
                                   child : Image.asset('images/add.png', width: 150.w, height: 150.h),
                                 ),
+
                                 MouseRegion(
                                   onEnter: (event) => setState(() => _buttonColor = const Color(0xFF02C39A)),
                                   onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
@@ -214,8 +215,6 @@ class _HomePageState extends State<HomePage> {
                                     height: 80.h,  // Adjust size based on screen height
                                     child: ElevatedButton(
                                       onPressed: () {
-
-                                        // await updateBusinessDetails();
 
                                         // Dismiss loading animation
                                         Navigator.pop(context);
