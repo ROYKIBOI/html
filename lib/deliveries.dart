@@ -1,8 +1,11 @@
 // deliveries.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http; // Import the http package
+import 'assets/page_loading.dart';
+
 
 // Import the pages
 import '../user_details.dart';
@@ -48,6 +51,8 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   @override
   void initState() {
     super.initState();
+
+
     final userSession = Provider.of<UserSession>(context, listen: false);
     final userEmail = userSession.getUserEmail() ?? '';
     print('User Email: $userEmail');
@@ -55,6 +60,9 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   }
 
   Future<void> fetchDeliveriesAndSendEmail(String userEmail, String dateFilter) async {
+
+
+
     print('Fetching deliveries with filter: $dateFilter');
     final apiUrl = 'http://127.0.0.1:8000/fetch_deliveries/?userEmail=$userEmail&dateFilter=$dateFilter';
 
@@ -62,12 +70,16 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
       final emailResponse = await http.get(Uri.parse(apiUrl));
 
       if (emailResponse.statusCode == 200) {
+
         print('Email sent to backend successfully');
 
         final deliveriesUrl = Uri.parse(apiUrl);
         final deliveriesResponse = await http.get(deliveriesUrl);
 
         if (deliveriesResponse.statusCode == 200) {
+
+
+
           final Map<String, dynamic> jsonData = json.decode(deliveriesResponse.body);
           final List<dynamic> deliveries = jsonData['deliveries'];
 
@@ -115,23 +127,27 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                 child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
+                                      // "All Deliveries" text
+                                      Text("All Deliveries", style: TextStyle(fontFamily: 'Nunito', color: Color(0xFF003366), fontSize: 6.sp, fontWeight: FontWeight.bold)),
+                                      // Empty Container to take up space on the left
+                                      Container(),
 // Profile picture
-                                      Positioned(
-                                        top: MediaQuery.of(context).padding.top + 30, left: screenWidth * 0.05,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-
-                                              // view profile pic
-                                            });
-                                          },
-                                          child: CircleAvatar(
-                                            radius: screenWidth * 0.04, backgroundColor: Colors.grey,
-                                            child:
-                                            Icon(Icons.person, size: screenWidth * 0.04, color: Colors.white),
-                                          ),
-                                        ),
-                                      ),
+//                                       Positioned(
+//                                         top: MediaQuery.of(context).padding.top + 30, left: screenWidth * 0.05,
+//                                         child: GestureDetector(
+//                                           onTap: () {
+//                                             setState(() {
+//
+//                                               // view profile pic
+//                                             });
+//                                           },
+//                                           child: CircleAvatar(
+//                                             radius: screenWidth * 0.04, backgroundColor: Colors.grey,
+//                                             child:
+//                                             Icon(Icons.person, size: screenWidth * 0.04, color: Colors.white),
+//                                           ),
+//                                         ),
+//                                       ),
 
 // Menu
                                       Row(children: [
@@ -237,8 +253,8 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                       const Row(mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text('All Deliveries',
-                                                style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                            // Text('All Deliveries',
+                                            //     style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
                                           ])),
 
                                   // Use ListView.builder to display deliveries

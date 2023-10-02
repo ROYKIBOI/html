@@ -258,6 +258,8 @@ class _AccountPageState extends State<AccountPage> {
     final String businessName = _clientDetails['businessName']?.toUpperCase() ?? '';
     final String businessLocation = _clientDetails['businessLocation']?.toUpperCase() ?? '';
     final String businessEmail = _clientDetails['userEmail'] ?? '';
+    final String businessPhone = _clientDetails['phoneNumber'] ?? '';
+
 
     final userSession = Provider.of<UserSession>(context, listen: false);
     final userEmail = userSession.getUserEmail() ?? ''; // Replace with your provider method
@@ -298,62 +300,12 @@ class _AccountPageState extends State<AccountPage> {
                         padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1, horizontal: screenWidth * 0.05),
                         child: Column(
                             children: [
-                              // Stack(
-                              //   children: [
-                              //     Container(width: screenWidth * 0.4, height: screenHeight * 0.4,
-                              //       decoration: BoxDecoration(
-                              //         shape: BoxShape.circle,
-                              //         border: Border.all(color: Colors.grey, width: 2,
-                              //         ),
-                              //         image: _imageUrl != null ? DecorationImage(
-                              //           fit: BoxFit.cover,
-                              //           image: NetworkImage(_imageUrl!),
-                              //         ) : null,
-                              //       ),
-                              //       child: _imageUrl == null ? Icon(Icons.person, size: screenWidth * 0.1, color: Colors.grey) : null,
-                              //     ),
-                              //
-                              //       Positioned(top: screenHeight * 0.28, left: screenWidth * 0.25,
-                              //         child: Theme(
-                              //           data: Theme.of(context).copyWith(
-                              //             cardColor: Colors.white, // This changes the background color of the menu
-                              //             popupMenuTheme: PopupMenuThemeData(
-                              //               shape: RoundedRectangleBorder(
-                              //                 side: const BorderSide(color: Color(0xFF00a896), width: 2), // This gives the menu an outline
-                              //                 borderRadius: BorderRadius.circular(25),
-                              //               ),
-                              //             ),
-                              //           ),
-                              //           child: PopupMenuButton<ImageSource>(
-                              //             icon: Icon(Icons.camera_alt, size: screenWidth * 0.04, color: Color(0xFF003366)),
-                              //             itemBuilder: (context) => [
-                              //               const PopupMenuItem(
-                              //                 child: Text('Upload Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                              //                 value: ImageSource.gallery,
-                              //               ),
-                              //               const PopupMenuItem(
-                              //                 child: Text('Remove Image', style: TextStyle(color: Color(0xFF003366))), // This changes the text color
-                              //                 value: ImageSource.camera,
-                              //               ),
-                              //             ],
-                              //             onSelected: (value) {
-                              //               if (value == ImageSource.camera) {
-                              //                 _removeImage();
-                              //               } else {
-                              //                 _pickImage();
-                              //               }
-                              //             },
-                              //           ),
-                              //         ),
-                              //       ),
-                              //       ],
-                              //     ),
 
                               Transform.translate(
                                 offset: const Offset(0, -10),
                                 child: Image.asset('images/logo.png',
                                   width: screenWidth * 0.5, // 50% of screen width
-                                  height: screenHeight * 0.5, // 50% of screen height
+                                  height: screenHeight * 0.35,
                                 ),
                               ),
                       Row(
@@ -389,7 +341,15 @@ class _AccountPageState extends State<AccountPage> {
                                       ),
                                       SizedBox(height: screenHeight * 0.01),
 
-                        Padding(padding : EdgeInsets.only(top :screenHeight * 0.05, left: screenWidth * 0.05),
+                                      ListTile(
+                                        leading: Icon(Icons.phone,color : const Color(0xFF003366),size :screenWidth * 0.025),
+                                        title: Text('$businessPhone',
+                                            style : TextStyle(color : const Color(0xFF00a896),fontSize :screenWidth * 0.015, fontFamily : 'Nunito',)),
+                                      ),
+                                      SizedBox(height: screenHeight * 0.01),
+
+
+                                      Padding(padding : EdgeInsets.only(top :screenHeight * 0.05, left: screenWidth * 0.05),
                             child : ElevatedButton(onPressed: () {
                               showDialog(
                                 context: context,

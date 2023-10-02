@@ -1,9 +1,12 @@
 // delivery_request.dart
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'assets/page_loading.dart';
 
 // Import the pages
 import '../user_details.dart';
@@ -44,9 +47,10 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _contactController = TextEditingController();
+  final _pickController = TextEditingController();
   final _locationController = TextEditingController();
   final _instructionsController = TextEditingController();
-  final _costController = TextEditingController();
+  final _costController = TextEditingController(text: NumberFormat("#,###").format(0));
 
   bool _showPopup = false;
 
@@ -57,6 +61,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final _nameFocusNode = FocusNode();
   final _contactFocusNode = FocusNode();
   final _locationFocusNode = FocusNode();
+  final _pickFocusNode = FocusNode();
   final _instructionsFocusNode = FocusNode();
 
   // Displays an error message as a popup with red, almost transparent background at the top center of the window for 15 seconds
@@ -125,6 +130,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     _nameController.clear();
     _contactController.clear();
     _locationController.clear();
+    _pickController.clear();
     _instructionsController.clear();
     _costController.clear();
 
@@ -136,6 +142,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
           Navigator.pop(context); // Close the new/done dialog
           _nameController.clear();
           _contactController.clear();
+          _pickController.clear();
           _locationController.clear();
           _instructionsController.clear();
           _costController.clear();
@@ -163,6 +170,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     // Clear the input fields
     _nameController.clear();
     _contactController.clear();
+    _pickController.clear();
     _locationController.clear();
     _instructionsController.clear();
     _costController.clear();
@@ -181,6 +189,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
       final requestBody = {
         'customerName': _nameController.text,
         'customerContact': _contactController.text,
+        'pickLocation': _pickController.text,
         'deliveryLocation': _locationController.text,
         'instructions': _instructionsController.text,
         'cost': _costController.text,
@@ -241,24 +250,28 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // "Request A Delivery" text
+                            Text("Request Delivery", style: TextStyle(fontFamily: 'Nunito', color: Color(0xFF003366), fontSize: 6.sp, fontWeight: FontWeight.bold)),
+                            // Empty Container to take up space on the left
+                            Container(),
 
                             // Profile picture
-                            Positioned(
-                              top: MediaQuery.of(context).padding.top + 30, left: 30,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    // view profile pic
-                                  });
-                                },
-                                child: const CircleAvatar(radius: 40, backgroundColor: Colors.grey,
-                                  // TODO:
-                                  // Replace with the actual profile picture of the rider
-                                  child: Icon(Icons.person, size: 60, color: Colors.white),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 300),
+                            // Positioned(
+                            //   top: MediaQuery.of(context).padding.top + 30, left: 30,
+                            //   child: GestureDetector(
+                            //     onTap: () {
+                            //       setState(() {
+                            //         // view profile pic
+                            //       });
+                            //     },
+                            //     child: const CircleAvatar(radius: 40, backgroundColor: Colors.grey,
+                            //
+                            //       // Replace with the actual profile picture of the rider
+                            //       child: Icon(Icons.person, size: 60, color: Colors.white),
+                            //     ),
+                            //   ),
+                            // ),
+                            // const SizedBox(width: 300),
 
                             // Menu
                             Row(
@@ -334,20 +347,6 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                     contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 80)),),),
                                             const SizedBox(height: 30),
 
-                                            SizedBox(width: 300, height: 40,
-                                              child: TextFormField(
-                                                controller: _locationController,
-                                                focusNode: _locationFocusNode,
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(color: Colors.white, fontSize: 18, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
-                                                decoration: InputDecoration(
-                                                  hintText: 'Delivery Location',
-                                                    hintStyle: const TextStyle( color: Colors.white, fontSize: 12, fontFamily: 'Nunito'),
-                                                    fillColor: const Color(0xFF00a896),
-                                                    filled: true,
-                                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-                                                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 80)),),),
-                                            const SizedBox(height: 30),
 
                                             SizedBox(
                                               width: 300, height: 40, child:
@@ -365,38 +364,126 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                   contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 80)),),),
                                             const SizedBox(height: 15),
 
+                                            SizedBox(width: 75.w, height: 40.h,
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    'Pick up:',
+                                                    style: TextStyle(color: Color(0xFF000000), fontFamily: 'Nunito', fontWeight: FontWeight.bold),
+                                                  ),
+                                                  SizedBox(width: 6.w), // Add some spacing between "To:" and the TextFormField
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller: _pickController,
+                                                      focusNode: _pickFocusNode,
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.white, fontSize: 4.sp, fontFamily: 'Nunito', fontWeight: FontWeight.w100,
+                                                      ),
+                                                      decoration: InputDecoration(
+                                                        hintText: 'Pick Up Location',
+                                                        hintStyle: TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito',
+                                                        ),
+                                                        fillColor: const Color(0xFF00a896),
+                                                        filled: true,
+                                                        border: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(30),
+                                                        ),
+                                                        contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 10.w,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+
+                                            SizedBox(width: 75.w, height: 40.h,
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    'Deliver:',
+                                                    style: TextStyle(color: Color(0xFF000000), fontFamily: 'Nunito', fontWeight: FontWeight.bold),
+                                                  ),
+                                                  SizedBox(width: 6.w),
+
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller: _locationController,
+                                                      focusNode: _locationFocusNode,
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.white, fontSize: 4.sp, fontFamily: 'Nunito', fontWeight: FontWeight.w100,
+                                                      ),
+                                                      decoration: InputDecoration(
+                                                        hintText: 'Delivery Location',
+                                                        hintStyle: TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito',
+                                                        ),
+                                                        fillColor: const Color(0xFF00a896),
+                                                        filled: true,
+                                                        border: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(30),
+                                                        ),
+                                                        contentPadding: const EdgeInsets.symmetric(
+                                                          vertical: 8,
+                                                          horizontal: 10,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+
+
+                                            SizedBox(width: 75.w, height: 40.h,
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    'Cost(KSH):',
+                                                    style: TextStyle(color: Color(0xFF000000), fontFamily: 'Nunito', fontWeight: FontWeight.bold),
+                                                  ),
+                                                  SizedBox(width: 2.w),
+
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller: _costController,
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.white, fontSize: 4.sp, fontFamily: 'Nunito', fontWeight: FontWeight.w100,
+                                                      ),
+                                                      decoration: InputDecoration(
+                                                        hintText: '0.00',
+                                                        hintStyle: TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito',
+                                                        ),
+                                                        fillColor: const Color(0xFF00a896),
+                                                        filled: true,
+                                                        border: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(30),
+                                                        ),
+                                                        contentPadding: const EdgeInsets.symmetric(
+                                                          vertical: 8,
+                                                          horizontal: 10,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+
+
                                             Padding(
-                                              padding: const EdgeInsets.only(left: 35),
+                                              padding: EdgeInsets.only(left: 8.w),
+
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      const Text('Cost (KES):',
-                                                        style: TextStyle( color: Colors.black, fontFamily: 'Nunito', fontWeight: FontWeight.bold),
-                                                      ),
-                                                      const SizedBox(width: 10),
 
-                                                      Container( width: 80, height: 30,
-                                                        decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius .circular(30), color: Colors.white, border: Border.all(
-                                                              color: const Color(0xFF00a896)),
-                                                        ),
-                                                        child: TextFormField(
-                                                          controller: _costController,
-                                                          style: const TextStyle(color: Color( 0xFF003366), fontSize: 14, fontFamily: 'Nunito', fontWeight: FontWeight.bold),
-                                                          decoration: const InputDecoration(
-                                                            contentPadding: EdgeInsets.symmetric(
-                                                                vertical: 15.6,
-                                                                horizontal: 10),
-                                                            border: InputBorder
-                                                                .none,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 50),
+                                                children: [
+                                                  
 
                                                   Align(
                                                     alignment: Alignment.centerLeft,
@@ -497,6 +584,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                               title: const Text('Deliveries',
                                   style: TextStyle(fontSize: 20, fontFamily: 'Nunito', fontWeight: FontWeight.bold, color: Color(0xFF00a896))),
                               onTap: () {
+
                                 final userSession = Provider.of<UserSession>(context, listen: false);
                                 final userEmail = userSession.getUserEmail() ?? '';
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));

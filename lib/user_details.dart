@@ -44,6 +44,9 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _obscureText = true; // for revealing the password
 
+
+  bool _isLoading = false;
+
   // Toggles the visibility of the password
   void _togglePasswordVisibility() {
     setState(() {
@@ -63,6 +66,22 @@ class _LoginPageState extends State<LoginPage> {
       flushbarPosition: FlushbarPosition.BOTTOM,
       flushbarStyle: FlushbarStyle.FLOATING,
       margin: const EdgeInsets.only(bottom: 80, left: 2, right: 2),
+      maxWidth: 350,
+      borderRadius: BorderRadius.circular(25),
+      duration: const Duration(seconds: 10),
+    ).show(context);
+  }
+  // Displays a success message
+  void _showSuccessMessage(String message) {
+    Flushbar(
+      messageText: Text(message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.green.withOpacity(1.0),
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      margin: const EdgeInsets.only(top: 70, left: 8, right: 8),
       maxWidth: 350,
       borderRadius: BorderRadius.circular(25),
       duration: const Duration(seconds: 10),
@@ -91,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
       // Credentials are incorrect, show an error message
       Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
       _showErrorMessage('Invalid email or password');
+      _isLoading = false;
     }
   }
 
@@ -166,16 +186,35 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 20),
 
                     ElevatedButton(
-                      onPressed: () async {
-                        // Check if email and password fields are not empty
-                        if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
-                          // Show error message if either one or all fields are empty
-                          _showErrorMessage('Please enter your email and password');
-                          return;
-                        }
+                      onPressed: _isLoading ? null : () async {
+                        _showSuccessMessage('Loading, please wait.');
 
-                        // Attempt login
-                        await attemptLogin();
+
+                        // Set _isLoading to true and rebuild the widget
+                        setState(() {
+                          _isLoading = true;
+                        }); try {
+                          // Check if email and password fields are not empty
+                          if (_logInEmailController.text.isEmpty || _logInPasswordController.text.isEmpty) {
+                            // Show error message if either one or all fields are empty
+                            _showErrorMessage('Please enter your email and password');
+                            return;
+                          }
+
+
+                          // Attempt login
+                          await attemptLogin();
+
+                          // Show a message informing the user to check their email
+                        } catch (e) {
+
+
+                        } finally{
+                          // Set _isLoading back to false after the request is completed
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                           primary: const Color(0xFF003366),

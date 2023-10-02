@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'assets/page_loading.dart';
 
 // Import the pages
 import '../user_details.dart';
@@ -14,8 +15,8 @@ import 'user_session.dart';
 // Function that returns an OutlineInputBorder with the desired properties
 OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(25),
-    borderSide: const BorderSide(color: Color(0xFF003366), width: 3),
+    borderRadius: BorderRadius.circular(6.sp),
+    borderSide: BorderSide(color: const Color(0xFF003366), width: 0.8.w),
   );
 }
 
@@ -66,7 +67,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   // for the delivery page
   void _handleDeliveriesNavigation() {
 
@@ -78,6 +78,17 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => DeliveriesPage(userEmail: userEmail),
+        settings: RouteSettings(name: '/deliveries'),
+      ),
+    );
+  }
+
+  void navigateTo(BuildContext context, Widget page, String path) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+        settings: RouteSettings(name: path),
       ),
     );
   }
@@ -92,10 +103,6 @@ class _HomePageState extends State<HomePage> {
     // Get the user's email
     final userEmail = userSession.getUserEmail();
 
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
         backgroundColor: Colors.white,
         body: GestureDetector(
@@ -109,65 +116,64 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   children: [
 
-                // Nav bar
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h,),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-
-                        // Profile pic and salutation
-                        Row(
+                    // Nav bar
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 50.h, vertical: 5.w),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns the row to the end
                           children: [
+                            // Profile pic and salutation
+                            Row(
+                              children: [
 
-                            // Profile picture
-                            Positioned(
-                              top: MediaQuery.of(context).padding.top + 80.h, left: 10.w,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    // view profile pic
-                                  });
-                                },
-                                child: CircleAvatar(radius: 15.sp, backgroundColor: Colors.grey,
-                                  // TODO:
-                                  // Replace with the actual profile picture of the rider
-                                  child: Icon(Icons.person, size: 15.sp, color: Colors.white),
+                                // Profile picture
+                                // Positioned(
+                                //   top: MediaQuery.of(context).padding.top + 80.h, left: 10.w,
+                                //   child: GestureDetector(
+                                //     onTap: () {
+                                //       setState(() {
+                                //         // view profile pic
+                                //       });
+                                //     },
+                                //     child: CircleAvatar(radius: 15.sp, backgroundColor: Colors.grey,
+                                //       // TODO:
+                                //       // Replace with the actual profile picture of the rider
+                                //       child: Icon(Icons.person, size: 15.sp, color: Colors.white),
+                                //     ),
+                                //   ),
+                                // ),
+                                // SizedBox(width: 5.w, height: 50.h,),
+
+                                // Salutation
+                                Text(_salutation, style: TextStyle(color: const Color(0xFF003366), fontSize: 5.sp, fontFamily: 'Nunito', fontWeight: FontWeight.bold)),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 40.h,),
                                 ),
-                              ),
-                            ),
-                            SizedBox(width: 5.w, height: 50.h,),
+                              ],
+                            ),  SizedBox(width: 160.w),
 
-                            // Salutation
-                            Text(_salutation, style: TextStyle(color: const Color(0xFF003366), fontSize: 5.sp, fontFamily: 'Nunito', fontWeight: FontWeight.bold)),
-                             Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40.h,),
-                            ),
-                          ],
-                        ),  SizedBox(width: 160.w),
+                            // Menu
+                            Row(
+                              children: [
+                                SizedBox(width: 12.w),
 
-                        // Menu
-                        Row(
-                          children: [
-                            SizedBox(width: 15.w),
+                                // Nav bar icon
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() => _showPopup = !_showPopup);
+                                    },
+                                    child: Icon(Icons.menu, color: const Color(0xFF003366), size: 15.sp,
+                                    ),
+                                  ),
+                                )
 
-                            // Nav bar icon
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() => _showPopup = !_showPopup);
-                                },
-                                child: Icon(Icons.menu, color: const Color(0xFF003366), size: 15.sp,
-                                ),
-                              ),
+                              ],
                             )
-
-                          ],
-                        )
-                      ]
-                  ),
-                ),
+                          ]
+                      ),
+                    ),
 
                     Expanded(
                       child: Column(
@@ -185,41 +191,50 @@ class _HomePageState extends State<HomePage> {
                                 border: Border.all(color: const Color(0xFF00a896), width: 2),
                               ),
                               child: Image.asset('images/bike.png',
-                                width: screenWidth * 0.5,  // Adjust size based on screen width
-                                height: screenHeight * 0.5,  // Adjust size based on screen height
+                                width: 50.w,  // Adjust size based on screen width
+                                height: 50.w,  // Adjust size based on screen height
                               ),
                             ),
                           ),
                           Transform.translate(
-                            offset: Offset(screenWidth * 0.0, screenHeight * 0.01), // Adjust vertical position here
+                            offset: Offset(0.w, 1.h), // Adjust vertical position here
                             child: Stack(
                               clipBehavior: Clip.none,
                               children: [
+                                Positioned(
+                                  top:-115.h,
+                                  left:-47.w,
+                                  child : Image.asset('images/add.png', width: 150.w, height: 150.h),
+                                ),
                                 MouseRegion(
                                   onEnter: (event) => setState(() => _buttonColor = const Color(0xFF02C39A)),
                                   onExit: (event) => setState(() => _buttonColor = const Color(0xFF00a896)),
-                                  cursor: SystemMouseCursors.click, // Set the cursor to an arm pointer
-
                                   child: SizedBox(
-                                    width: screenWidth * 0.2,  // Adjust size based on screen width
-                                    height: screenHeight * 0.13,  // Adjust size based on screen height
+                                    width: 50.w,  // Adjust size based on screen width
+                                    height: 80.h,  // Adjust size based on screen height
                                     child: ElevatedButton(
-                                      onPressed: _handleDeliveryRequestNavigation, // Button onPressed handler
+                                      onPressed: () {
+
+                                        // await updateBusinessDetails();
+
+                                        // Dismiss loading animation
+                                        Navigator.pop(context);
+                                        // _handleDeliveryRequestNavigation;
+                                        // Call the method when the button is pressed
+                                        navigateTo(context, DeliveryRequestPage(deliveries: const [], userEmail: '',), '/deliveryrequest');
+
+                                      },
                                       style: ElevatedButton.styleFrom(
                                         primary: _buttonColor,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.sp)),
                                       ),
                                       child: Padding(
-                                        padding: EdgeInsets.only(left: 15.w),
+                                        padding: EdgeInsets.only(left:0.w),
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            GestureDetector(
-                                              onTap: _handleDeliveryRequestNavigation, // Handle tap event for the text
-                                              child: Text(
-                                                'Delivery\nRequest',
-                                                style: TextStyle(fontFamily: 'Nunito', fontSize: 6.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                                              ),
+                                            Text('Delivery\nRequest',
+                                              style: TextStyle(fontFamily: 'Nunito', fontSize: 5.sp, color: Colors.white, fontWeight : FontWeight.bold),
                                             ),
                                           ],
                                         ),
@@ -227,26 +242,24 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 ),
-                                Positioned(top:-100.h, left:-40.w,
-                                  child : Image.asset('images/add.png', width: screenWidth * 0.3, height: screenHeight * 0.3),
-                                )
                               ],
                             ),
-                          )
+                          ),
+
                         ],
                       ),
                     )
                   ],
-                        ),
+                ),
 
-            // Popup menu
+                // Popup menu
                 if (_showPopup)
                   Positioned(
-                    top: MediaQuery.of(context).padding.top + 20.w,  // Use .w for width
+                    top: MediaQuery.of(context).padding.top + 100.h,  // Use .w for width
                     right: 15.w,  // Use .w for width
                     child: Container(
-                      width: MediaQuery.of(context).size.width * 0.2,  // Adjust width based on screen width
-                      height: MediaQuery.of(context).size.height * 0.8,  // Adjust height based on screen height
+                      width: MediaQuery.of(context).size.width * 0.20,  // Adjust width based on screen width
+                      height: MediaQuery.of(context).size.height * 0.80,  // Adjust height based on screen height
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -263,63 +276,82 @@ class _HomePageState extends State<HomePage> {
                               SizedBox(height : 40.h),  // Use .h for height
 
                               ListTile(
-                                leading :
-                              Icon(Icons.home, color :  const Color(0xFF003366), size : 10.sp),
+                                leading : Icon(Icons.home, color :  const Color(0xFF003366), size : 10.sp),
                                 title : Text('Home',
                                     style : TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),  // Use .sp for font size
                                 onTap : () {
-                                  Navigator.push(context, MaterialPageRoute( builder : (context) => const HomePage()));
+                                  navigateTo(context, HomePage(), '/home');
                                 },
                               ), SizedBox(height :40.h),
 
                               // Deliveries button
-                        ListTile(
-                          leading:
-                          Icon(Icons.motorcycle, color :  const Color(0xFF003366), size : 10.sp),
-                          title:  Text('Deliveries',
-                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),
-                          onTap : () {
-                            _handleDeliveriesNavigation();
-                            },
-                        ),SizedBox(height :40.h),
-
-                        // Log out button
-                        ListTile(
-                          leading:
-                          Icon(Icons.logout, color :  const Color(0xFF003366), size : 10.sp),
-                          title: Text('Log Out',
-                              style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),
-                          onTap : () {
-
-                            // Clear the user session
-                            userSession.clearSession();
-
-                            // Log out and navigate to the login page
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                          },
-                        ), SizedBox(height :190.h),
-
-                        // My account section
-                        Padding(padding : EdgeInsets.all(10.h),
-                            child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
-                                children:[
-                                  ElevatedButton(onPressed : () {
-                                    Navigator.push(context, MaterialPageRoute( builder: (context) => const AccountPage()));
+                              ListTile(
+                                leading:
+                                Icon(Icons.motorcycle, color :  const Color(0xFF003366), size : 10.sp),
+                                title:  Text('Deliveries',
+                                    style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),
+                                onTap : () async {
+                                  _handleDeliveriesNavigation();
+                                  // Show page loading animation
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    barrierColor: Colors.transparent, // Set barrierColor to transparent
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          elevation: 0,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(bottom: 550.h),
+                                            child: const LoadingAnimation(),
+                                          )
+                                      );
                                     },
-                                      child : Text('My Account',
-                                      style : TextStyle(color : Colors.white, fontSize :3.5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, )),
-                                      style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
-                                          shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(10.sp)))),
-                                  CircleAvatar(radius : 8.sp, backgroundColor : Colors.grey,
-                                      child : Icon(Icons.person, size : 7.sp, color : Colors.white))
-                                ])),
-                      ]),
-                ),
-              ),
-              )
-          ],
-        ),
-      ),
+                                  );
+
+                                  // Dismiss loading animation
+                                  Navigator.pop(context);
+
+                                },
+                              ), SizedBox(height :40.h),
+
+                              // Log out button
+                              ListTile(
+                                leading:
+                                Icon(Icons.logout, color :  const Color(0xFF003366), size : 10.sp),
+                                title: Text('Log Out',
+                                    style: TextStyle(fontSize :5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, color : const Color(0xFF00a896))),
+                                onTap : () {
+
+                                  // Clear the user session
+                                  userSession.clearSession();
+
+                                  // Log out and navigate to the login page
+                                  navigateTo(context, LoginPage(), '/login');
+                                },
+                              ), SizedBox(height :220.h),
+
+                              // My account section
+                              Padding(padding : EdgeInsets.all(10.h),
+                                  child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                                      children:[
+                                        ElevatedButton(onPressed : () {
+                                          navigateTo(context, AccountPage(), '/myaccount');
+                                        },
+                                            child : Text('My Account',
+                                                style : TextStyle(color : Colors.white, fontSize :3.5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, )),
+                                            style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
+                                                shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(10.sp)))),
+                                        // CircleAvatar(radius : 8.sp, backgroundColor : Colors.grey,
+                                        //     child : Icon(Icons.person, size : 7.sp, color : Colors.white))
+                                      ])),
+                            ]),
+                      ),
+                    ),
+                  )
+              ],
+            ),
+          ),
         )
     );
   }
