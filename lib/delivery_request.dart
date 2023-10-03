@@ -215,13 +215,67 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     }
   }
 
+  // In your _AccountPageState class
+  Map<String, dynamic> _clientDetails = {};
+
   @override
   void initState() {
     super.initState();
 
     // Initialize _deliveries with the list of deliveries passed from DeliveriesPage
     _deliveries = widget.deliveries;
+
+    //For the pickup prefill
+    final userSession = Provider.of<UserSession>(context, listen: false);
+    final userEmail = userSession.getUserEmail() ?? '';
+
+    fetchBusinessDetails(userEmail).then((details) {
+      setState(() {
+        _clientDetails = details;
+      });
+
+      // print('Fetched Business Details: $_clientDetails');
+
+    }).catchError((error) {
+      print('Error fetching business details: $error');
+    });
   }
+
+
+
+  // To print the prefill location
+  // Function to fetch business details
+  Future<Map<String, dynamic>> fetchBusinessDetails(String userEmail) async {
+    final apiUrl = 'http://127.0.0.1:8000/get_client_details/?userEmail=$userEmail';
+
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to fetch business details');
+    }
+  }
+  // void initState() {
+  //   super.initState();
+  //   final userSession = Provider.of<UserSession>(context, listen: false);
+  //   final userEmail = userSession.getUserEmail() ?? '';
+  //
+  //   fetchBusinessDetails(userEmail).then((details) {
+  //     setState(() {
+  //       _clientDetails = details;
+  //     });
+  //
+  //     // print('Fetched Business Details: $_clientDetails');
+  //
+  //   }).catchError((error) {
+  //     print('Error fetching business details: $error');
+  //   });
+  // }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -229,6 +283,10 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     //final userEmail = widget.userEmail;
     // Print the user's email to the console for testing
     // print('User Email: $userEmail');
+
+
+    // Fetched business details
+    final String businessLocation = _clientDetails['businessLocation']?.toUpperCase() ?? '';
 
 
     return Scaffold(
@@ -381,7 +439,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                                         color: Colors.white, fontSize: 4.sp, fontFamily: 'Nunito', fontWeight: FontWeight.w100,
                                                       ),
                                                       decoration: InputDecoration(
-                                                        hintText: 'Pick Up Location',
+                                                        hintText: businessLocation,
                                                         hintStyle: TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito',
                                                         ),
                                                         fillColor: const Color(0xFF00a896),
