@@ -5,6 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http; // Import the http package
 import 'assets/page_loading.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:provider/provider.dart';
 
 
 // Import the pages
@@ -42,7 +46,26 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
 
   bool _showPopup = false;
+  bool _showSuccess = true; // Add this variable
   String _filter = 'All';
+
+
+  // Displays an loading message as a popup
+  void _showSuccessMessage(String message) {
+    Flushbar(
+      messageText: Text(message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.green.withOpacity(1.0),
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      margin: const EdgeInsets.only(top: 70, left: 8, right: 8),
+      maxWidth: 350,
+      borderRadius: BorderRadius.circular(25),
+      duration: const Duration(seconds: 5),
+    ).show(context);
+  }
 
 // Store the fetched deliveries
   List<Map<String, dynamic>> _deliveries = [];
@@ -53,17 +76,25 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
     super.initState();
 
 
+
+
     final userSession = Provider.of<UserSession>(context, listen: false);
     final userEmail = userSession.getUserEmail() ?? '';
-    print('User Email: $userEmail');
+    // print('User Email: $userEmail');
+
+    _showSuccessMessage('Loading, please wait.');
+
     fetchDeliveriesAndSendEmail(userEmail, 'All'); // Fetch with "All" filter initially
+
+    // _showSuccess = false;
+
+
   }
 
   Future<void> fetchDeliveriesAndSendEmail(String userEmail, String dateFilter) async {
 
 
-
-    print('Fetching deliveries with filter: $dateFilter');
+    // print('Fetching deliveries with filter: $dateFilter');
     final apiUrl = 'http://127.0.0.1:8000/fetch_deliveries/?userEmail=$userEmail&dateFilter=$dateFilter';
 
     try {
@@ -84,8 +115,15 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
           final List<dynamic> deliveries = jsonData['deliveries'];
 
           setState(() {
+            // _showSuccess = false;
             _deliveries = deliveries.cast<Map<String, dynamic>>();
+
           });
+
+          setState(() {
+            _showSuccess = false;
+          });
+
         } else {
           print('Failed to fetch deliveries: ${deliveriesResponse.statusCode}');
         }
@@ -99,8 +137,12 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
+
+
+
 
     // Get the screen size
     double screenWidth = MediaQuery.of(context).size.width;
