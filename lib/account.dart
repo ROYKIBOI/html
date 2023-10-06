@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -494,14 +495,37 @@ class _AccountPageState extends State<AccountPage> {
                               padding : EdgeInsets.only(top: screenHeight * 0.02, left: screenWidth * 0.05),
                               child : Column(crossAxisAlignment : CrossAxisAlignment.start,
                                   children:[
-                                    Text('+254 704 134 095',
-                                        style :TextStyle(color :
-                                        const Color(0xFF00a896),fontSize :screenWidth * 0.012, fontFamily : 'Nunito')),
-                                    SizedBox(height: screenHeight * 0.05),
 
-                                    Text('hello@try.ke',
-                                        style :TextStyle(color :
-                                        const Color(0xFF00a896),fontSize :screenWidth * 0.012, fontFamily : 'Nunito')),
+                                    ///ADD ETALE
+                                    // For the phone number
+                                    InkWell(
+                                      onTap: () async {
+                                        const url = 'tel:+254704134095';
+                                        if (await canLaunch(url)) {
+                                          await launch(url);
+                                        } else {
+                                          throw 'Could not launch $url';
+                                        }
+                                      },
+                                      child: Text('+254 704 134 095',
+                                          style: TextStyle(color: const Color(0xFF00a896), fontSize: screenWidth * 0.012, fontFamily: 'Nunito')),
+                                    ), SizedBox(height: screenHeight * 0.05),
+
+                                    ///ADD ETALE
+                                    // For the email
+                                    InkWell(
+                                      onTap: () async {
+                                        const url = 'mailto:hello@try.ke';
+                                        if (await canLaunch(url)) {
+                                          await launch(url);
+                                        } else {
+                                          throw 'Could not launch $url';
+                                        }
+                                      },
+                                      child: Text('hello@try.ke',
+                                          style: TextStyle(color: const Color(0xFF00a896), fontSize: screenWidth * 0.012, fontFamily: 'Nunito')),
+                                    ),
+
                                   ])
                           ),
                           Padding(padding : EdgeInsets.only(top: screenHeight * 0.1, left: screenWidth * 0.02),
