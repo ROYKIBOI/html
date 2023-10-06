@@ -38,6 +38,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   //final _formKey = GlobalKey<FormState>();
   final _logInEmailController = TextEditingController();
   final _logInPasswordController = TextEditingController();
@@ -46,6 +47,8 @@ class _LoginPageState extends State<LoginPage> {
 
 
   bool _isLoading = false;
+
+
 
   // Toggles the visibility of the password
   void _togglePasswordVisibility() {
@@ -104,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
       Provider.of<UserSession>(context, listen: false).setUserEmail(email);
 
       // Credentials are correct, navigate to the home page
-      Navigator.pushReplacement( context, MaterialPageRoute( builder: (context) => const SplashScreen( nextPage: HomePage(),),),);
+      Navigator.pushNamed(context, '/splashscreen');
 
     } else {
       // Credentials are incorrect, show an error message
@@ -229,15 +232,17 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Forgot Password button - redirects to ForgotPasswordPage when pressed
                       TextButton(onPressed : () {
-                        Navigator.push(context, MaterialPageRoute(builder:(context) => ForgotPasswordPage()));
+
+                        Navigator.pushNamed(context, '/forgotPassword');
                       },
                           child : const Text('Forgot Password?', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
                       const SizedBox(width : 50),
 
                       // Sign Up button - redirects to SignUpPage when pressed
                       TextButton(onPressed : () {
-                        Navigator.push(context, MaterialPageRoute(builder:(context) => const SignUpPage()));
-                      },
+
+                        Navigator.pushNamed(context, '/signup');
+                        },
                           child : const Text('Sign Up', style : TextStyle(fontFamily : 'Nunito', color : Color(0xFF003366), fontWeight : FontWeight.bold))),
                     ]),
                   ],
@@ -268,6 +273,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final _signUpPasswordController = TextEditingController();
   final _signUpConfirmPasswordController = TextEditingController();
   final FocusNode emailFocusNode = FocusNode();
+
+  void navigateToSignup() {
+    Navigator.pushNamed(context, '/signup');
+  }
 
   @override
   void initState() {
@@ -369,12 +378,9 @@ class _SignUpPageState extends State<SignUpPage> {
       _signUpPasswordController.clear();
 
       // TO BE DELETED
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BusinessDetailsPage(),
-        ),
-      );
+
+      Navigator.pushNamed(context, '/businessAccount');
+
     } else {
       _showErrorMessage('Failed to save user: ${response.statusCode}');
     }
@@ -553,6 +559,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
 
 
+
   @override
   void initState() {
     super.initState();
@@ -623,12 +630,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       // Navigator.push(context, MaterialPageRoute(builder: (context) => ResetPasswordPage()));
 
       // Email exists in the database, navigate to the reset page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ResetPasswordPage(email: email),
-        ),
-      );
+
+      Navigator.pushNamed(context, '/resetPassword');
 
     } else {
       // Email does not exist in the database, show an error message
@@ -801,7 +804,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
 
       // Password reset successful, you can navigate to splash screen
-      Navigator.pushReplacement( context, MaterialPageRoute( builder: (context) => const SplashScreen( nextPage: HomePage(),),),);
+
+      Navigator.pushNamed(context, '/splashscreen');
     } else {
       // Password reset failed, show an error message
       _showErrorMessage('Password reset failed. Please try again.');
@@ -962,6 +966,7 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
   String _errorMessage = '';
   // Boolean to check if terms and conditions are accepted
   bool _termsAndConditionsAccepted = false;
+
 
   // Displays an error message as a popup
   void _showErrorMessage(String message) {
@@ -1268,7 +1273,8 @@ class _BusinessDetailsPageState extends State<BusinessDetailsPage> {
 
 
                             // navigate to the next screen
-                            Navigator.pushReplacement( context, MaterialPageRoute( builder: (context) => const SplashScreen( nextPage: HomePage(),),),);
+                            Navigator.pushNamed(context, '/splashscreen');
+
                           } else if (response.statusCode == 400) {
                             // Handle validation error
                             setState(() {

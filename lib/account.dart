@@ -37,6 +37,11 @@ class _AccountPageState extends State<AccountPage> {
   bool _showDefaultImage = true;
 
 
+  void navigateToDeliveries() {
+    Navigator.pushNamed(context, 'myAccount');
+  }
+
+
 
   // To upload the image and have it in the database.
   Future<void> _uploadImage() async {
@@ -218,7 +223,8 @@ class _AccountPageState extends State<AccountPage> {
         // Business details updated successfully
         // Dismiss loading animation
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder:(context) => const AccountPage()));
+
+        Navigator.pushNamed(context, '/myAccount');
       } else {
         // // Handle error by logging the response
         // print('Failed to update business details. Response: ${response.body}');
@@ -235,17 +241,20 @@ class _AccountPageState extends State<AccountPage> {
     super.initState();
     final userSession = Provider.of<UserSession>(context, listen: false);
     final userEmail = userSession.getUserEmail() ?? '';
+    if (mounted) {
+      fetchBusinessDetails(userEmail).then((details) {
+        setState(() {
+          _clientDetails = details;
+        });
 
-    fetchBusinessDetails(userEmail).then((details) {
-      setState(() {
-        _clientDetails = details;
+        // print('Fetched Business Details: $_clientDetails');
+
+      }).catchError((error) {
+        print('Error fetching business details: $error');
       });
+    }
 
-      // print('Fetched Business Details: $_clientDetails');
 
-    }).catchError((error) {
-      print('Error fetching business details: $error');
-    });
   }
 
   @override
@@ -273,8 +282,9 @@ class _AccountPageState extends State<AccountPage> {
                       Positioned(top: screenHeight * 0.1, left: screenWidth * 0.2,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute( builder : (context) => const HomePage()));
-                          },
+
+                            Navigator.pushNamed(context, '/home');
+                            },
                     style: ElevatedButton.styleFrom(
                       primary: const Color(0xFF003366), // Background color
                       shape: RoundedRectangleBorder(
@@ -287,7 +297,7 @@ class _AccountPageState extends State<AccountPage> {
                       children: <Widget>[
                         const Icon(Icons.arrow_back, color: Colors.white), // Arrow icon
                         SizedBox(width: screenWidth * 0.01,), // Spacing between the icon and text
-                        Text('Back', style: TextStyle(fontSize: screenWidth * 0.01, color: Colors.white, fontFamily: 'Nunito')), // Text
+                        Text('Home', style: TextStyle(fontSize: screenWidth * 0.01, color: Colors.white, fontFamily: 'Nunito')), // Text
                       ],
                     ),
                   ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:client_app/home.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Widget nextPage;
+  // final Widget nextPage;
 
-  const SplashScreen({required this.nextPage});
+  // const SplashScreen({required this.nextPage});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -16,6 +17,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late Animation<Offset> _animationToday;
   late Animation<double> _animationDot;
   late Animation<double> _animationTagline;
+
+
 
   @override
   void initState() {
@@ -30,7 +33,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       // Start the animation
     _controller.forward();
     // Navigate to the next page after a delay of 3 seconds
-    Timer(const Duration(seconds: 3), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => widget.nextPage)));  }
+    Timer(const Duration(seconds: 3), () => Navigator.pushNamed(context, '/home'));  }
+
 
   @override
   void dispose() {

@@ -154,15 +154,15 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
           Navigator.pop(context, _deliveries);
 
           // Navigate to the delivery request page
-          Navigator.push( context, MaterialPageRoute( builder: (context) => DeliveryRequestPage(deliveries: _deliveries,userEmail: userEmail),
-          ),
-          );
+
+
+          Navigator.pushNamed(context, '/deliveryRequest');
         },
         handleDone: () {
           final userSession = Provider.of<UserSession>(context, listen: false);
           final userEmail = userSession.getUserEmail() ?? '';
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));
-        },
+
+          Navigator.pushNamed(context, '/home');         },
       );
     },
     );
@@ -611,8 +611,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                   style: TextStyle(fontSize: 20, fontFamily:'Nunito', fontWeight : FontWeight.bold, color: Color(0xFF00a896))),
                               onTap : () {
                                 // Navigate to the home page
-                                Navigator.push(context, MaterialPageRoute( builder: (context) => const HomePage()));
-                              },
+
+                                Navigator.pushNamed(context, '/home');                               },
                             ), const SizedBox(height: 40),
 
                             // Deliveries button
@@ -625,8 +625,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
 
                                 final userSession = Provider.of<UserSession>(context, listen: false);
                                 final userEmail = userSession.getUserEmail() ?? '';
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => DeliveriesPage(userEmail: userEmail)));
-                              },
+
+                                Navigator.pushNamed(context, '/deliveries');                              },
                             ), const SizedBox(height: 40),
 
                             // Log out button
@@ -650,14 +650,15 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                 child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                     children:[
                                       ElevatedButton(onPressed : () {
-                                        Navigator.push(context, MaterialPageRoute( builder: (context) => const AccountPage()));
-                                      }, child : const Text('My Account',
+
+                                        Navigator.pushNamed(context, '/myAccount');
+                                        }, child : const Text('My Account',
                                           style : TextStyle(color : Colors.white)),
                                           style : ElevatedButton.styleFrom(primary : const Color(0xFF00a896),
                                               shape : RoundedRectangleBorder(borderRadius : BorderRadius.circular(25)))),
-                                      const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
-
-                                          child : Icon(Icons.person, size : 40, color : Colors.white))
+                                      // const CircleAvatar(radius : 20, backgroundColor : Colors.grey,
+                                      //
+                                      //     child : Icon(Icons.person, size : 40, color : Colors.white))
                                     ])),
                           ]),
                     ),

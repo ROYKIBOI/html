@@ -38,11 +38,18 @@ class _HomePageState extends State<HomePage> {
   String _salutation = '';
   bool _showPopup = false;
 
+
+  void navigateToHome() {
+    Navigator.pushNamed(context, '/home');
+  }
+
+
   @override
   void initState() {
     super.initState();
     _updateSalutation();
   }
+
 
   void _updateSalutation() {
     final hour = DateTime.now().hour;
@@ -74,13 +81,7 @@ class _HomePageState extends State<HomePage> {
     final userSession = Provider.of<UserSession>(context, listen: false);
     final userEmail = userSession.getUserEmail() ?? '';
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DeliveriesPage(userEmail: userEmail),
-        settings: RouteSettings(name: '/deliveries'),
-      ),
-    );
+    Navigator.pushNamed(context, '/deliveries');
   }
 
   void navigateTo(BuildContext context, Widget page, String path) {
@@ -220,7 +221,9 @@ class _HomePageState extends State<HomePage> {
                                         Navigator.pop(context);
                                         // _handleDeliveryRequestNavigation;
                                         // Call the method when the button is pressed
-                                        navigateTo(context, DeliveryRequestPage(deliveries: const [], userEmail: '',), '/deliveryrequest');
+
+                                        Navigator.pushNamed(context, '/deliveryRequest');
+                                        // navigateTo(context, DeliveryRequestPage(deliveries: const [], userEmail: '',), '/deliveryrequest');
 
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -335,7 +338,9 @@ class _HomePageState extends State<HomePage> {
                                   child : Row(mainAxisAlignment : MainAxisAlignment.spaceBetween,
                                       children:[
                                         ElevatedButton(onPressed : () {
-                                          navigateTo(context, AccountPage(), '/myaccount');
+
+
+                                          Navigator.pushNamed(context, '/myAccount');
                                         },
                                             child : Text('My Account',
                                                 style : TextStyle(color : Colors.white, fontSize :3.5.sp, fontFamily:'Nunito', fontWeight : FontWeight.bold, )),
