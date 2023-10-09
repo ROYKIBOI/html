@@ -1,3 +1,5 @@
+<!--THIS  CODE DISPLAYS THE SEARCH BAR FOR A USER AND CREATES LATITUDE AND LONGITUDE VARIABLES. USES main.dart-->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,37 +25,50 @@
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="tuma_client_app">
+  <meta name="apple-mobile-web-app-title" content="flutter_google_maps">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>tuma_client_app</title>
+  <title>flutter_google_maps</title>
   <link rel="manifest" href="manifest.json">
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = null;
+    const serviceWorkerVersion = null;
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+
+  <!-- Google Maps JavaScript API with your API key -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=MAPS_API&libraries=places"></script>
+
+  <script>
+        // Initialize a basic map
+        function initMap() {
+            var input = document.getElementById('place-input');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+
+            // Add an event listener to handle place selection
+            autocomplete.addListener('place_changed', function () {
+                var place = autocomplete.getPlace();
+                if (place.geometry) {
+                    // Handle the selected place here (e.g., retrieve latitude and longitude)
+                    var latitude = place.geometry.location.lat();
+                    var longitude = place.geometry.location.lng();
+                    // You can use these latitude and longitude values as needed
+                }
+            });
+        }
+    </script>
 </head>
 <body>
-  <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
-    });
-  </script>
+<input type="text" id="place-input" placeholder="Search for a place">
+<div id="map" style="height: 400px; width: 100%;"></div>
+<script>
+        // Initialize the map when the page loads
+        window.onload = initMap;
+    </script>
 </body>
 </html>

@@ -46,11 +46,11 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
 
   bool _showPopup = false;
-  bool _showSuccess = true; // Add this variable
+  bool _isLoading = true; // Add this variable
   String _filter = 'All';
 
 
-  // Displays an loading message as a popup
+  // Displays a success message
   void _showSuccessMessage(String message) {
     Flushbar(
       messageText: Text(message,
@@ -63,7 +63,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
       margin: const EdgeInsets.only(top: 70, left: 8, right: 8),
       maxWidth: 350,
       borderRadius: BorderRadius.circular(25),
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 10),
     ).show(context);
   }
 
@@ -82,7 +82,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
     final userEmail = userSession.getUserEmail() ?? '';
     // print('User Email: $userEmail');
 
-    _showSuccessMessage('Loading, please wait.');
+    // _showSuccessMessage('Please wait.Loading...');
 
     fetchDeliveriesAndSendEmail(userEmail, 'All'); // Fetch with "All" filter initially
 
@@ -97,6 +97,10 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
     // print('Fetching deliveries with filter: $dateFilter');
     final apiUrl = 'http://127.0.0.1:8000/fetch_deliveries/?userEmail=$userEmail&dateFilter=$dateFilter';
 
+    setState(() {
+      _isLoading = true; // Set loading state to true while fetching
+    });
+
     try {
       final emailResponse = await http.get(Uri.parse(apiUrl));
 
@@ -110,7 +114,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
         if (deliveriesResponse.statusCode == 200) {
 
 
-
+          // _showSuccessMessage('vvvvvv');
           final Map<String, dynamic> jsonData = json.decode(deliveriesResponse.body);
           final List<dynamic> deliveries = jsonData['deliveries'];
 
@@ -119,13 +123,15 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
             _deliveries = deliveries.cast<Map<String, dynamic>>();
 
           });
-
           setState(() {
-            _showSuccess = false;
+            _isLoading = false; // Set loading state to true while fetching
           });
+
+
 
         } else {
           print('Failed to fetch deliveries: ${deliveriesResponse.statusCode}');
+          _isLoading = false;
         }
       } else {
         final errorResponse = json.decode(emailResponse.body);
@@ -191,6 +197,10 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 //                                         ),
 //                                       ),
 
+
+
+
+
 // Menu
                                       Row(children: [
                                         Padding(
@@ -211,6 +221,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                                   ),
                                                 ),
                                               ),
+
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
@@ -268,6 +279,8 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                         ),
                                         SizedBox(width: screenWidth * 0.015),
 
+
+
                                         // Nav bar icon
                                         MouseRegion(
                                           cursor: SystemMouseCursors.click,
@@ -282,102 +295,118 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                                       ])
                                     ])),
 
-                            Expanded(child:
-                            SingleChildScrollView(child:
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center, children: [
-                              Stack(clipBehavior: Clip.none, children: [
-                                Form(child:
-                                Column(children: [
-                                  Padding(padding:
-                                  EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
-                                      child:
-                                      const Row(mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            // Text('All Deliveries',
-                                            //     style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                          ])),
+                            // Loading message overlay
+                            if (_isLoading)
 
-                                  // Use ListView.builder to display deliveries
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: _deliveries.length,
-                                    itemBuilder: (context, index) {
-                                      final delivery = _deliveries[index];
-                                      return Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15),
-                                        ),
-                                        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                                        child: Container(
-                                          width: 1080,
-                                          height: 115,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
-                                            border: Border.all(color: const Color(0xFF003366), width: 2),
+                              Center(
+                                child: CircularProgressIndicator(),
+
+                              ),
+
+
+                              Expanded(child:
+                              SingleChildScrollView(child:
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center, children: [
+                                Stack(clipBehavior: Clip.none, children: [
+                                  Form(child:
+                                  Column(children: [
+                                    Padding(padding:
+                                    EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
+                                        child:
+                                        const Row(mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              // Text('All Deliveries',
+                                              //     style: TextStyle(fontSize: 20, fontFamily: 'Nunito', color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                            ])),
+
+                                    // Use ListView.builder to display deliveries
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: _deliveries.length,
+                                      itemBuilder: (context, index) {
+                                        final delivery = _deliveries[index];
+                                        return Card(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15),
                                           ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text('Order number:${delivery['orderNumber']}',
-                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                                          Text('Customer name: ${delivery['customerName']}',
-                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                                          Text('Customer location: ${delivery['customerLocation']}',
-                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                                          Text('Rider: ${delivery['rider']}',
-                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                                          Text('Delivery Instructions: ${delivery['extraInstructions'] == "NULL" ? 'None' : delivery['extraInstructions']}',
-                                                              style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
-                                                        ]),
+                                          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                                          child: Container(
+                                            width: 1080,
+                                            height: 115,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(20),
+                                              border: Border.all(color: const Color(0xFF003366), width: 2),
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(10),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Text('Order number:${delivery['orderNumber']}',
+                                                                style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                            Text('Customer name: ${delivery['customerName']}',
+                                                                style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                            Text('Customer location: ${delivery['customerLocation']}',
+                                                                style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                            Text('Rider: ${delivery['rider']}',
+                                                                style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                            Text('Delivery Instructions: ${delivery['extraInstructions'] == "NULL" ? 'None' : delivery['extraInstructions']}',
+                                                                style: const TextStyle(color: Color(0xFF003366), fontWeight: FontWeight.bold)),
+                                                          ]),
 
-                                                    const Spacer(),
-                                                    Align(
-                                                      alignment: Alignment.bottomRight,
-                                                      child: Container(width: 100, height: 30,
-                                                        decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius.circular(15),
-                                                          color: const Color(0xFF00a896),
-                                                        ),
-                                                        child: Center(
-                                                          child: Text(delivery['status'],
-                                                            style: TextStyle(
-                                                              color: delivery['status'] == 'To Assign' ? Colors.red
-                                                                  : delivery['status'] == 'To Pick Up' ? Colors.yellow
-                                                                  : delivery['status'] == 'En-Route' ? const Color(0xFF1B5E20)
-                                                                  : const Color(0xFF003366),
+                                                      const Spacer(),
+                                                      Align(
+                                                        alignment: Alignment.bottomRight,
+                                                        child: Container(width: 100, height: 30,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(15),
+                                                            color: const Color(0xFF00a896),
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(delivery['status'],
+                                                              style: TextStyle(
+                                                                color: delivery['status'] == 'To Assign' ? Colors.red
+                                                                    : delivery['status'] == 'To Pick Up' ? Colors.yellow
+                                                                    : delivery['status'] == 'En-Route' ? const Color(0xFF1B5E20)
+                                                                    : const Color(0xFF003366),
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    },
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                  ),
                                   ),
                                 ],
                                 ),
-                                ),
                               ],
                               ),
-                            ],
-                            ),
-                            )
-                            ),
+                              )
+                              ),
+
+
+                            // Loading message overlay
+
+
+
+
                           ]),
 
                       // Popup menu

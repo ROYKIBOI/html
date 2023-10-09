@@ -5,6 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'dart:html' as html;
+
+
 import 'dart:convert';
 import 'assets/page_loading.dart';
 
@@ -14,6 +19,7 @@ import 'home.dart';
 import 'deliveries.dart';
 import '../account.dart';
 import 'user_session.dart';
+
 
 
 // Function that returns an OutlineInputBorder with the desired properties
@@ -50,6 +56,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final _pickController = TextEditingController();
   final _locationController = TextEditingController();
   final _instructionsController = TextEditingController();
+  final places = GoogleMapsPlaces(apiKey: "AIzaSyC6peV2tSrAFIWVTEeHxJ2GvESfN_DmTto");
+
   final _costController = TextEditingController(text: NumberFormat("#,###").format(0));
 
   bool _showPopup = false;
@@ -451,31 +459,58 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                             SizedBox(height: 20.h),
 
 
-                                            SizedBox(width: 300, height: 40,
+                                            SizedBox(
+                                              width: 300,
+                                              height: 40,
                                               child: Stack(
                                                 alignment: Alignment.centerLeft,
                                                 children: [
                                                   TextFormField(
                                                     controller: _locationController,
                                                     focusNode: _locationFocusNode,
+                                                    onTap: () async {
+                                                      // Show location autocomplete when the text field is tapped.
+                                                      Prediction p = await PlacesAutocomplete.show(
+                                                        context: context,
+                                                        apiKey: "AIzaSyC6peV2tSrAFIWVTEeHxJ2GvESfN_DmTto",
+                                                        mode: Mode.overlay, // Mode.fullscreen
+                                                        language: "en",
+                                                        components: [Component(Component.country, "ke")],
+                                                      );
+
+                                                      if (p != null) {
+                                                        // Get details of the place and set it as the text field's value.
+                                                        PlacesDetailsResponse detail =
+                                                        await places.getDetailsByPlaceId(p.placeId);
+                                                        _locationController.text = detail.result.formattedAddress;
+                                                      }
+                                                    },
                                                     textAlign: TextAlign.center,
-                                                    style: TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito', fontWeight: FontWeight.w100),
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 3.sp,
+                                                        fontFamily: 'Nunito',
+                                                        fontWeight: FontWeight.w100),
                                                     decoration: InputDecoration(
-                                                        hintText: 'Delivery Location',
-                                                        hintStyle: TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito'),
-                                                        fillColor: const Color(0xFF00a896),
-                                                        filled: true,
-                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-                                                        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 50)
+                                                      hintText: 'Delivery Location',
+                                                      hintStyle:
+                                                      TextStyle(color: Colors.white, fontSize: 3.sp, fontFamily: 'Nunito'),
+                                                      fillColor: const Color(0xFF00a896),
+                                                      filled: true,
+                                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                                                      contentPadding:
+                                                      const EdgeInsets.symmetric(vertical: 8, horizontal: 50),
                                                     ),
                                                   ),
                                                   const Padding(
                                                     padding: EdgeInsets.symmetric(horizontal: 25),
-                                                    child: Text('Deliver:', style: TextStyle(color: Colors.white,fontWeight: FontWeight.w100)),
+                                                    child:
+                                                    Text('Deliver:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w100)),
                                                   ),
                                                 ],
                                               ),
                                             ),
+
                                             SizedBox(height: 20.h),
 
 
